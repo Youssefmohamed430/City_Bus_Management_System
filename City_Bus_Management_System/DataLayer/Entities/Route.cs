@@ -1,6 +1,6 @@
 ﻿namespace City_Bus_Management_System.DataLayer.Entities
 {
-    public class TripStations
+    public class Route
     {
         public required int TripId { get; set; }
         public required int StationId { get; set; }

@@ -6,6 +6,6 @@
         public required int NumberOfStations { get; set; }
         public required string BusType { get; set; }
         public required double Price { get; set; } // depends on NumberOfStations and BusType
-        public List<BookIng>? BookIngs { get; set; }
+        public List<Booking>? BookIngs { get; set; }
     }
 }

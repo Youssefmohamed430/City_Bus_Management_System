@@ -1,6 +1,6 @@
 ﻿namespace City_Bus_Management_System.DataLayer.Entities
 {
-    public class BookIng
+    public class Booking
     {
         public int BookingId { get; set; }
         public required DateTime BookingDate { get; set; } = DateTime.Now;
