@@ -9,7 +9,7 @@
         public bool IsDeleted { get; set; } = false;
         public List<TripSchedule>? TripSchedules { get; set; }
         public List<Booking>? Bookings { get; set; }
-        public List<Route>? Tripstations { get; set; }
+        public List<Route>? Routes { get; set; }
         public List<RevenueReport>? RevenueReports { get; set; }
 
     }

@@ -2,7 +2,7 @@
 {
     public class DriverRequests
     {
-        public int RequestId { get; set; }
+        public int Id { get; set; }
         public required string Name { get; set; }
         public required string SSN { get; set; }
         public required string Phone { get; set; }

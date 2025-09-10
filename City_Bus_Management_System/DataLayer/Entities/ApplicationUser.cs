@@ -9,8 +9,5 @@ namespace City_Bus_Management_System.DataLayer.Entities
         public Passenger? Passenger { get; set; }
         public Driver? Driver { get; set; }
         public List<UserNotification>? UserNotifications { get; set; }
-        public Wallet wallet { get; set; }
-        public List<Booking> BookIngs { get; set; }
-
     }
 }

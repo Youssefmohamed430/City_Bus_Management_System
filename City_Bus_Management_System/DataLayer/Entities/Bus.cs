@@ -12,5 +12,6 @@ namespace City_Bus_Management_System.DataLayer.Entities
         public bool IsDeleted { get; set; } = false;
         public List<TripSchedule>? TripSchedules { get; set; }
         public List<BusUsageReport>? BusUsageReports { get; set; }
+        public List<DriverSchedule>? DriverSchedules { get; set; }
     }
 }

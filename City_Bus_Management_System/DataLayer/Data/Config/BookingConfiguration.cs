@@ -14,9 +14,9 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
                    .WithMany(t => t.Bookings)
                    .HasForeignKey(b => b.TripId);
 
-            builder.HasOne(b => b.User)
+            builder.HasOne(b => b.passenger)
                    .WithMany(u => u.BookIngs)
-                   .HasForeignKey(b => b.UserId);
+                   .HasForeignKey(b => b.passengerId);
 
             builder.HasOne(b => b.Ticket)
                    .WithMany(ts => ts.BookIngs)

@@ -5,10 +5,10 @@
         public int BookingId { get; set; }
         public required DateTime BookingDate { get; set; } = DateTime.Now;
         public required string Status { get; set; }
-        public int UserId { get; set; }
+        public required string passengerId { get; set; }
         public int TicketId { get; set; }
         public int TripId { get; set; }
-        public ApplicationUser? User { get; set; }
+        public Passenger? passenger { get; set; }
         public Ticket? Ticket { get; set; }
         public Trip? Trip { get; set; }
     }

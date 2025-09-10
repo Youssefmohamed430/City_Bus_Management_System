@@ -5,7 +5,8 @@
         public int SchId { get; set; }
         public DateTime Date { get; set; }
         public int BusId { get; set; }
-        public int DriverId { get; set; }
+        public string DriverId { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public Bus? bus { get; set; }
         public Driver? driver { get; set; }
     }
