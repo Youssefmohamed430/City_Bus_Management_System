@@ -105,11 +105,28 @@ namespace City_Bus_Management_System.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            //var ResetLink = ;
+            var ResetLink = "/Auth/ResetPassword" ;
 
-            await emailService.SendEmailAsync(user.Email, "Reset Password", $"Click here to reset: ");
+            await emailService.SendEmailAsync(user.Email, "Reset Password", $"Click here to reset: {ResetLink}");
 
-            return new AuthModel { Message = "Reset password link has been sent." };
+            return new AuthModel {Email = user.Email , Message = "Reset password link has been sent.", IsAuthenticated = true};
+        }
+
+        public async Task<AuthModel> ResetPassword(ResetPassModel resetPass)
+        {
+            var user = await _userManager.FindByIdAsync(resetPass.Email);
+            if (user == null)
+                return new AuthModel { Message = "User Not Found" };
+
+            var result = await _userManager.ResetPasswordAsync(user, resetPass.token, resetPass.newPassword);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return new AuthModel { Message = errors };
+            }
+
+            return new AuthModel { IsAuthenticated = true, Message = "Password reset successfully." };
         }
 
     }
