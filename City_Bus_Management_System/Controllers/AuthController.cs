@@ -21,7 +21,7 @@ namespace City_Bus_Management_System.Controllers
 
             var result = await authService.LogInasync(model.UserName, model.Password);
 
-            return result.IsAuthenticated ? Ok(result) : BadRequest(result);
+            return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsPassenger(PassengerRegistertion model)
@@ -31,7 +31,14 @@ namespace City_Bus_Management_System.Controllers
 
             var result = await authService.RegisterAsPassenger(model);
 
-            return result.IsAuthenticated ? Ok(result) : BadRequest(result);
+            return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
+        }
+        [HttpPost("ForgetPassword/{Email}")]
+        public async Task<IActionResult> ForgetPassword(string Email)
+        {
+            var result = await authService.ForgotPassword(Email);
+
+            return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
     }
 }

@@ -37,6 +37,8 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseSqlServer(Connectionstring)
 );
 
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDbContext>();
+
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -76,6 +78,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<IAuthService,AuthService>();
 

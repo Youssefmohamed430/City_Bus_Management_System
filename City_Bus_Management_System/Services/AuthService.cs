@@ -5,7 +5,9 @@ using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace City_Bus_Management_System.Services
@@ -15,30 +17,47 @@ namespace City_Bus_Management_System.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
         private readonly JWTService _jwtservice;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmailService emailService;
 
-        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice)
+
+        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService)
         {
             _userManager = userManager;
             _context = context;
             _jwtservice = jwtservice;
+            _signInManager = signInManager;
+            this.emailService = emailService;
         }
 
         public async Task<AuthModel> LogInasync(string username, string password)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var result = await _signInManager.PasswordSignInAsync(
+                             username,
+                             password,
+                             isPersistent: false,
+                             lockoutOnFailure: true); 
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user ,password))
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                var token = await _jwtservice.CreateJwtToken(user);
+
+                return new AuthModelFactory()
+                    .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
+                        token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
+                        new JwtSecurityTokenHandler().WriteToken(token));
+            }
+            else if (result.IsLockedOut)
+            {
+                return new AuthModel { Message = "Account locked due to multiple invalid attempts.", IsAuthenticated = false };
+            }
+            else
+            {
                 return new AuthModel { Message = "Invalid username or password", IsAuthenticated = false };
-
-            var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
-
-
-            return new AuthModelFactory()
-                .CreateAuthModel(user.Id, user.UserName, user.Email, JWTSecurityToken.ValidTo,
-                JWTSecurityToken.Claims.Where(x => x.Type == "roles").Select(x => x.Value).ToList()
-                , new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken));
-        
+            }
         }
+
 
         public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertion model)
         {
@@ -76,5 +95,22 @@ namespace City_Bus_Management_System.Services
                 .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken));
         
         }
+        public async Task<AuthModel> ForgotPassword(string Email)
+        {
+            var user = await _userManager.FindByEmailAsync(Email);
+
+            if (user == null)
+                return new AuthModel { Message = "Email Not Found" }; 
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            //var ResetLink = ;
+
+            await emailService.SendEmailAsync(user.Email, "Reset Password", $"Click here to reset: ");
+
+            return new AuthModel { Message = "Reset password link has been sent." };
+        }
+
     }
 }

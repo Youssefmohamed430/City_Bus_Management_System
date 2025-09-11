@@ -6,5 +6,6 @@ namespace City_Bus_Management_System.Services
     {
         Task<AuthModel> LogInasync(string username, string password);
         Task<AuthModel> RegisterAsPassenger(PassengerRegistertion passenger);
+        Task<AuthModel> ForgotPassword(string Email);
     }
 }
