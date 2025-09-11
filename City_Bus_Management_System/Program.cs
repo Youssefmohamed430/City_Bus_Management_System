@@ -1,7 +1,12 @@
 using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.Entities;
+using City_Bus_Management_System.Helpers;
+using City_Bus_Management_System.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,9 +51,33 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.MaxFailedAccessAttempts = 3;
     options.Lockout.AllowedForNewUsers = true;
 });
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = false;
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = config["JWT:Issuer"],
+        ValidAudience = config["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]))
+    };
+});
+
+builder.Services.AddScoped<JWTService>();
+builder.Services.AddScoped<IAuthService,AuthService>();
 
 
 var app = builder.Build();
