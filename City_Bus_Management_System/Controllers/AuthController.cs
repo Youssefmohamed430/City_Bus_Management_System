@@ -31,7 +31,7 @@ namespace City_Bus_Management_System.Controllers
 
             var result = await authService.RegisterAsPassenger(model);
 
-            return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
+            return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
         [HttpPost("ForgetPassword/{Email}")]
         public async Task<IActionResult> ForgetPassword(string Email)
@@ -51,9 +51,9 @@ namespace City_Bus_Management_System.Controllers
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
         [HttpPost("VerifyCode/{submittedCode}")]
-        public async Task<IActionResult> VerifyCode(string submittedCode)
+        public async Task<IActionResult> VerifyCode([FromQuery]string email,string submittedCode)
         {
-            var result = authService.VerifyCode(submittedCode);
+            var result = authService.VerifyCodeAsync(email,submittedCode);
 
             if(result)
             {

@@ -24,6 +24,7 @@ namespace City_Bus_Management_System.DataLayer.Data
         public DbSet<BusUsageReport> BusUsageReports { get; set; }
         public DbSet<RevenueReport> RevenueReports { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<VerificationCode> VerificationCodes { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }

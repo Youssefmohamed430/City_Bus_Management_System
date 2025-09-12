@@ -9,7 +9,7 @@ namespace City_Bus_Management_System.Services
         Task<AuthModel> RegisterAsPassenger(PassengerRegistertion passenger);
         Task<AuthModel> ForgotPassword(string Email);
         Task<AuthModel> ResetPassword(ResetPassModel resetPassModel);
-        bool VerifyCode(string Submittedcode);
+        bool VerifyCodeAsync(string email, string submittedCode);
         Task<AuthModel> CreateUser();
     }
 }

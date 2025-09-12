@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
@@ -65,19 +66,18 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertion passengermodel)
         {
-            if (await _userManager.FindByNameAsync(model.Username) is not null)
+            if (await _userManager.FindByNameAsync(passengermodel.Username) is not null)
                 return new AuthModel() { Message = "User Name Is Already Registerd" };
 
-            if (await _userManager.FindByEmailAsync(model.Email) is not null)
+            if (await _userManager.FindByEmailAsync(passengermodel.Email) is not null)
                 return new AuthModel() { Message = "Email Is Already Registerd" };
             
-            code = VerficationAccount(email).ToString()!;
+            code = VerificationAccount(passengermodel.Email).ToString()!;
 
             model = passengermodel;
 
             return new AuthModel { Message = "Verification code sent to email.", IsAuthenticated = true };
         }
-
         public async Task<AuthModel> CreateUser()
         {
             ApplicationUser user = new ApplicationUser()
@@ -107,7 +107,6 @@ namespace City_Bus_Management_System.Services
             return new AuthModelFactory()
                 .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),"Code Verfied successfully!");
         }
-
         public async Task<AuthModel> ForgotPassword(string Email)
         {
             var user = await _userManager.FindByEmailAsync(Email);
@@ -145,20 +144,60 @@ namespace City_Bus_Management_System.Services
 
             return new AuthModel { IsAuthenticated = true, Message = "Password reset successfully." };
         }
-        private async Task<string> VerficationAccount(string email)
+        private async Task<string?> VerificationAccount(string email)
         {
             var verificationCode = Random.Shared.Next(100000, 999999).ToString();
+
             try
             {
-                await emailService.SendEmailAsync(email, "Verfication Account", $"{verificationCode} is your verfification code for your security.");
+                await emailService.SendEmailAsync(
+                    email,
+                    "Verification Account",
+                    $"{verificationCode} is your verification code for your security."
+                );
+
+                var oldCodes = _context.VerificationCodes.Where(c => c.Email == email);
+                _context.VerificationCodes.RemoveRange(oldCodes);
+
+                var newCode = new VerificationCode
+                {
+                    Email = email,
+                    Code = verificationCode,
+                    ExpiryDate = DateTime.UtcNow.AddMinutes(10),
+                };
+
+                _context.VerificationCodes.Add(newCode);
+                await _context.SaveChangesAsync();
+
                 return verificationCode;
             }
-            catch (Exception ex)
+            catch
             {
-                return "";
+                return null;
             }
         }
-        public bool VerifyCode(string Submittedcode)
-            => code == Submittedcode;
+        public bool VerifyCodeAsync(string email, string submittedCode)
+        {
+            var record = _context.VerificationCodes
+                .FirstOrDefault(c => c.Email == email);
+
+            if (record == null) return false;
+
+            if (DateTime.UtcNow > record.ExpiryDate)
+            {
+                _context.VerificationCodes.Remove(record);
+                _context.SaveChanges();
+                return false;
+            }
+
+            if (record.Code == submittedCode)
+            {
+                _context.VerificationCodes.Remove(record);
+                _context.SaveChanges();
+                return true;
+            }
+
+            return false;
+        }
     }
 }
