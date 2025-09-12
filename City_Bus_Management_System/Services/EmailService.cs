@@ -6,20 +6,28 @@ namespace City_Bus_Management_System.Services
 {
     public class EmailService : IEmailService
     {
-        public Task SendEmailAsync(string toEmail, string subject, string body)
-        {
-            var fromEmail = "youssefmohmed430@gmail.com";
-            var fromPassword = "YusefmohmedGaber2005";
+        private readonly IConfiguration _configuration;
 
-            var client = new SmtpClient("smtp.gmail.com", 587)
+        public EmailService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        {
+            var fromEmail = _configuration["EmailSettings:From"];
+            var Password = _configuration["EmailSettings:Password"];
+
+            using var client = new SmtpClient("smtp.gmail.com", 587)
             {
-                Credentials = new NetworkCredential(fromEmail, fromPassword),
+                Credentials = new NetworkCredential(fromEmail, Password),
                 EnableSsl = true
             };
 
-            return client.SendMailAsync(
-                new MailMessage(from : fromEmail,to : toEmail, subject, body)
-            );
+            using var message = new MailMessage(fromEmail, toEmail, subject, body)
+            { IsBodyHtml = true };
+
+            await client.SendMailAsync(message);
         }
     }
 }

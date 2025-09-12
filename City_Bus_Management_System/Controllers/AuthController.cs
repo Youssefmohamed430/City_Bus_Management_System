@@ -40,5 +40,28 @@ namespace City_Bus_Management_System.Controllers
 
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPassModel resetPassModel)
+        {
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await authService.ResetPassword(resetPassModel);
+
+            return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
+        }
+        [HttpPost("VerifyCode/{submittedCode}")]
+        public async Task<IActionResult> VerifyCode(string submittedCode)
+        {
+            var result = authService.VerifyCode(submittedCode);
+
+            if(result)
+            {
+                var Userresult = await authService.CreateUser();
+                return Ok(Userresult);
+            }
+            else
+                return BadRequest(new { Message = "Invalid verification code." });
+        }
     }
 }

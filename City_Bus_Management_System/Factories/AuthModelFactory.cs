@@ -4,7 +4,7 @@ namespace City_Bus_Management_System.Factories
 {
     public class AuthModelFactory
     {
-        public AuthModel CreateAuthModel(string id, string username, string email, DateTime expiresOn,List<string> roles, string JWTSecurityToken)
+        public AuthModel CreateAuthModel(string id, string username, string email, DateTime expiresOn,List<string> roles, string JWTSecurityToken,string Message = "")
         {
             return new AuthModel()
             {
