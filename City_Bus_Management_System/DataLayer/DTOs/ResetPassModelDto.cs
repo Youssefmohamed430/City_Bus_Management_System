@@ -1,6 +1,6 @@
-﻿namespace City_Bus_Management_System.DataLayer
+﻿namespace City_Bus_Management_System.DataLayer.DTOs
 {
-    public class ResetPassModel
+    public class ResetPassModelDto
     {
        public string Email { get; set; }
         public string token { get; set; }

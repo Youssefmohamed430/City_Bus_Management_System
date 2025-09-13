@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace City_Bus_Management_System.DataLayer
+namespace City_Bus_Management_System.DataLayer.DTOs
 {
-    public class PassengerRegistertion
+    public class PassengerRegistertionDto
     {
         [Required]
         public string Name { get; set; }

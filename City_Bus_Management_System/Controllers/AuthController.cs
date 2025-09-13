@@ -1,4 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
+﻿using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ namespace City_Bus_Management_System.Controllers
             this.authService = _authService;
         }
         [HttpPost("LogIn")]
-        public async Task<IActionResult> LogInAsync(LogInModel model)
+        public async Task<IActionResult> LogInAsync(LogInDto model)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -24,7 +24,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsPassenger(PassengerRegistertion model)
+        public async Task<IActionResult> RegisterAsPassenger(PassengerRegistertionDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -41,7 +41,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
         [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword(ResetPassModel resetPassModel)
+        public async Task<IActionResult> ResetPassword(ResetPassModelDto resetPassModel)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -53,15 +53,25 @@ namespace City_Bus_Management_System.Controllers
         [HttpPost("VerifyCode/{submittedCode}")]
         public async Task<IActionResult> VerifyCode([FromQuery]string email,string submittedCode)
         {
-            var result = authService.VerifyCodeAsync(email,submittedCode);
+            var result = authService.VerifyCode(email,submittedCode);
 
             if(result)
             {
-                var Userresult = await authService.CreateUser();
+                var Userresult = await authService.CreateUser(email);
                 return Ok(Userresult);
             }
             else
                 return BadRequest(new { Message = "Invalid verification code." });
+        }
+        [HttpPost("DriverRequest")]
+        public async Task<IActionResult> DriverRequest(DriverRequestDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await authService.DriverRequest(model);
+
+            return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
     }
 }

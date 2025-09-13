@@ -5,6 +5,8 @@ using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -81,6 +83,7 @@ builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddMemoryCache();
 
 
 var app = builder.Build();

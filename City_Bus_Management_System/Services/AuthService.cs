@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer;
 using City_Bus_Management_System.DataLayer.Data;
+using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,10 +27,10 @@ namespace City_Bus_Management_System.Services
         private readonly IEmailService emailService;
         private string email;
         private readonly IConfiguration _configuration;
-        public string code;
-        public PassengerRegistertion model;
+        private readonly IMemoryCache _cache;
 
-        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IConfiguration configuration)
+
+        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IConfiguration configuration, IMemoryCache cache)
         {
             _userManager = userManager;
             _context = context;
@@ -36,6 +38,7 @@ namespace City_Bus_Management_System.Services
             _signInManager = signInManager;
             this.emailService = emailService;
             _configuration = configuration;
+            _cache = cache;
         }
         public async Task<AuthModel> LogInasync(string username, string password)
         {
@@ -64,22 +67,26 @@ namespace City_Bus_Management_System.Services
                 return new AuthModel { Message = "Invalid username or password", IsAuthenticated = false };
             }
         }
-        public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertion passengermodel)
+        public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertionDto passengermodel)
         {
             if (await _userManager.FindByNameAsync(passengermodel.Username) is not null)
                 return new AuthModel() { Message = "User Name Is Already Registerd" };
 
             if (await _userManager.FindByEmailAsync(passengermodel.Email) is not null)
                 return new AuthModel() { Message = "Email Is Already Registerd" };
-            
-            code = VerificationAccount(passengermodel.Email).ToString()!;
 
-            model = passengermodel;
+            await VerificationAccount(passengermodel.Email);
+
+            var cacheKey = $"passenger:{passengermodel.Email}";
+            _cache.Set(cacheKey,passengermodel, TimeSpan.FromMinutes(10));
 
             return new AuthModel { Message = "Verification code sent to email.", IsAuthenticated = true };
         }
-        public async Task<AuthModel> CreateUser()
+        public async Task<AuthModel> CreateUser(string email)
         {
+            if(!_cache.TryGetValue($"passenger:{email}", out PassengerRegistertionDto? model))
+                return new AuthModel() { Message = "Verification code expired or invalid." };
+
             ApplicationUser user = new ApplicationUser()
             {
                 UserName = model.Username,
@@ -104,6 +111,9 @@ namespace City_Bus_Management_System.Services
 
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
             return new AuthModelFactory()
                 .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),"Code Verfied successfully!");
         }
@@ -125,7 +135,7 @@ namespace City_Bus_Management_System.Services
 
             return new AuthModel { Message = "Reset password link has been sent.", IsAuthenticated = true};
         }
-        public async Task<AuthModel> ResetPassword(ResetPassModel resetPassModel)
+        public async Task<AuthModel> ResetPassword(ResetPassModelDto resetPassModel)
         {
             var user = await _userManager.FindByEmailAsync(resetPassModel.Email);
 
@@ -156,18 +166,7 @@ namespace City_Bus_Management_System.Services
                     $"{verificationCode} is your verification code for your security."
                 );
 
-                var oldCodes = _context.VerificationCodes.Where(c => c.Email == email);
-                _context.VerificationCodes.RemoveRange(oldCodes);
-
-                var newCode = new VerificationCode
-                {
-                    Email = email,
-                    Code = verificationCode,
-                    ExpiryDate = DateTime.UtcNow.AddMinutes(10),
-                };
-
-                _context.VerificationCodes.Add(newCode);
-                await _context.SaveChangesAsync();
+                _cache.Set(email, verificationCode, TimeSpan.FromMinutes(10));
 
                 return verificationCode;
             }
@@ -176,28 +175,29 @@ namespace City_Bus_Management_System.Services
                 return null;
             }
         }
-        public bool VerifyCodeAsync(string email, string submittedCode)
+        public bool VerifyCode(string email, string submittedCode)
         {
-            var record = _context.VerificationCodes
-                .FirstOrDefault(c => c.Email == email);
-
-            if (record == null) return false;
-
-            if (DateTime.UtcNow > record.ExpiryDate)
+            if (_cache.TryGetValue(email, out string? code))
             {
-                _context.VerificationCodes.Remove(record);
-                _context.SaveChanges();
-                return false;
+                return code == submittedCode;
             }
-
-            if (record.Code == submittedCode)
-            {
-                _context.VerificationCodes.Remove(record);
-                _context.SaveChanges();
-                return true;
-            }
-
             return false;
+        }
+        public async Task<AuthModel> DriverRequest(DriverRequestDTO model)
+        {
+            var driverR = new DriverRequests
+            {
+                Name = model.Name,
+                Email = model.Email,
+                Phone = model.Phone,
+                SSN = model.SSN,
+            };
+
+            _context.DriverRequests.Add(driverR);
+
+            await _context.SaveChangesAsync();
+
+            return new AuthModel { IsAuthenticated = true , Message = "Driver request submitted successfully." };
         }
     }
 }
