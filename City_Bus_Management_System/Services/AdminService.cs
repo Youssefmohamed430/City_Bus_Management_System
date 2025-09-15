@@ -25,6 +25,9 @@ namespace City_Bus_Management_System.Services
         {
             var request = context.DriverRequests.FirstOrDefault(x => x.Id == RequestId);
 
+            if(request == null)
+                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null };
+
             request.Status = "Accept";
 
             context.Update(request);
@@ -92,6 +95,9 @@ namespace City_Bus_Management_System.Services
         public async Task<ResponseModel<DriverRequests>> RejectDriverRequest(int RequestId)
         {
             var request = context.DriverRequests.FirstOrDefault(x => x.Id == RequestId);
+
+            if (request == null)
+                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null };
 
             request.Status = "Rejected";
 

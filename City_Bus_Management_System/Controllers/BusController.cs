@@ -8,7 +8,7 @@ namespace City_Bus_Management_System.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class BusController : Controller
     {
         private readonly IBusService busService;
