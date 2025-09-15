@@ -199,6 +199,37 @@ namespace City_Bus_Management_System.Services
 
             return new AuthModel { IsAuthenticated = true , Message = "Driver request submitted successfully." };
         }
-        
+        public async Task<AuthModel> CreateAdmin(AdminDTO model)
+        {
+            ApplicationUser user = new ApplicationUser()
+            {
+                UserName = model.Username,
+                Name = model.Name,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                var errors = "";
+
+                foreach (var error in result.Errors)
+                    errors += $"{error.Description}, ";
+
+                return new AuthModel() { Message = errors };
+            }
+
+            await _userManager.AddToRoleAsync(user, "Admin");
+
+            var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
+
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
+            return new AuthModelFactory()
+                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken));
+        }
     }
 }

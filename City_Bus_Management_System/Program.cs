@@ -84,6 +84,7 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<IAdminService,AdminService>();
+builder.Services.AddScoped<IBusService,BusService>();
 builder.Services.AddMemoryCache();
 
 

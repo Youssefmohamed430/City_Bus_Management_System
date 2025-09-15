@@ -13,5 +13,6 @@ namespace City_Bus_Management_System.Services
         bool VerifyCode(string email, string submittedCode);
         Task<AuthModel> CreateUser(string email);
         Task<AuthModel> DriverRequest(DriverRequestDTO model);
+        Task<AuthModel> CreateAdmin(AdminDTO model);
     }
 }

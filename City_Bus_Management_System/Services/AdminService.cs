@@ -101,9 +101,15 @@ namespace City_Bus_Management_System.Services
 
             await emailService.SendEmailAsync(request.Email,
                  "Reject Request To CityBus"
-                ,"I am Sorry your request is Rejected");
+                , "I am Sorry your request is Rejected");
 
             return new ResponseModel<DriverRequests> { Message = "Reject Request To CityBus", Result = null };
+        }
+        public ResponseModel<List<DriverRequests>> GetRequests()
+        {
+            var requests = context.DriverRequests.Where(_ => true);
+
+            return new ResponseModel<List<DriverRequests>> { Message = "All Requests", Result = requests.ToList() };
         }
     }
 }

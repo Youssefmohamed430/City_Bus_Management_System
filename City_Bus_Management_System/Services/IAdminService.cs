@@ -7,5 +7,6 @@ namespace City_Bus_Management_System.Services
     {
         Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId);
         Task<ResponseModel<DriverRequests>> RejectDriverRequest(int RequestId);
+        ResponseModel<List<DriverRequests>> GetRequests();
     }
 }

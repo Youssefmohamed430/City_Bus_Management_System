@@ -81,5 +81,12 @@ namespace City_Bus_Management_System.Controllers
         {
             return Ok(dbContext.Users.ToList());
         }
+        [HttpPost("CreateAdmin")]
+        public async Task<IActionResult> CreateAdmin(AdminDTO model)
+        {
+            var result = await authService.CreateAdmin(model);
+
+            return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
+        }
     }
 }
