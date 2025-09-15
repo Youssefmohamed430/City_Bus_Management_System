@@ -199,5 +199,6 @@ namespace City_Bus_Management_System.Services
 
             return new AuthModel { IsAuthenticated = true , Message = "Driver request submitted successfully." };
         }
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿using City_Bus_Management_System.DataLayer.DTOs;
+﻿using City_Bus_Management_System.DataLayer.Data;
+using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,14 +10,16 @@ namespace City_Bus_Management_System.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService authService;
-        public AuthController(IAuthService _authService)
+        private readonly AppDbContext dbContext;
+        public AuthController(IAuthService _authService,AppDbContext context)
         {
             this.authService = _authService;
+            this.dbContext = context;
         }
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogInAsync(LogInDto model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var result = await authService.LogInasync(model.UserName, model.Password);
@@ -43,7 +46,7 @@ namespace City_Bus_Management_System.Controllers
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPassModelDto resetPassModel)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var result = await authService.ResetPassword(resetPassModel);
@@ -51,11 +54,11 @@ namespace City_Bus_Management_System.Controllers
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
         [HttpPost("VerifyCode/{submittedCode}")]
-        public async Task<IActionResult> VerifyCode([FromQuery]string email,string submittedCode)
+        public async Task<IActionResult> VerifyCode([FromQuery] string email, string submittedCode)
         {
-            var result = authService.VerifyCode(email,submittedCode);
+            var result = authService.VerifyCode(email, submittedCode);
 
-            if(result)
+            if (result)
             {
                 var Userresult = await authService.CreateUser(email);
                 return Ok(Userresult);
@@ -72,6 +75,11 @@ namespace City_Bus_Management_System.Controllers
             var result = await authService.DriverRequest(model);
 
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
+        }
+        [HttpGet]
+        public IActionResult GetUsers()
+        {
+            return Ok(dbContext.Users.ToList());
         }
     }
 }

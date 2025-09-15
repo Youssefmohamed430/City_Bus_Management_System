@@ -83,16 +83,17 @@ builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<IAdminService,AdminService>();
 builder.Services.AddMemoryCache();
 
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseCors("MyPolicy");
 
