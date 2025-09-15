@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer;
 using City_Bus_Management_System.DataLayer.Data;
+using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
@@ -111,11 +112,19 @@ namespace City_Bus_Management_System.Services
 
             return new ResponseModel<DriverRequests> { Message = "Reject Request To CityBus", Result = null };
         }
-        public ResponseModel<List<DriverRequests>> GetRequests()
+        public ResponseModel<List<DriverRequestDTO>> GetRequests()
         {
-            var requests = context.DriverRequests.Where(_ => true);
+            var requests = context.DriverRequests
+                .Where(_ => true)
+                .Select(x => new DriverRequestDTO { 
+                    Id = x.Id,
+                    Name = x.Name,
+                    SSN = x.SSN,
+                    Phone = x.Phone,
+                    Email = x.Email
+                }) ;
 
-            return new ResponseModel<List<DriverRequests>> { Message = "All Requests", Result = requests.ToList() };
+            return new ResponseModel<List<DriverRequestDTO>> { Message = "All Requests", Result = requests.ToList() };
         }
     }
 }

@@ -69,6 +69,7 @@ namespace City_Bus_Management_System.Services
         {
             var buses = context.Buses.Select(b => new BusDTO
             {
+                Id = b.BusId,
                 BusCode = b.BusCode,
                 BusType = b.BusType,
                 TotalSeats = b.TotalSeats
@@ -95,6 +96,7 @@ namespace City_Bus_Management_System.Services
             .Where(b => b.BusCode == Code)
             .Select(b => new BusDTO
             {
+                Id = b.BusId,
                 BusCode = b.BusCode,
                 BusType = b.BusType,
                 TotalSeats = b.TotalSeats
@@ -121,6 +123,7 @@ namespace City_Bus_Management_System.Services
             .Where(b => b.BusType == Type)
             .Select(b => new BusDTO
             {
+                Id = b.BusId,
                 BusCode = b.BusCode,
                 BusType = b.BusType,
                 TotalSeats = b.TotalSeats

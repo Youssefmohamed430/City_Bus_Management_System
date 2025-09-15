@@ -4,6 +4,7 @@ namespace City_Bus_Management_System.DataLayer.DTOs
 {
     public class DriverRequestDTO
     {
+        public int Id { get; set; }
         [Required]
         public required string Name { get; set; }
         [Required]
