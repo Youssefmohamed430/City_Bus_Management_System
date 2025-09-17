@@ -2,6 +2,7 @@
 using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
+using Mapster;
 
 namespace City_Bus_Management_System.Services
 {
@@ -14,12 +15,7 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<ResponseModel<BusDTO>> AddBus(BusDTO Newbus)
         {
-            Bus bus = new Bus
-            {
-                BusCode = Newbus.BusCode,
-                BusType = Newbus.BusType,
-                TotalSeats = Newbus.TotalSeats
-            };
+            var bus = Newbus.Adapt<Bus>();
 
             try
             {
@@ -67,15 +63,11 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<BusDTO>> GetBuses()
         {
-            var buses = context.Buses.Select(b => new BusDTO
-            {
-                Id = b.BusId,
-                BusCode = b.BusCode,
-                BusType = b.BusType,
-                TotalSeats = b.TotalSeats
-            }).ToList();
+            var buses = context.Buses
+                .ProjectToType<BusDTO>()
+                .ToList();
 
-            if(buses.Count == 0)
+            if (buses.Count == 0)
             {
                 return new ResponseModel<List<BusDTO>>
                 {
@@ -94,13 +86,8 @@ namespace City_Bus_Management_System.Services
         {
             var bus = context.Buses
             .Where(b => b.BusCode == Code)
-            .Select(b => new BusDTO
-            {
-                Id = b.BusId,
-                BusCode = b.BusCode,
-                BusType = b.BusType,
-                TotalSeats = b.TotalSeats
-            }).FirstOrDefault();
+            .ProjectToType<BusDTO>()
+            .FirstOrDefault();
 
             if (bus == null)
             {
@@ -120,14 +107,9 @@ namespace City_Bus_Management_System.Services
         public ResponseModel<List<BusDTO>> GetBusByType(string Type)
         {
             var bus = context.Buses
+            .ProjectToType<BusDTO>()
             .Where(b => b.BusType == Type)
-            .Select(b => new BusDTO
-            {
-                Id = b.BusId,
-                BusCode = b.BusCode,
-                BusType = b.BusType,
-                TotalSeats = b.TotalSeats
-            }).ToList();
+            .ToList();
 
             if (bus.Count == 0)
             {
@@ -151,6 +133,7 @@ namespace City_Bus_Management_System.Services
             bus.BusCode = Editedbus.BusCode;
             bus.BusType = Editedbus.BusType;
             bus.TotalSeats = Editedbus.TotalSeats;
+
             try
             {
                 context.Buses.Update(bus);
