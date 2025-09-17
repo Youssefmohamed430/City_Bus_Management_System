@@ -11,7 +11,7 @@ namespace City_Bus_Management_System.Controllers
     {
         private readonly IAuthService authService;
         private readonly AppDbContext dbContext;
-        public AuthController(IAuthService _authService,AppDbContext context)
+        public AuthController(IAuthService _authService, AppDbContext context)
         {
             this.authService = _authService;
             this.dbContext = context;
@@ -24,6 +24,9 @@ namespace City_Bus_Management_System.Controllers
 
             var result = await authService.LogInasync(model.UserName, model.Password);
 
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
             return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPost("Register")]
@@ -33,6 +36,8 @@ namespace City_Bus_Management_System.Controllers
                 return BadRequest(ModelState);
 
             var result = await authService.RegisterAsPassenger(model);
+
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
@@ -86,7 +91,57 @@ namespace City_Bus_Management_System.Controllers
         {
             var result = await authService.CreateAdmin(model);
 
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
             return result.IsAuthenticated ? Ok(result) : BadRequest(result.Message);
+        }
+
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized(new { Message = "No refresh token provided." });
+
+            var result = await authService.RefreshToken(refreshToken);
+
+            if(!result.IsAuthenticated)
+                return BadRequest(result.Message);
+
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
+            return result.IsAuthenticated ? Ok(result) : Unauthorized(result.Message);
+
+        }
+        [HttpPost("revokeToken")]
+        public async Task<IActionResult> RevokeToken([FromBody] RevokeToken model)
+        {
+            var token = model.Token ?? Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Token is required!");
+
+            var result = await authService.RevokeTokenAsync(token);
+
+            if (!result)
+                return BadRequest("Token is invalid!");
+
+            return Ok();
+        }
+        private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
         }
     }
 }

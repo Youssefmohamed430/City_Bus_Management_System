@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.DataLayer
+﻿using System.Text.Json.Serialization;
+
+namespace City_Bus_Management_System.DataLayer
 {
     public class AuthModel
     {
@@ -9,7 +11,10 @@
         public string? Email { get; set; }
         public List<string>? Roles { get; set; }
         public string? Token { get; set; }
-        public DateTime? ExpiresOn { get; set; }
+        [JsonIgnore]
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiration { get; set; }
+        //public DateTime? ExpiresOn { get; set; }
 
     }
 }

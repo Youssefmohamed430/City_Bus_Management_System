@@ -14,5 +14,7 @@ namespace City_Bus_Management_System.Services
         Task<AuthModel> CreateUser(string email);
         Task<AuthModel> DriverRequest(DriverRequestDTO model);
         Task<AuthModel> CreateAdmin(AdminDTO model);
+        Task<AuthModel> RefreshToken(string token);
+        Task<bool> RevokeTokenAsync(string token);
     }
 }

@@ -74,7 +74,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidIssuer = config["JWT:Issuer"],
         ValidAudience = config["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"])),
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -100,9 +101,9 @@ app.UseCors("MyPolicy");
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllers();
 

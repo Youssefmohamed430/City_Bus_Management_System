@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,10 +54,27 @@ namespace City_Bus_Management_System.Services
                 var user = await _userManager.FindByNameAsync(username);
                 var token = await _jwtservice.CreateJwtToken(user);
 
-                return new AuthModelFactory()
+                if (user.RefreshTokens.Any(t => t.IsActive))
+                {
+                    var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
+                    
+                    return new AuthModelFactory()
                     .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
                         token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
-                        new JwtSecurityTokenHandler().WriteToken(token));
+                        new JwtSecurityTokenHandler().WriteToken(token),activeRefreshToken.Token,activeRefreshToken.ExpiresOn);
+                }
+                else
+                {
+                    var refreshToken = GenerateRefreshToken();
+
+                    user.RefreshTokens.Add(refreshToken);
+                    await _userManager.UpdateAsync(user);
+
+                    return new AuthModelFactory()
+                    .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
+                        token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
+                        new JwtSecurityTokenHandler().WriteToken(token), refreshToken.Token, refreshToken.ExpiresOn); 
+                }         
             }
             else if (result.IsLockedOut)
             {
@@ -112,10 +130,12 @@ namespace City_Bus_Management_System.Services
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
             user.EmailConfirmed = true;
+            var refreshToken = GenerateRefreshToken();
+            user.RefreshTokens?.Add(refreshToken);
             await _userManager.UpdateAsync(user);
 
             return new AuthModelFactory()
-                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),"Code Verfied successfully!");
+                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn,"Code Verfied successfully!");
         }
         public async Task<AuthModel> ForgotPassword(string Email)
         {
@@ -226,10 +246,69 @@ namespace City_Bus_Management_System.Services
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
             user.EmailConfirmed = true;
+            var refreshToken = GenerateRefreshToken();
+            user.RefreshTokens?.Add(refreshToken);
             await _userManager.UpdateAsync(user);
 
             return new AuthModelFactory()
-                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken));
+                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn);
+        }
+        private RefreshToken GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+
+            RandomNumberGenerator.Fill(randomNumber);
+
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(10),
+                CreatedOn = DateTime.UtcNow
+            };
+        }
+
+        public async Task<AuthModel> RefreshToken(string token)
+        {
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
+
+            if(user == null)
+                return new AuthModel { Message = "Invalid token." };
+
+            var refreshToken = user.RefreshTokens.Single(t => t.Token == token);
+
+            if (!refreshToken.IsActive)
+                return new AuthModel { Message = "InActive token." };
+
+            refreshToken.RevokedOn = DateTime.UtcNow;
+
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshTokens.Add(newRefreshToken);
+            await _userManager.UpdateAsync(user);
+
+            var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
+
+            return new AuthModelFactory()
+                .CreateAuthModel(user.Id, user.UserName, user.Email, JWTSecurityToken.ValidTo,
+                    JWTSecurityToken.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
+                    new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken), newRefreshToken.Token, newRefreshToken.ExpiresOn);
+        }
+        public async Task<bool> RevokeTokenAsync(string token)
+        {
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
+
+            if (user == null)
+                return false;
+
+            var refreshToken = user.RefreshTokens.Single(t => t.Token == token);
+
+            if (!refreshToken.IsActive)
+                return false;
+
+            refreshToken.RevokedOn = DateTime.UtcNow;
+
+            await _userManager.UpdateAsync(user);
+
+            return true; 
         }
     }
 }
