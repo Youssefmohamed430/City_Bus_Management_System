@@ -266,7 +266,6 @@ namespace City_Bus_Management_System.Services
                 CreatedOn = DateTime.UtcNow
             };
         }
-
         public async Task<AuthModel> RefreshToken(string token)
         {
             var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));

@@ -44,7 +44,7 @@ namespace City_Bus_Management_System.Helpers
                     issuer: _jwt.Issuer,    
                     audience: _jwt.Audience,
                     claims: claims,
-                    expires: DateTime.Now.AddDays(_jwt.DurationInDays),
+                    expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
                     signingCredentials: signingCredentials
                 );
 
