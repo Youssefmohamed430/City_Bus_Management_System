@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.DataLayer.Entities
+﻿using City_Bus_Management_System.Services;
+
+namespace City_Bus_Management_System.DataLayer.Entities
 {
     public class DriverSchedule
     {
