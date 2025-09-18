@@ -15,12 +15,14 @@ namespace City_Bus_Management_System.Services
         private AppDbContext context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService emailService;
+        private readonly ILogger<AdminService> logger;
 
-        public AdminService(AppDbContext _context, UserManager<ApplicationUser> userManager, IEmailService emailService)
+        public AdminService(AppDbContext _context, UserManager<ApplicationUser> userManager, IEmailService emailService, ILogger<AdminService> logger)
         {
             this.context = _context;
             this._userManager = userManager;
             this.emailService = emailService;
+            this.logger = logger;
         }
 
         public async Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId)
@@ -52,6 +54,8 @@ namespace City_Bus_Management_System.Services
 
                 foreach (var error in result.Errors)
                     errors += $"{error.Description}, ";
+
+                logger.LogError("Error Creating Driver User: {Errors}", errors);
 
                 return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = errors, Result = null };
             }

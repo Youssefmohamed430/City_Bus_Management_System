@@ -7,10 +7,12 @@ namespace City_Bus_Management_System.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailService> logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            this.logger = logger;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -28,6 +30,8 @@ namespace City_Bus_Management_System.Services
             { IsBodyHtml = true };
 
             await client.SendMailAsync(message);
+
+            logger.LogError("Happend Error at Email Service");
         }
     }
 }

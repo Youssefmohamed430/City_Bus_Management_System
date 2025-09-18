@@ -124,6 +124,8 @@ namespace City_Bus_Management_System.Services
                 foreach (var error in result.Errors)
                     errors += $"{error.Description}, ";
 
+                logger.LogError("Failed to create user {Email}. Errors: {Errors}", email, errors);
+
                 return new AuthModel() { Message = errors };
             }
 
@@ -135,6 +137,8 @@ namespace City_Bus_Management_System.Services
             var refreshToken = GenerateRefreshToken();
             user.RefreshTokens?.Add(refreshToken);
             await _userManager.UpdateAsync(user);
+
+            logger.LogInformation("Passenger account created successfully for {Email}", email);
 
             return new AuthModelFactory()
                 .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn,"Code Verfied successfully!");

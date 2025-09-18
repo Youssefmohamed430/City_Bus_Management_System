@@ -9,9 +9,11 @@ namespace City_Bus_Management_System.Services
     public class BusService : IBusService
     {
         private AppDbContext context;
-        public BusService(AppDbContext context)
+        private ILogger<BusService> logger;
+        public BusService(AppDbContext context, ILogger<BusService> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
         public async Task<ResponseModel<BusDTO>> AddBus(BusDTO Newbus)
         {
@@ -21,6 +23,7 @@ namespace City_Bus_Management_System.Services
             {
                 await context.Buses.AddAsync(bus);
                 await context.SaveChangesAsync();
+
                 return new ResponseModel<BusDTO>
                 {
                     Message = "Bus added successfully",
@@ -29,10 +32,12 @@ namespace City_Bus_Management_System.Services
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Error adding bus");
+
                 return new ResponseModel<BusDTO>
                 {
                     Message = ex.Message,
-                    Result = null
+                    Result = null!
                 };
             }
         }
@@ -54,6 +59,8 @@ namespace City_Bus_Management_System.Services
             }
             catch(Exception ex)
             {
+                logger.LogError(ex, "Error Deleteing bus");
+
                 return new ResponseModel<BusDTO>
                 {
                     Message = ex.Message,
@@ -148,6 +155,8 @@ namespace City_Bus_Management_System.Services
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Error updating bus");
+
                 return new ResponseModel<BusDTO>
                 {
                     Message = ex.Message,
