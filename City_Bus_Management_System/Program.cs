@@ -12,6 +12,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddLogging(cfg => cfg.AddDebug());
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

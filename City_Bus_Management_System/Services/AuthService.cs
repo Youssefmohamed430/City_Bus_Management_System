@@ -29,9 +29,10 @@ namespace City_Bus_Management_System.Services
         private readonly IEmailService emailService;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<AuthService> logger;
 
 
-        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IConfiguration configuration, IMemoryCache cache)
+        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IConfiguration configuration, IMemoryCache cache, ILogger<AuthService> _logger)
         {
             _userManager = userManager;
             _context = context;
@@ -40,15 +41,18 @@ namespace City_Bus_Management_System.Services
             this.emailService = emailService;
             _configuration = configuration;
             _cache = cache;
+            this.logger = _logger;
         }
         public async Task<AuthModel> LogInasync(string username, string password)
         {
+            logger.LogInformation("Login attempt for user {UserName}", username);
+
             var result = await _signInManager.PasswordSignInAsync(
                              username,
                              password,
                              isPersistent: false,
-                             lockoutOnFailure: true); 
-
+                             lockoutOnFailure: true);
+            
             if (result.Succeeded)
             {   
                 var user = await _userManager.FindByNameAsync(username);
@@ -78,10 +82,14 @@ namespace City_Bus_Management_System.Services
             }
             else if (result.IsLockedOut)
             {
+                logger.LogWarning("User {UserName} account locked out", username);
+
                 return new AuthModel { Message = "Account locked due to multiple invalid attempts.", IsAuthenticated = false };
             }
             else
             {
+                logger.LogWarning("Invalid login for {UserName}", username);
+                
                 return new AuthModel { Message = "Invalid username or password", IsAuthenticated = false };
             }
         }
