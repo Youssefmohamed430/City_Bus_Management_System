@@ -37,8 +37,6 @@ namespace City_Bus_Management_System.Controllers
 
             var result = await authService.RegisterAsPassenger(model);
 
-            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-
             return result.IsAuthenticated ? Ok(result.Message) : BadRequest(result.Message);
         }
         [HttpPost("ForgetPassword/{Email}")]
@@ -66,6 +64,9 @@ namespace City_Bus_Management_System.Controllers
             if (result)
             {
                 var Userresult = await authService.CreateUser(email);
+
+                SetRefreshTokenInCookie(Userresult.RefreshToken, Userresult.RefreshTokenExpiration);
+
                 return Ok(Userresult);
             }
             else

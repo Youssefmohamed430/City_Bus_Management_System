@@ -11,7 +11,7 @@ namespace City_Bus_Management_System.DataLayer.DTOs
         [Required]
         public string PhoneNumber { get; set; }
         [Required]
-        public string Username { get; set; }
+        public string UserName { get; set; }
         [Required]
         public string Password { get; set; }
     }

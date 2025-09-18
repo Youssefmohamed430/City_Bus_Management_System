@@ -4,6 +4,7 @@ using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -27,7 +28,7 @@ namespace City_Bus_Management_System.Services
             var request = context.DriverRequests.FirstOrDefault(x => x.Id == RequestId);
 
             if(request == null)
-                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null };
+                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null! };
 
             request.Status = "Accept";
 
@@ -70,7 +71,6 @@ namespace City_Bus_Management_System.Services
 
             return new ResponseModel<DriverRequests> { Message = "Request Accepted", Result = request };
         }
-
         private async Task SendAcceptedEmail(DriverRequests request, ApplicationUser Driveruser, string password)
         {
             var body = $@"
@@ -92,7 +92,6 @@ namespace City_Bus_Management_System.Services
                 body
             );
         }
-
         public async Task<ResponseModel<DriverRequests>> RejectDriverRequest(int RequestId)
         {
             var request = context.DriverRequests.FirstOrDefault(x => x.Id == RequestId);
@@ -106,23 +105,19 @@ namespace City_Bus_Management_System.Services
 
             context.SaveChanges();
 
-            await emailService.SendEmailAsync(request.Email,
-                 "Reject Request To CityBus"
-                , "I am Sorry your request is Rejected");
+            var body = $@"<p>Your request has been <strong>accepted</strong>.</p> 
+                        <hr>
+                       <p style='font-size:12px;color:#7f8c8d;'>CityBus Team</p>";
+
+            await emailService.SendEmailAsync(request.Email,"Reject Request To CityBus",body);
 
             return new ResponseModel<DriverRequests> { Message = "Reject Request To CityBus", Result = null };
         }
         public ResponseModel<List<DriverRequestDTO>> GetRequests()
         {
             var requests = context.DriverRequests
-                .Where(_ => true)
-                .Select(x => new DriverRequestDTO { 
-                    Id = x.Id,
-                    Name = x.Name,
-                    SSN = x.SSN,
-                    Phone = x.Phone,
-                    Email = x.Email
-                }) ;
+                .ProjectToType<DriverRequestDTO>()
+                .ToList();
 
             return new ResponseModel<List<DriverRequestDTO>> { Message = "All Requests", Result = requests.ToList() };
         }

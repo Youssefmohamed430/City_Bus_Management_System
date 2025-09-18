@@ -4,6 +4,7 @@ using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -26,7 +27,6 @@ namespace City_Bus_Management_System.Services
         private readonly JWTService _jwtservice;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService emailService;
-        private string email;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
 
@@ -87,7 +87,7 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertionDto passengermodel)
         {
-            if (await _userManager.FindByNameAsync(passengermodel.Username) is not null)
+            if (await _userManager.FindByNameAsync(passengermodel.UserName) is not null)
                 return new AuthModel() { Message = "User Name Is Already Registerd" };
 
             if (await _userManager.FindByEmailAsync(passengermodel.Email) is not null)
@@ -105,13 +105,7 @@ namespace City_Bus_Management_System.Services
             if(!_cache.TryGetValue($"passenger:{email}", out PassengerRegistertionDto? model))
                 return new AuthModel() { Message = "Verification code expired or invalid." };
 
-            ApplicationUser user = new ApplicationUser()
-            {
-                UserName = model.Username,
-                Name = model.Name,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber
-            };
+            var user = model.Adapt<ApplicationUser>();
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -135,7 +129,7 @@ namespace City_Bus_Management_System.Services
             await _userManager.UpdateAsync(user);
 
             return new AuthModelFactory()
-                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn,"Code Verfied successfully!");
+                .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn,"Code Verfied successfully!");
         }
         public async Task<AuthModel> ForgotPassword(string Email)
         {
@@ -205,13 +199,15 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> DriverRequest(DriverRequestDTO model)
         {
-            var driverR = new DriverRequests
-            {
-                Name = model.Name,
-                Email = model.Email,
-                Phone = model.Phone,
-                SSN = model.SSN,
-            };
+            //var driverR = new DriverRequests
+            //{
+            //    Name = model.Name,
+            //    Email = model.Email,
+            //    Phone = model.Phone,
+            //    SSN = model.SSN,
+            //};
+
+            var driverR = model.Adapt<DriverRequests>();
 
             _context.DriverRequests.Add(driverR);
 
@@ -221,13 +217,7 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> CreateAdmin(AdminDTO model)
         {
-            ApplicationUser user = new ApplicationUser()
-            {
-                UserName = model.Username,
-                Name = model.Name,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber
-            };
+            var user = model.Adapt<ApplicationUser>();
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -251,7 +241,7 @@ namespace City_Bus_Management_System.Services
             await _userManager.UpdateAsync(user);
 
             return new AuthModelFactory()
-                .CreateAuthModel(user.Id, model.Username, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn);
+                .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn);
         }
         private RefreshToken GenerateRefreshToken()
         {
