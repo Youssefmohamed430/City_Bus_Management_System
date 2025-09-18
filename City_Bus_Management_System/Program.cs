@@ -1,3 +1,4 @@
+using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Helpers;
@@ -102,6 +103,8 @@ var app = builder.Build();
 app.UseCors("MyPolicy");
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseAuthentication();
 

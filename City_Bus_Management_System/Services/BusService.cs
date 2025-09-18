@@ -63,6 +63,7 @@ namespace City_Bus_Management_System.Services
 
                 return new ResponseModel<BusDTO>
                 {
+                    IsSuccess = false,
                     Message = ex.Message,
                     Result = null!
                 };
