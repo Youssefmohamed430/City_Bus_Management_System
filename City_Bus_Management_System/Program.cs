@@ -1,5 +1,6 @@
 using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data;
+using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Helpers;
 using City_Bus_Management_System.Services;
@@ -20,6 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.RegisterMapsterConfiguration();
 
 builder.Services.AddCors(corsOptions =>
 
