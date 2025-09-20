@@ -8,7 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace City_Bus_Management_System.Services
 {
-    public class ScheduleService : IDriverScheduleService
+    public class ScheduleService : IScheduleService
     {
         private readonly IMemoryCache cache;
         private readonly AppDbContext context;

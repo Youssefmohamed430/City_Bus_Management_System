@@ -4,7 +4,7 @@ using City_Bus_Management_System.DataLayer.DTOs;
 
 namespace City_Bus_Management_System.Services
 {
-    public interface IDriverScheduleService
+    public interface IScheduleService
     {
         ResponseModel<List<ScheduleDTO>> GetSchedules();
         ResponseModel<ScheduleDTO> GetSchedulesByDriverId(string Id);
