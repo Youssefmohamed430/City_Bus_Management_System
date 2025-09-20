@@ -10,11 +10,10 @@ namespace City_Bus_Management_System.DataLayer.Data
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<DriverRequests> DriverRequests { get; set; }
-        public DbSet<DriverSchedule> DriverSchedules { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<Bus> Buses { get; set; }
         public DbSet<Station> Stations { get; set; }
         public DbSet<Trip> Trips { get; set; }
-        public DbSet<TripSchedule> TripSchedules { get; set; }
         public DbSet<Route> Routes { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Booking> Bookings { get; set; }

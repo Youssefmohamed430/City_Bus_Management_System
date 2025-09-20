@@ -7,6 +7,6 @@
         public required string SSN { get; set; }
         public bool IsDeleted { get; set; } = false;
         public ApplicationUser? User { get; set; }
-        public List<DriverSchedule>? DriverSchedules { get; set; }
+        public List<Schedule>? Schedules { get; set; }
     }
 }

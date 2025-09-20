@@ -7,7 +7,7 @@
         public required string From { get; set; }
         public required string To { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public List<TripSchedule>? TripSchedules { get; set; }
+        public List<Schedule>? Schedules { get; set; }
         public List<Booking>? Bookings { get; set; }
         public List<Route>? Routes { get; set; }
         public List<RevenueReport>? RevenueReports { get; set; }

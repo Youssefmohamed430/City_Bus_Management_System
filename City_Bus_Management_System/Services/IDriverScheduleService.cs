@@ -6,10 +6,10 @@ namespace City_Bus_Management_System.Services
 {
     public interface IDriverScheduleService
     {
-        ResponseModel<List<DriverScheduleDTO>> GetSchedules();
-        ResponseModel<DriverScheduleDTO> GetSchedulesByDriverId();
-        ResponseModel<DriverScheduleDTO> GetSchedulesByDriverName();
-        void AssignDriverToBus(DriverScheduleDTO driverSchedule);
+        ResponseModel<List<ScheduleDTO>> GetSchedules();
+        ResponseModel<ScheduleDTO> GetSchedulesByDriverId();
+        ResponseModel<ScheduleDTO> GetSchedulesByDriverName();
+        void AssignDriverToBus(ScheduleDTO driverSchedule);
         void UpdateDriverSchedule(int SchId, string newSchedule);
         void RemoveDriverSchedule(int SchId);
     }

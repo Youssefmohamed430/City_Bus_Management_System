@@ -1,27 +1,37 @@
 ﻿using City_Bus_Management_System.DataLayer;
+using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.DTOs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace City_Bus_Management_System.Services
 {
-    public class DriverScheduleService : IDriverScheduleService
+    public class ScheduleService : IDriverScheduleService
     {
+        private readonly IMemoryCache cache;
+        private readonly AppDbContext context;
 
-        public ResponseModel<List<DriverScheduleDTO>> GetSchedules()
+        public ScheduleService(AppDbContext context,IMemoryCache _cache)
+        {
+            this.context = context;
+            this.cache = _cache;
+        }
+
+        public ResponseModel<List<ScheduleDTO>> GetSchedules()
         {
             throw new NotImplementedException();
         }
 
-        public ResponseModel<DriverScheduleDTO> GetSchedulesByDriverId()
+        public ResponseModel<ScheduleDTO> GetSchedulesByDriverId()
         {
             throw new NotImplementedException();
         }
 
-        public ResponseModel<DriverScheduleDTO> GetSchedulesByDriverName()
+        public ResponseModel<ScheduleDTO> GetSchedulesByDriverName()
         {
             throw new NotImplementedException();
         }
 
-        public void AssignDriverToBus(DriverScheduleDTO driverSchedule)
+        public void AssignDriverToBus(ScheduleDTO driverSchedule)
         {
             throw new NotImplementedException();
         }

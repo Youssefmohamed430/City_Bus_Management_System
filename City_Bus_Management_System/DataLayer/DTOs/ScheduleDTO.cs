@@ -1,6 +1,6 @@
 ﻿namespace City_Bus_Management_System.DataLayer.DTOs
 {
-    public class DriverScheduleDTO
+    public class ScheduleDTO
     {
         public int? SchId { get; set; }
         public DateTime Date { get; set; }
