@@ -16,7 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging(cfg => cfg.AddDebug());
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        opts.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -92,6 +97,8 @@ builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<IAdminService,AdminService>();
 builder.Services.AddScoped<IBusService,BusService>();
+builder.Services.AddScoped<ITripService,TripService>();
+builder.Services.AddScoped<IScheduleService,ScheduleService>();
 builder.Services.AddMemoryCache();
 
 

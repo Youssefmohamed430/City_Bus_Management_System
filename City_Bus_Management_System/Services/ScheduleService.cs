@@ -23,52 +23,44 @@ namespace City_Bus_Management_System.Services
 
         public ResponseModel<List<ScheduleDTO>> GetSchedules()
         {
-            if(cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
+            if(!cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
             {
-                return new ResponseModel<List<ScheduleDTO>>
-                {
-                    IsSuccess = true,
-                    Message = "Schedules fetched from cache successfully",
-                    Result = schedules
-                };
+                schedules = context.Schedules
+                    .AsNoTracking()
+                    .Include(s => s.bus)
+                    .Include(s => s.driver)
+                    .ThenInclude(d => d.User)
+                    .Include(s => s.trip)
+                    .Where(s => !s.IsDeleted)
+                    .ProjectToType<ScheduleDTO>()
+                    .ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                .SetAbsoluteExpiration(TimeSpan.FromMinutes(15))
+                                .SetPriority(CacheItemPriority.Normal);
+
+                cache.Set("schedules", schedules, cacheEntryOptions);
             }
-
-            var result = context.Schedules
-                .AsNoTracking()
-                .Include(s => s.bus)
-                .Include(s => s.driver)
-                .ThenInclude(d => d.User)
-                .Include(s => s.trip)
-                .Where(s => !s.IsDeleted)
-                .ProjectToType<ScheduleDTO>()
-                .ToList();
-
-            cache.Set("schedules", result, TimeSpan.FromMinutes(30));
-
+               
             return new ResponseModel<List<ScheduleDTO>>
             {
                 IsSuccess = true,
                 Message = "Schedules fetched successfully",
-                Result = result
+                Result = schedules
             };
         }
         public ResponseModel<ScheduleDTO> GetSchedulesByDriverId(string Id)
         {
+            ScheduleDTO schedulesByDriverId = null!;
+
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
             {
-                var schedulesByDriverId = schedules
-                    .FirstOrDefault(s => s.DriverId == Id);
-
-                return new ResponseModel<ScheduleDTO>
-                {
-                    IsSuccess = true,
-                    Message = "Schedules By DriverId fetched successfully",
-                    Result = schedulesByDriverId
-                };
+                schedulesByDriverId = schedules
+                    .FirstOrDefault(s => s.DriverId == Id)!;
             }
             else
             {
-                var result = context.Schedules
+                schedulesByDriverId = context.Schedules
                     .AsNoTracking()
                     .Include(s => s.bus)
                     .Include(s => s.driver)
@@ -76,33 +68,28 @@ namespace City_Bus_Management_System.Services
                     .Include(s => s.trip)
                     .Where(s => !s.IsDeleted && s.DriverId == Id)
                     .ProjectToType<ScheduleDTO>()
-                    .FirstOrDefault();
-
-                return new ResponseModel<ScheduleDTO>
-                {
-                    IsSuccess = true,
-                    Message = "Schedules By DriverId fetched successfully",
-                    Result = result
-                };
+                    .FirstOrDefault()!;
             }
+
+            return new ResponseModel<ScheduleDTO>
+            {
+                IsSuccess = true,
+                Message = "Schedules By DriverId fetched successfully",
+                Result = schedulesByDriverId
+            };
         }
         public ResponseModel<ScheduleDTO> GetSchedulesByDriverName(string DriverName)
         {
+            ScheduleDTO schedulesByDriverName = null!;
+
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
             {
-                var schedulesByDriverName = schedules
-                    .FirstOrDefault(s => s.DriverName.ToLower() == DriverName.ToLower());
-
-                return new ResponseModel<ScheduleDTO>
-                {
-                    IsSuccess = true,
-                    Message = "Schedules By Driver Name fetched successfully",
-                    Result = schedulesByDriverName
-                };
+                schedulesByDriverName = schedules
+                    .FirstOrDefault(s => s.DriverName.ToLower() == DriverName.ToLower())!;
             }
             else
             {
-                var result = context.Schedules
+                schedulesByDriverName = context.Schedules
                     .AsNoTracking()
                     .Include(s => s.bus)
                     .Include(s => s.driver)
@@ -110,15 +97,15 @@ namespace City_Bus_Management_System.Services
                     .Include(s => s.trip)
                     .Where(s => !s.IsDeleted && s.driver.User.Name.ToLower() == DriverName.ToLower())
                     .ProjectToType<ScheduleDTO>()
-                    .FirstOrDefault();
-
-                return new ResponseModel<ScheduleDTO>
-                {
-                    IsSuccess = true,
-                    Message = "Schedules By Driver Name fetched successfully",
-                    Result = result
-                };
+                    .FirstOrDefault()!;
             }
+
+            return new ResponseModel<ScheduleDTO>
+            {
+                IsSuccess = true,
+                Message = "Schedules By Driver Name fetched successfully",
+                Result = schedulesByDriverName
+            };
         }
         public ResponseModel<ScheduleDTO> AddSchedule(ScheduleDTO Schedule)
         {
@@ -129,6 +116,8 @@ namespace City_Bus_Management_System.Services
                 context.Schedules.Add(schedule);
 
                 context.SaveChanges();
+
+                cache.Remove("schedules");
 
                 return new ResponseModel<ScheduleDTO>
                 {
@@ -155,13 +144,14 @@ namespace City_Bus_Management_System.Services
             schedule.DepartureTime = newSchedule.DepartureTime;
             schedule.BusId = Convert.ToInt32(newSchedule.BusId);
             schedule.DriverId = newSchedule.DriverId;
-            schedule.TripId = int.Parse(newSchedule.TripId!);
+            schedule.TripId = Convert.ToInt32(newSchedule.TripId);
 
             try
             {
                 context.Schedules.Update(schedule);
                 context.SaveChanges();
                 logger.LogInformation("Schedule updated successfully");
+                cache.Remove("schedules");
 
                 return new ResponseModel<ScheduleDTO>
                 {
@@ -193,6 +183,7 @@ namespace City_Bus_Management_System.Services
                 context.Schedules.Update(schedule);
 
                 context.SaveChanges();
+                cache.Remove("schedules");
 
                 logger.LogInformation("Schedule removed successfully");
 

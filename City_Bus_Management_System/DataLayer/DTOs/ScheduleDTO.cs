@@ -8,7 +8,7 @@
         public int? BusId { get; set; }
         public string? DriverName { get; set; }
         public string? DriverId { get; set; }
-        public string? TripId { get; set; }
+        public int? TripId { get; set; }
         public string? From { get; set; }
         public string? To { get; set; }
     }
