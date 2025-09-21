@@ -48,37 +48,20 @@ namespace City_Bus_Management_System.Services
             logger.LogInformation("Login attempt for user {UserName}", username);
 
             var result = await _signInManager.PasswordSignInAsync(
-                             username,
-                             password,
-                             isPersistent: false,
-                             lockoutOnFailure: true);
+                  username,password,isPersistent: false,lockoutOnFailure: true);
             
             if (result.Succeeded)
-            {   
+            {
                 var user = await _userManager.FindByNameAsync(username);
+
                 var token = await _jwtservice.CreateJwtToken(user);
 
-                if (user.RefreshTokens.Any(t => t.IsActive))
-                {
-                    var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
-                    
-                    return new AuthModelFactory()
+                var refreshtoken =  await HandleRefreshToken(user, token);
+
+                return new AuthModelFactory()
                     .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
                         token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
-                        new JwtSecurityTokenHandler().WriteToken(token),activeRefreshToken.Token,activeRefreshToken.ExpiresOn);
-                }
-                else
-                {
-                    var refreshToken = GenerateRefreshToken();
-
-                    user.RefreshTokens.Add(refreshToken);
-                    await _userManager.UpdateAsync(user);
-
-                    return new AuthModelFactory()
-                    .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
-                        token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
-                        new JwtSecurityTokenHandler().WriteToken(token), refreshToken.Token, refreshToken.ExpiresOn); 
-                }         
+                        new JwtSecurityTokenHandler().WriteToken(token), refreshtoken.Token, refreshtoken.ExpiresOn);
             }
             else if (result.IsLockedOut)
             {
@@ -93,6 +76,23 @@ namespace City_Bus_Management_System.Services
                 return new AuthModel { Message = "Invalid username or password", IsAuthenticated = false };
             }
         }
+
+        private async Task<RefreshToken> HandleRefreshToken(ApplicationUser user, JwtSecurityToken token)
+        {
+            RefreshToken refreshtoken = null;
+
+            if (user.RefreshTokens.Any(t => t.IsActive))
+                refreshtoken = user.RefreshTokens.FirstOrDefault(t => t.IsActive)!;
+            else
+            {
+                refreshtoken = GenerateRefreshToken();
+                user.RefreshTokens.Add(refreshtoken);
+                await _userManager.UpdateAsync(user);
+            }
+
+            return refreshtoken;
+        }
+
         public async Task<AuthModel> RegisterAsPassenger(PassengerRegistertionDto passengermodel)
         {
             if (await _userManager.FindByNameAsync(passengermodel.UserName) is not null)
@@ -134,9 +134,8 @@ namespace City_Bus_Management_System.Services
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
             user.EmailConfirmed = true;
-            var refreshToken = GenerateRefreshToken();
-            user.RefreshTokens?.Add(refreshToken);
-            await _userManager.UpdateAsync(user);
+
+            var refreshToken = await HandleRefreshToken(user, JWTSecurityToken);
 
             logger.LogInformation("Passenger account created successfully for {Email}", email);
 
@@ -155,7 +154,7 @@ namespace City_Bus_Management_System.Services
 
             var head = @"https://localhost:44382/";
 
-            var ResetLink = $"{head}/Auth/ResetPassword?email={Email}&token={Uri.EscapeDataString(token)}";
+            var ResetLink = $"<a href='{head}/Auth/ResetPassword?email={Email}&token={Uri.EscapeDataString(token)}'>Reset Password</a>";
 
             await emailService.SendEmailAsync(user.Email, "Reset Password", $"Click here to reset: {ResetLink}");
 
@@ -211,14 +210,6 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> DriverRequest(DriverRequestDTO model)
         {
-            //var driverR = new DriverRequests
-            //{
-            //    Name = model.Name,
-            //    Email = model.Email,
-            //    Phone = model.Phone,
-            //    SSN = model.SSN,
-            //};
-
             var driverR = model.Adapt<DriverRequests>();
 
             _context.DriverRequests.Add(driverR);
@@ -248,9 +239,7 @@ namespace City_Bus_Management_System.Services
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
             user.EmailConfirmed = true;
-            var refreshToken = GenerateRefreshToken();
-            user.RefreshTokens?.Add(refreshToken);
-            await _userManager.UpdateAsync(user);
+            var refreshToken = await HandleRefreshToken(user, JWTSecurityToken);
 
             return new AuthModelFactory()
                 .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Admin" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn);

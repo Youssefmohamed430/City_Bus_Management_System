@@ -18,72 +18,36 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<BusDTO>> GetBuses()
         {
-            var buses = context.Buses
-                .AsNoTracking()
+            var buses = context.Buses.AsNoTracking()
                 .Where(b => !b.IsDeleted)
-                .ProjectToType<BusDTO>()
-                .ToList();
+                .ProjectToType<BusDTO>().ToList();
 
             if (buses.Count == 0)
-            {
-                return new ResponseModel<List<BusDTO>>
-                {
-                    Message = "No Buses Found",
-                    Result = null!
-                };
-            }
+                return new ResponseModel<List<BusDTO>> { Message = "No Buses Found", Result = null! };
 
-            return new ResponseModel<List<BusDTO>>
-            {
-                Message = "All Buses",
-                Result = buses
-            };
+            return new ResponseModel<List<BusDTO>> { Message = "All Buses", Result = buses };
         }
         public ResponseModel<BusDTO> GetBusByCode(string Code)
         {
-            var bus = context.Buses
-            .AsNoTracking()
+            var bus = context.Buses.AsNoTracking()
             .Where(b => !b.IsDeleted && b.BusCode == Code)
-            .ProjectToType<BusDTO>()
-            .FirstOrDefault();
+            .ProjectToType<BusDTO>().FirstOrDefault();
 
             if (bus == null)
-            {
-                return new ResponseModel<BusDTO>
-                {
-                    Message = $"No Bus Found By Code {Code}",
-                    Result = null!
-                };
-            }
+                return new ResponseModel<BusDTO> { Message = $"No Bus Found By Code {Code}", Result = null! };
 
-            return new ResponseModel<BusDTO>
-            {
-                Message = $"Bus By Code {Code}",
-                Result = bus
-            };
+            return new ResponseModel<BusDTO> { Message = $"Bus By Code {Code}", Result = bus };
         }
         public ResponseModel<List<BusDTO>> GetBusByType(string Type)
         {
-            var bus = context.Buses
-            .AsNoTracking()
+            var bus = context.Buses.AsNoTracking()
             .Where(b => !b.IsDeleted && b.BusType == Type)
-            .ProjectToType<BusDTO>()
-            .ToList();
+            .ProjectToType<BusDTO>().ToList();
 
             if (bus.Count == 0)
-            {
-                return new ResponseModel<List<BusDTO>>
-                {
-                    Message = $"No Buses Found By Type {Type}",
-                    Result = null!
-                };
-            }
+                return new ResponseModel<List<BusDTO>> { Message = $"No Buses Found By Type {Type}", Result = null! };
 
-            return new ResponseModel<List<BusDTO>>
-            {
-                Message = $"All Buses By Type {Type}",
-                Result = bus
-            };
+            return new ResponseModel<List<BusDTO>> { Message = $"All Buses By Type {Type}", Result = bus };
         }
         public async Task<ResponseModel<BusDTO>> AddBus(BusDTO Newbus)
         {
