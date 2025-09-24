@@ -7,6 +7,7 @@
         public required string Area { get; set; }
         public required decimal Latitude { get; set; }
         public required decimal Longitude { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public List<Route>? Routes { get; set; }
     }
 }

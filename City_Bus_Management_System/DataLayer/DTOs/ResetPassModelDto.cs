@@ -1,10 +1,16 @@
-﻿namespace City_Bus_Management_System.DataLayer.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace City_Bus_Management_System.DataLayer.DTOs
 {
     public class ResetPassModelDto
     {
-       public string Email { get; set; }
+        [EmailAddress(ErrorMessage = "In Valid Email")]
+        public string Email { get; set; }
         public string token { get; set; }
+        [Required]
+        [MinLength(10, ErrorMessage = "At Least ten Letters")]
+        [DataType(DataType.Password)]
+        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Password must contain only letters and numbers")]
         public string NewPassword { get; set; }
-        //public string ConfirmPassword { get; set; }
     }
 }
