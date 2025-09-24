@@ -99,6 +99,7 @@ builder.Services.AddScoped<IAdminService,AdminService>();
 builder.Services.AddScoped<IBusService,BusService>();
 builder.Services.AddScoped<ITripService,TripService>();
 builder.Services.AddScoped<IScheduleService,ScheduleService>();
+builder.Services.AddScoped<IStationService,StationService>();
 builder.Services.AddMemoryCache();
 
 

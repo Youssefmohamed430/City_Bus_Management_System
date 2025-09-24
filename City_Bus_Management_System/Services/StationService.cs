@@ -49,7 +49,7 @@ namespace City_Bus_Management_System.Services
                 context.Update(station);
                 context.SaveChanges();
                 cache.Remove("schedules");
-                return new ResponseModel<StationDTO> { Message = "Schedule removed successfully", Result = null! };
+                return new ResponseModel<StationDTO> { Message = "Station removed successfully", Result = null! };
             }
             catch (Exception ex)
             {
@@ -72,8 +72,6 @@ namespace City_Bus_Management_System.Services
                     .Where(s => s.Area == area)
                     .ProjectToType<StationDTO>()
                     .FirstOrDefault()!;
-
-                cache.Set("stations", stations, TimeSpan.FromMinutes(15));
             }
 
             return new ResponseModel<StationDTO> { Message = "Station By Area fetched successfully", Result = StationsByArea };
@@ -94,8 +92,6 @@ namespace City_Bus_Management_System.Services
                     .Where(s => s.Name == name)
                     .ProjectToType<StationDTO>()
                     .FirstOrDefault()!;
-
-                cache.Set("stations", stations, TimeSpan.FromMinutes(15));
             }
 
             return new ResponseModel<StationDTO> { Message = "Station By Name fetched successfully", Result = StationsByName };
@@ -107,6 +103,7 @@ namespace City_Bus_Management_System.Services
             {
                 stations = context.Stations
                     .AsNoTracking()
+                    .Where(s => !s.IsDeleted)
                     .ProjectToType<StationDTO>()
                     .ToList();
 
