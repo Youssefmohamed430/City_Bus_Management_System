@@ -25,43 +25,20 @@ namespace City_Bus_Management_System.Services
             this.cache = cache;
         }
 
-        public ResponseModel<StationDTO> AddStation(StationDTO station)
+        public ResponseModel<List<StationDTO>> GetStations()
         {
-            var NewStation = station.Adapt<Station>();
-
-            try
+            if(!cache.TryGetValue("stations",out List<StationDTO> stations))
             {
-                context.Stations.Add(NewStation);
+                stations = context.Stations
+                    .AsNoTracking()
+                    .Where(s => !s.IsDeleted)
+                    .ProjectToType<StationDTO>()
+                    .ToList();
 
-                context.SaveChanges();
-                cache.Remove("schedules");
+                cache.Set("stations", stations, TimeSpan.FromMinutes(15));
+            }
 
-                return new ResponseModel<StationDTO>
-                { Message = "Station Added successfully.", Result = station };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseModel<StationDTO> 
-                {IsSuccess = false , Message = ex.Message ,Result = null! };
-            }
-        }
-
-        public ResponseModel<StationDTO> DeleteStation(int stationid)
-        {
-            var station = context.Stations.FirstOrDefault(s => s.Id == stationid);
-
-            try
-            {
-                station.IsDeleted = true;
-                context.Update(station);
-                context.SaveChanges();
-                cache.Remove("schedules");
-                return new ResponseModel<StationDTO> { Message = "Station removed successfully", Result = null! };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseModel<StationDTO> { Message = ex.Message , Result = null! };
-            }
+            return new ResponseModel<List<StationDTO>> { Message = "Stations fetched successfully", Result = stations };
         }
         public ResponseModel<List<StationDTO>> GetStationsByArea(string area)
         {
@@ -76,7 +53,7 @@ namespace City_Bus_Management_System.Services
             {
                 StationsByArea = context.Stations
                     .AsNoTracking()
-                    .Where(s => s.Area == area)
+                    .Where(s => s.Area == area && !s.IsDeleted)
                     .ProjectToType<StationDTO>()
                     .ToList()!;
             }
@@ -98,27 +75,12 @@ namespace City_Bus_Management_System.Services
             {
                 StationsByName = context.Stations
                     .AsNoTracking()
-                    .Where(s => s.Name == name)
+                    .Where(s => s.Name == name && !s.IsDeleted)
                     .ProjectToType<StationDTO>()
                     .FirstOrDefault()!;
             }
 
             return new ResponseModel<StationDTO> { Message = "Station By Name fetched successfully", Result = StationsByName };
-        }
-        public ResponseModel<List<StationDTO>> GetStations()
-        {
-            if(!cache.TryGetValue("stations",out List<StationDTO> stations))
-            {
-                stations = context.Stations
-                    .AsNoTracking()
-                    .Where(s => !s.IsDeleted)
-                    .ProjectToType<StationDTO>()
-                    .ToList();
-
-                cache.Set("stations", stations, TimeSpan.FromMinutes(15));
-            }
-
-            return new ResponseModel<List<StationDTO>> { Message = "Stations fetched successfully", Result = stations };
         }
         public async Task<ResponseModel<StationDTO>> GetTheNearestStation(string area)
         {
@@ -151,20 +113,25 @@ namespace City_Bus_Management_System.Services
 
             return new ResponseModel<StationDTO> { Message = "The Nearest Station fetched successfully", Result = nearest };
         }
-        public static double DistanceKm(double lat1, double lon1, double lat2, double lon2)
+        public ResponseModel<StationDTO> AddStation(StationDTO station)
         {
-            const double R = 6371.0;
-            double dLat = (lat2 - lat1) * Math.PI / 180.0;
-            double dLon = (lon2 - lon1) * Math.PI / 180.0;
+            var NewStation = station.Adapt<Station>();
 
-            double a =
-                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(lat1 * Math.PI / 180.0) *
-                Math.Cos(lat2 * Math.PI / 180.0) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            try
+            {
+                context.Stations.Add(NewStation);
 
-            double c = 2 * Math.Asin(Math.Sqrt(a));
-            return R * c;
+                context.SaveChanges();
+                cache.Remove("schedules");
+
+                return new ResponseModel<StationDTO>
+                { Message = "Station Added successfully.", Result = station };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<StationDTO> 
+                {IsSuccess = false , Message = ex.Message ,Result = null! };
+            }
         }
         public ResponseModel<StationDTO> UpdateStation(int stationId, StationDTO Updatedstation)
         {
@@ -188,6 +155,38 @@ namespace City_Bus_Management_System.Services
                 return new ResponseModel<StationDTO>
                 { IsSuccess = false, Message = ex.Message,Result = null! };
             }
+        }
+        public ResponseModel<StationDTO> DeleteStation(int stationid)
+        {
+            var station = context.Stations.FirstOrDefault(s => s.Id == stationid);
+
+            try
+            {
+                station.IsDeleted = true;
+                context.Update(station);
+                context.SaveChanges();
+                cache.Remove("schedules");
+                return new ResponseModel<StationDTO> { Message = "Station removed successfully", Result = null! };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<StationDTO> { Message = ex.Message , Result = null! };
+            }
+        }
+        public static double DistanceKm(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371.0;
+            double dLat = (lat2 - lat1) * Math.PI / 180.0;
+            double dLon = (lon2 - lon1) * Math.PI / 180.0;
+
+            double a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1 * Math.PI / 180.0) *
+                Math.Cos(lat2 * Math.PI / 180.0) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            double c = 2 * Math.Asin(Math.Sqrt(a));
+            return R * c;
         }
     
     }
