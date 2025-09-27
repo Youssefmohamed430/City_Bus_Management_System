@@ -47,8 +47,8 @@ var config = new ConfigurationBuilder()
 var Connectionstring = config.GetSection("constr").Value;
 
 builder.Services.AddDbContextPool<AppDbContext>(options =>
-    options.UseSqlServer(Connectionstring)
-);
+    options.UseSqlServer(Connectionstring
+    ));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {

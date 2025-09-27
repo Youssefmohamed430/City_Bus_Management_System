@@ -32,14 +32,14 @@ namespace City_Bus_Management_System.Controllers
         [HttpGet("GetStationByArea/{area}")]
         public IActionResult GetStationByArea(string area)
         {
-            var result = stationService.GetStationByArea(area);
+            var result = stationService.GetStationsByArea(area);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
-        [HttpGet("GetTheNearestStation/{Longitude}/{Latitude}")]
-        public IActionResult GetTheNearestStation(decimal Longitude,decimal Latitude)
+        [HttpGet("GetTheNearestStation/{area}")]
+        public async Task<IActionResult> GetTheNearestStation(string area)
         {
-            var result = stationService.GetTheNearestStation(Longitude, Latitude);
+            var result = await stationService.GetTheNearestStation(area);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
