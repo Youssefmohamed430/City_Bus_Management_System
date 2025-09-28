@@ -6,13 +6,27 @@ using City_Bus_Management_System.Helpers;
 using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddSlidingWindowLimiter("sliding", opt =>
+    {
+        opt.PermitLimit = 10;               
+        opt.Window = TimeSpan.FromMinutes(1); 
+        opt.SegmentsPerWindow = 6;            
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;                 
+    });
+});
 
 builder.Services.AddLogging(cfg => cfg.AddDebug());
 
@@ -105,9 +119,11 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
+app.UseRateLimiter(); 
+
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 
