@@ -3,6 +3,7 @@ using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Controllers
 {
@@ -16,7 +17,7 @@ namespace City_Bus_Management_System.Controllers
             tripService = _tripService;
         }
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public IActionResult GetAllTrips()
         {
             var result = tripService.GetAllTrips();
@@ -24,7 +25,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult AddTrip([FromBody] TripDTO trip)
         {
             if(!ModelState.IsValid)
@@ -35,7 +36,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPut("{tripid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult UpdateTrip(int tripid, [FromBody] TripDTO trip)
         {
             if (!ModelState.IsValid)
@@ -46,7 +47,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpDelete("{tripid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult DeleteTrip(int tripid)
         {
             var result = tripService.DeleteTrip(tripid);

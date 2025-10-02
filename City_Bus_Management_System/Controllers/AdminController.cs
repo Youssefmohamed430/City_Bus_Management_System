@@ -8,6 +8,7 @@ using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Service_Layer.IServices;
 using System.IdentityModel.Tokens.Jwt;
 
 
@@ -15,7 +16,7 @@ namespace City_Bus_Management_System.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private AppDbContext context;

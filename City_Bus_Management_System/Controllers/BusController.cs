@@ -3,12 +3,13 @@ using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Controllers
 {       
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class BusController : Controller
     {
         private readonly IBusService busService;
@@ -29,14 +30,14 @@ namespace City_Bus_Management_System.Controllers
         [HttpGet]
         public IActionResult GetBuses()
         {
-            var result = busService.GetBuses();
+                var result = busService.GetBuses();
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateBus([FromBody]BusDTO EditedBus,int Id)
+        public async Task<IActionResult> UpdateBus(int Id,[FromBody]BusDTO EditedBus)
         {
-            var result = await busService.UpdateBus(EditedBus,Id);
+            var result = await busService.UpdateBus(Id,EditedBus);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }

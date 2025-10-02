@@ -4,6 +4,8 @@ using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Helpers;
 using City_Bus_Management_System.Services;
+using Core_Layer;
+using Data_Access_Layer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -11,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using Service_Layer.IServices;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -114,6 +117,8 @@ builder.Services.AddScoped<IBusService,BusService>();
 builder.Services.AddScoped<ITripService,TripService>();
 builder.Services.AddScoped<IScheduleService,ScheduleService>();
 builder.Services.AddScoped<IStationService,StationService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddMemoryCache();
 
 

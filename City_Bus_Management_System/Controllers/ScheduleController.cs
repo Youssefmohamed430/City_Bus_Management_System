@@ -3,6 +3,7 @@ using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Controllers
 {
@@ -17,7 +18,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult GetSchedules()
         {
             var result = _scheduleService.GetSchedules();
@@ -26,7 +27,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpGet("{Id}")]
-        [Authorize(Roles = "Driver")]
+        //[Authorize(Roles = "Driver")]
         public IActionResult GetSchedulesByDriverId(string Id)
         {
             var result = _scheduleService.GetSchedulesByDriverId(Id);
@@ -35,7 +36,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpGet("GetSchByName/{Name}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult GetSchedulesByDriverName(string Name)
         {
             var result = _scheduleService.GetSchedulesByDriverName(Name);
@@ -44,7 +45,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult AddSchedule([FromBody] ScheduleDTO Schedule)
         {
             if(!ModelState.IsValid)
@@ -56,7 +57,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpPut("{SchId}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult UpdateDriverSchedule(int SchId, [FromBody] ScheduleDTO newSchedule)
         {
             if (!ModelState.IsValid)
@@ -68,7 +69,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpDelete("{SchId}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult RemoveDriverSchedule(int SchId)
         {
             var result = _scheduleService.RemoveDriverSchedule(SchId);

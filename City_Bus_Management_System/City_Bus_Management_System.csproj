@@ -30,4 +30,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Data_Access_Layer\Data_Access_Layer.csproj" />
+    <ProjectReference Include="..\Service_Layer\Service_Layer.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -3,6 +3,7 @@ using City_Bus_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Controllers
 {
@@ -17,7 +18,7 @@ namespace City_Bus_Management_System.Controllers
             this.stationService = stationService;
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult GetStations()
         {
             var result = stationService.GetStations();  
@@ -25,7 +26,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("{name}")]
-        [Authorize]
+        //[Authorize]
         public IActionResult GetStationByName(string name)
         {
             var result = stationService.GetStationByName(name);
@@ -33,7 +34,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("GetStationByArea/{area}")]
-        [Authorize]
+        //[Authorize]
         public IActionResult GetStationByArea(string area)
         {
             var result = stationService.GetStationsByArea(area);
@@ -41,7 +42,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("GetTheNearestStation/{area}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetTheNearestStation(string area)
         {
             var result = await stationService.GetTheNearestStation(area);
@@ -50,7 +51,7 @@ namespace City_Bus_Management_System.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult AddStation(StationDTO station)
         {
             if(!ModelState.IsValid) 
@@ -61,7 +62,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult UpdateStation(int id , StationDTO station)
         {
             if (!ModelState.IsValid)
@@ -72,7 +73,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult DeleteStation(int id)
         {
             var result = stationService.DeleteStation(id);
