@@ -22,6 +22,7 @@ namespace Data_Access_Layer
         public IBaseRepository<DriverRequests> DriverReqs { get; private set; }
         public IBaseRepository<Driver> Drivers { get; private set; }
         public IBaseRepository<Station> Stations { get; private set; }
+        public IBaseRepository<Ticket> Tickets { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -33,6 +34,7 @@ namespace Data_Access_Layer
             DriverReqs = new BaseRepository<DriverRequests>(_context);
             Drivers = new BaseRepository<Driver>(_context);
             Stations = new BaseRepository<Station>(_context);
+            Tickets = new BaseRepository<Ticket>(_context);
         }
 
         public async Task<int> SaveAsync()
