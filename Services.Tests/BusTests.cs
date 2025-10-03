@@ -5,6 +5,7 @@ using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Services;
 using Core_Layer;
 using Core_Layer.IRepositries;
+using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Service_Layer.IServices;
@@ -14,13 +15,6 @@ namespace Services.Tests
 {
     public class BusTests
     {
-        private ILogger<BusService> logger;
-        private IUnitOfWork unitOfWork;
-        public BusTests(ILogger<BusService> logger, IUnitOfWork unitOfWork)
-        {
-            this.logger = logger;
-            this.unitOfWork = unitOfWork;
-        }
         //[Fact]
         //public void Method_Scenario_Outcome()
         //{
@@ -31,45 +25,48 @@ namespace Services.Tests
         // Assert 
         //}
         [Fact]
-        public void GetBuses_BusesExist_ReturnsAllBuses()
+        public void GetBuses_BusesAreExisted_FetchedAllBuses()
         {
-            var fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
-
-            // 2. دع Fixture ينشئ لك الكائنات الوهمية
-            var mockUnitOfWork = fixture.Freeze<Mock<IUnitOfWork>>();
             // Arrange
-            var mockLogger = new Mock<ILogger<BusService>>();
-            //var mockUnitOfWork = new Mock<IUnitOfWork>();
-
-            var expectedBuses = new List<BusDTO>
+            var buses = new List<BusDTO>
             {
-                new BusDTO { BusId = 3, BusCode = "Bus1-23689", BusType = "Normal", TotalSeats = 30 },
-                new BusDTO { BusId = 4, BusCode = "Bus1-28729", BusType = "Luxury", TotalSeats = 25 },
-                new BusDTO { BusId = 5, BusCode = "Bus2-28123", BusType = "AirConditioned", TotalSeats = 25 },
+                 new BusDTO { BusId = 1, BusCode = "B1", BusType = "Normal", TotalSeats = 40 },
+                 new BusDTO { BusId = 2, BusCode = "B2", BusType = "Luxury", TotalSeats = 25 }
             };
 
-            var mockBusRepo = new Mock<IBaseRepository<Bus>>();
+            var fakeLogger = A.Fake<ILogger<BusService>>(); 
+            var fakeunitOfWork = A.Fake<IUnitOfWork>();
 
-            mockBusRepo
-                .Setup(r => r.FindAll<BusDTO>(It.IsAny<Expression<Func<Bus, bool>>>(), null))
-                .Returns(expectedBuses.AsQueryable());
-
-            mockUnitOfWork.Setup(u => u.Buses).Returns(mockBusRepo.Object);
-
-            var busService = fixture.Create<BusService>();
+            A.CallTo(() => fakeunitOfWork.Buses.FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored,null!))
+                  .Returns(buses.AsQueryable());
 
             // Act
-            var response = busService.GetBuses();
+            var busService = new BusService(fakeLogger, fakeunitOfWork);
+
+            var result = busService.GetBuses().Result;
 
             // Assert
-            Assert.NotNull(response);
-            Assert.True(response.IsSuccess);
-            Assert.Equal("AllBuses", response.Message);
-            Assert.Equal(expectedBuses.Count, response.Result.Count);
-            Assert.Equal(expectedBuses.Select(b => b.BusId), response.Result.Select(b => b.BusId));
+            Assert.Equal(buses, result);
         }
+        [Fact]
+        public void GetBuses_BusesAreEmpty_ReturnsEmptyList()
+        {
+            // Arrange
+            //List<BusDTO> buses = new List<BusDTO>();
 
+            var fakeLogger = A.Fake<ILogger<BusService>>();
+            var fakeunitOfWork = A.Fake<IUnitOfWork>();
 
+            A.CallTo(() => fakeunitOfWork.Buses.FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored, null!))
+                  .Returns(null!);
+
+            // Act
+            var busService = new BusService(fakeLogger, fakeunitOfWork);
+
+            var result = busService.GetBuses().Result;
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }

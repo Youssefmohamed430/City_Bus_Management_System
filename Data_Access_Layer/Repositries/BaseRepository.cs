@@ -51,7 +51,7 @@ namespace Data_Access_Layer.Repositries
             return entity.Where(criteria)!;
         }
 
-        public IQueryable<TDto> FindAll<TDto>(Expression<Func<T, bool>> criteria, params string[] includes)
+        public IQueryable<TDto> FindAll<TDto>(Expression<Func<T, bool>> criteria, string[] includes)
         {
             var entity = _context.Set<T>()
                  .AsNoTracking();

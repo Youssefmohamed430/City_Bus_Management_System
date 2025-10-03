@@ -17,6 +17,7 @@ namespace Core_Layer
         public IBaseRepository<Driver> Drivers { get; }
         public IBaseRepository<Station> Stations { get; }
         public IBaseRepository<Ticket> Tickets { get; }
+        public IBaseRepository<Route> Routes { get; }
 
         Task<int> SaveAsync();
     }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Service_Layer.IServices;
+using Service_Layer.Services;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -118,6 +119,7 @@ builder.Services.AddScoped<ITripService,TripService>();
 builder.Services.AddScoped<IScheduleService,ScheduleService>();
 builder.Services.AddScoped<IStationService,StationService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddMemoryCache();
 

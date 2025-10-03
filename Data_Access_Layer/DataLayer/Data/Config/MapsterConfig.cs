@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
+using Data_Access_Layer.DataLayer.DTOs;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -16,6 +17,20 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
             .Map(dest => dest.DriverName, src => src.driver.User.Name)
             .Map(dest => dest.From, src => src.trip != null ? src.trip.From : null)
             .Map(dest => dest.To, src => src.trip != null ? src.trip.To : null);
+
+            TypeAdapterConfig<Route, RouteDTO>
+            .NewConfig()
+            .Map(dest => dest.From, src => src.trip.From)
+            .Map(dest => dest.To, src => src.trip.To)
+            .Map(dest => dest.StationName, src => src.station.Name);
+
+            TypeAdapterConfig<Route, StationRouteDTO>
+            .NewConfig()
+            .Map(dest => dest.From, src => src.trip.From)
+            .Map(dest => dest.To, src => src.trip.To)
+            .Map(dest => dest.StationName, src => src.station.Name)
+            .Map(dest => dest.Latitude, src => src.station.Latitude)
+            .Map(dest => dest.Longitude, src => src.station.Longitude);
 
             TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
         }

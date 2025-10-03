@@ -9,7 +9,7 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
     {
         public void Configure(EntityTypeBuilder<Route> builder)
         {
-            builder.HasKey(builder => new { builder.TripId, builder.StationId });
+            builder.HasKey(r => r.Id);
 
             builder.HasOne(r => r.trip)
                 .WithMany(t => t.Routes)

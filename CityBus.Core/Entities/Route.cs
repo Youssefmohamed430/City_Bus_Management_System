@@ -2,6 +2,7 @@
 {
     public class Route
     {
+        public int Id { get; set; }
         public required int TripId { get; set; }
         public required int StationId { get; set; }
         public required int Order { get; set; } // Station Order in the trip
