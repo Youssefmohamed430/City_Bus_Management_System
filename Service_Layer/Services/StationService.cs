@@ -3,6 +3,7 @@ using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using Core_Layer;
+using Data_Access_Layer.DataLayer.DTOs;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -71,27 +72,19 @@ namespace City_Bus_Management_System.Services
 
             return new ResponseModel<StationDTO> { Message = "Station By Name fetched successfully", Result = StationsByName };
         }
-        public async Task<ResponseModel<StationDTO>> GetTheNearestStation(string area)
+        public ResponseModel<StationDTO> GetTheNearestStation(MyLocationDTO myLocation)
         {
-            var stationsInArea = GetStationsByArea(area);
+            var stationsInArea = GetStationsByArea(myLocation.Area);
 
             if (!stationsInArea.IsSuccess || stationsInArea.Result.Count == 0)
                 return new ResponseModel<StationDTO> { IsSuccess = false, Message = "No stations found in the specified area.", Result = null! };
-
-            var http = new HttpClient();
-
-            var json = await http.GetStringAsync("https://ipinfo.io/json");
-            var obj = JsonDocument.Parse(json);
-            var loc = obj.RootElement.GetProperty("loc").GetString()?.Split(','); // "lat,lng"
-            var userlat = Convert.ToDouble(loc![0]);
-            var userlng = Convert.ToDouble(loc[1]);
 
             double minDistance = double.MaxValue;
             StationDTO nearest = null!;
 
             foreach (var station in stationsInArea.Result)
             {
-                var distance = DistanceKm(userlat, userlng, station.Latitude, station.Longitude);
+                var distance = DistanceKm(myLocation.Latitude, myLocation.Longitude, station.Latitude, station.Longitude);
                 
                 if (distance < minDistance)
                 {

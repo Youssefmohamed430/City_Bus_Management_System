@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.Services;
+using Data_Access_Layer.DataLayer.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,11 +42,11 @@ namespace City_Bus_Management_System.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
-        [HttpGet("GetTheNearestStation/{area}")]
+        [HttpGet("GetTheNearestStation")]
         //[Authorize]
-        public async Task<IActionResult> GetTheNearestStation(string area)
+        public IActionResult GetTheNearestStation([FromBody] MyLocationDTO myLocation)
         {
-            var result = await stationService.GetTheNearestStation(area);
+            var result = stationService.GetTheNearestStation(myLocation);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
