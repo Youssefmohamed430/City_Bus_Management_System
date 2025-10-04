@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer;
 using Data_Access_Layer.DataLayer.DTOs;
+using Service_Layer.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace Service_Layer.IServices
         ResponseModel<RouteDTO> UpdateRoute(int id,RouteDTO route);
         ResponseModel<RouteDTO> DeleteRoute(int id);
         ResponseModel<StationRouteDTO> GetTheNearestStationAtRoute(int Tripid, double userlng, double userlat);
+        Task<ResponseModel<Coordinates>> CalcDistanceToStation(int Tripid, double userlng, double userlat);
     }
 }

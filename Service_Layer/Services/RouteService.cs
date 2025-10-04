@@ -6,6 +6,7 @@ using Core_Layer;
 using Data_Access_Layer.DataLayer.DTOs;
 using Data_Access_Layer.Factories;
 using Mapster;
+using Newtonsoft.Json.Linq;
 using Service_Layer.IServices;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,11 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
+    public class Coordinates
+    {
+        public double Distance { get; set; }
+        public double Duration { get; set; }
+    }
     public class RouteService : IRouteService
     {
         public IUnitOfWork unitOfWork { get; set; }
@@ -124,6 +130,30 @@ namespace Service_Layer.Services
             }
 
             return new ResponseModel<StationRouteDTO> { Message = "The Nearest Station fetched successfully", Result = nearest };
+        }
+        public async Task<ResponseModel<Coordinates>> CalcDistanceToStation(int Tripid, double userlng, double userlat)
+        {
+            var station = GetTheNearestStationAtRoute(Tripid, userlng, userlat).Result;
+            var apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNjYzFiNmYxZmIzMjRmMWFiNGNiY2E5NjUwZDJkN2ViIiwiaCI6Im11cm11cjY0In0=";
+            var start = userlat + "," + userlng; 
+            var end = station.Latitude + "," + station.Longitude;   
+
+            var url = $"https://api.openrouteservice.org/v2/directions/driving-car?api_key={apiKey}&start={start}&end={end}";
+
+            using var client = new HttpClient();
+            var response = await client.GetAsync(url);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var json = JObject.Parse(content);
+            var summary = json["features"][0]["properties"]["summary"];
+
+            Coordinates result = new Coordinates
+            {
+                Distance = (summary["distance"]?.Value<double>() ?? 0) / 1000, // km
+                Duration = TimeSpan.FromSeconds(summary["duration"]?.Value<double>() ?? 0).TotalMinutes // minutes
+            };
+
+            return ResponseModelFactory<Coordinates>.CreateResponse($"Distance and Duration To {station.StationName} successfully", result);
         }
     }
 }
