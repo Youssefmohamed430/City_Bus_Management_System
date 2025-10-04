@@ -9,7 +9,7 @@ namespace Service_Layer.IServices
         ResponseModel<List<StationDTO>> GetStations();
         ResponseModel<StationDTO> GetStationByName(string name);
         ResponseModel<List<StationDTO>> GetStationsByArea(string area);
-        ResponseModel<StationDTO> GetTheNearestStation(MyLocationDTO myLocation);
+        ResponseModel<StationDTO> GetTheNearestStation(LocationDTO myLocation);
         ResponseModel<StationDTO> AddStation(StationDTO station);
         ResponseModel<StationDTO> UpdateStation(int stationId,StationDTO station);
         ResponseModel<StationDTO> DeleteStation(int stationid);

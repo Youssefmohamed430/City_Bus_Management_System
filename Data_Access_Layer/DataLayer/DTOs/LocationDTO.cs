@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Data_Access_Layer.DataLayer.DTOs
 {
-    public class MyLocationDTO
+    public class LocationDTO
     {
         [Required]
         public required string Area { get; set; }

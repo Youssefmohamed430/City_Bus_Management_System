@@ -44,7 +44,7 @@ namespace City_Bus_Management_System.Controllers
         }
         [HttpGet("GetTheNearestStation")]
         //[Authorize]
-        public IActionResult GetTheNearestStation([FromBody] MyLocationDTO myLocation)
+        public IActionResult GetTheNearestStation([FromBody] LocationDTO myLocation)
         {
             var result = stationService.GetTheNearestStation(myLocation);
 

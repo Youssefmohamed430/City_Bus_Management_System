@@ -72,7 +72,7 @@ namespace City_Bus_Management_System.Services
 
             return new ResponseModel<StationDTO> { Message = "Station By Name fetched successfully", Result = StationsByName };
         }
-        public ResponseModel<StationDTO> GetTheNearestStation(MyLocationDTO myLocation)
+        public ResponseModel<StationDTO> GetTheNearestStation(LocationDTO myLocation)
         {
             var stationsInArea = GetStationsByArea(myLocation.Area);
 
