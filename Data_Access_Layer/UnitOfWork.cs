@@ -24,6 +24,8 @@ namespace Data_Access_Layer
         public IBaseRepository<Station> Stations { get; private set; }
         public IBaseRepository<Ticket> Tickets { get; private set; }
         public IBaseRepository<Route> Routes { get; private set; }
+        public IBaseRepository<Wallet> Wallets { get; private set; }
+        public IBaseRepository<Passenger> Passengers { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -37,6 +39,8 @@ namespace Data_Access_Layer
             Stations = new BaseRepository<Station>(_context);
             Tickets = new BaseRepository<Ticket>(_context);
             Routes = new BaseRepository<Route>(_context);
+            Wallets = new BaseRepository<Wallet>(_context);
+            Passengers = new BaseRepository<Passenger>(_context);
         }
 
         public async Task<int> SaveAsync()

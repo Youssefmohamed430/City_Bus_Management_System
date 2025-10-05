@@ -18,6 +18,8 @@ namespace Core_Layer
         public IBaseRepository<Station> Stations { get; }
         public IBaseRepository<Ticket> Tickets { get; }
         public IBaseRepository<Route> Routes { get; }
+        public IBaseRepository<Wallet> Wallets { get; }
+        public IBaseRepository<Passenger> Passengers { get; }
 
         Task<int> SaveAsync();
     }

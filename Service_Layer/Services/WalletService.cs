@@ -1,0 +1,34 @@
+﻿using City_Bus_Management_System.DataLayer;
+using City_Bus_Management_System.DataLayer.Entities;
+using Core_Layer;
+using Data_Access_Layer.DataLayer.DTOs;
+using Data_Access_Layer.Factories;
+using Mapster;
+using Service_Layer.IServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Service_Layer.Services
+{
+    public class WalletService : IWalletService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        public WalletService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+        public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
+        {
+            var wallet = walletDTO.Adapt<Wallet>();
+
+            _unitOfWork.Wallets.AddAsync(wallet);
+
+            _unitOfWork.SaveAsync();
+
+            return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet created successfully", wallet.Adapt<WalletDTO>());
+        }
+    }
+}

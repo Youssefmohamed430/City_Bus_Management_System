@@ -4,6 +4,8 @@ using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Factories;
 using City_Bus_Management_System.Helpers;
+using Core_Layer;
+using Data_Access_Layer.DataLayer.DTOs;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,9 +32,14 @@ namespace City_Bus_Management_System.Services
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
         private readonly ILogger<AuthService> logger;
+        private readonly IWalletService walletService;
+        private readonly IUnitOfWork unitOfWork;
 
 
-        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context, JWTService jwtservice, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IConfiguration configuration, IMemoryCache cache, ILogger<AuthService> _logger)
+        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context,
+            JWTService jwtservice, SignInManager<ApplicationUser> signInManager,
+            IEmailService emailService, IConfiguration configuration, 
+            IMemoryCache cache, ILogger<AuthService> _logger, IWalletService walletService,IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _context = context;
@@ -42,6 +49,8 @@ namespace City_Bus_Management_System.Services
             _configuration = configuration;
             _cache = cache;
             this.logger = _logger;
+            this.walletService = walletService;
+            this.unitOfWork = unitOfWork;
         }
         public async Task<AuthModel> LogInasync(string username, string password)
         {
@@ -130,6 +139,14 @@ namespace City_Bus_Management_System.Services
             }
 
             await _userManager.AddToRoleAsync(user, "Passenger");
+
+            var passenger = user.Adapt<Passenger>();
+
+            await unitOfWork.Passengers.AddAsync(passenger);
+
+            await unitOfWork.SaveAsync();
+
+            walletService.CreateWallet(new WalletDTO { passengerId = user.Id });
 
             var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
 
