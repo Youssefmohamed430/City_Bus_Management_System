@@ -17,6 +17,5 @@ namespace Service_Layer.IServices
         ResponseModel<RouteDTO> UpdateRoute(int id,RouteDTO route);
         ResponseModel<RouteDTO> DeleteRoute(int id);
         ResponseModel<StationRouteDTO> GetTheNearestStationAtRoute(int Tripid, double userlng, double userlat);
-        Task<ResponseModel<Coordinates>> CalcDistanceToStation(int Tripid, double userlng, double userlat);
     }
 }

@@ -35,13 +35,6 @@ namespace City_Bus_Management_System.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
-        [HttpGet("CalcDistanceToStation/{id}/{Longitude}/{Latitude}")]
-        public async Task<IActionResult> CalcDistanceToStation(int id, double Longitude, double Latitude)
-        {
-            var result = await routeService.CalcDistanceToStation(id, Longitude, Latitude);
-
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
-        }
 
         [HttpPost]
         public IActionResult AddRoute([FromBody] RouteDTO route)

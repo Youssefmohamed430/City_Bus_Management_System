@@ -129,14 +129,18 @@ namespace Service_Layer.Services
                 }
             }
 
+            var coordinates = CalcDistanceToStation(Tripid, userlng, userlat, nearest.Longitude, nearest.Latitude);
+
+            nearest.Distance = coordinates.Result.Distance;
+            nearest.Duration = coordinates.Result.Duration;
+
             return new ResponseModel<StationRouteDTO> { Message = "The Nearest Station fetched successfully", Result = nearest };
         }
-        public async Task<ResponseModel<Coordinates>> CalcDistanceToStation(int Tripid, double userlng, double userlat)
+        public async Task<Coordinates> CalcDistanceToStation(int Tripid, double userlng, double userlat,double stationlong,double stationlat)
         {
-            var station = GetTheNearestStationAtRoute(Tripid, userlng, userlat).Result;
             var apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNjYzFiNmYxZmIzMjRmMWFiNGNiY2E5NjUwZDJkN2ViIiwiaCI6Im11cm11cjY0In0=";
             var start = userlat + "," + userlng; 
-            var end = station.Latitude + "," + station.Longitude;   
+            var end = stationlat + "," + stationlong;   
 
             var url = $"https://api.openrouteservice.org/v2/directions/driving-car?api_key={apiKey}&start={start}&end={end}";
 
@@ -153,7 +157,7 @@ namespace Service_Layer.Services
                 Duration = TimeSpan.FromSeconds(summary["duration"]?.Value<double>() ?? 0).TotalMinutes // minutes
             };
 
-            return ResponseModelFactory<Coordinates>.CreateResponse($"Distance and Duration To {station.StationName} successfully", result);
+            return result;
         }
     }
 }
