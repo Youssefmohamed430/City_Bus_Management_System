@@ -121,6 +121,7 @@ builder.Services.AddScoped<IStationService,StationService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
+builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddMemoryCache();
 

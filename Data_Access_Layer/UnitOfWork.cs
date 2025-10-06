@@ -1,6 +1,7 @@
 ﻿using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.Entities;
 using Core_Layer;
+using Core_Layer.Entities;
 using Core_Layer.IRepositries;
 using Data_Access_Layer.Repositries;
 using System;
@@ -26,6 +27,7 @@ namespace Data_Access_Layer
         public IBaseRepository<Route> Routes { get; private set; }
         public IWalletRepository Wallets { get; private set; }
         public IBaseRepository<Passenger> Passengers { get; private set; }
+        public IBaseRepository<DriverStatistics> DriverStatistics { get; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -41,6 +43,7 @@ namespace Data_Access_Layer
             Routes = new BaseRepository<Route>(_context);
             Wallets = new WalletRepository(_context);
             Passengers = new BaseRepository<Passenger>(_context);
+            DriverStatistics = new BaseRepository<DriverStatistics>(_context);
         }
 
         public async Task<int> SaveAsync()

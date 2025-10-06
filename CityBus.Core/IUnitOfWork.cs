@@ -1,4 +1,5 @@
 ﻿using City_Bus_Management_System.DataLayer.Entities;
+using Core_Layer.Entities;
 using Core_Layer.IRepositries;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace Core_Layer
         public IBaseRepository<Ticket> Tickets { get; }
         public IBaseRepository<Route> Routes { get; }
         public IBaseRepository<Passenger> Passengers { get; }
+        public IBaseRepository<DriverStatistics> DriverStatistics { get; }
 
         Task<int> SaveAsync();
     }
