@@ -32,6 +32,10 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
             .Map(dest => dest.Latitude, src => src.station.Latitude)
             .Map(dest => dest.Longitude, src => src.station.Longitude);
 
+            TypeAdapterConfig<Wallet, WalletDTO>
+            .NewConfig()
+            .Map(dest => dest.Name, src => src.passenger.User.Name);
+
             TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
         }
     }

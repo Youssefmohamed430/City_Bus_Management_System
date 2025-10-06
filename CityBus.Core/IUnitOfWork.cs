@@ -12,13 +12,13 @@ namespace Core_Layer
     {
         public IBaseRepository<Bus> Buses { get; }
         public IScheduleRepository Schedules { get; }
+        public IWalletRepository Wallets { get; }
         public IBaseRepository<Trip> Trips { get; }
         public IBaseRepository<DriverRequests> DriverReqs { get; }
         public IBaseRepository<Driver> Drivers { get; }
         public IBaseRepository<Station> Stations { get; }
         public IBaseRepository<Ticket> Tickets { get; }
         public IBaseRepository<Route> Routes { get; }
-        public IBaseRepository<Wallet> Wallets { get; }
         public IBaseRepository<Passenger> Passengers { get; }
 
         Task<int> SaveAsync();

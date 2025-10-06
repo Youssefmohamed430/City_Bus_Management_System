@@ -32,6 +32,7 @@ namespace Data_Access_Layer.Repositries
         {
             var entity = _context.Set<T>()
                  .AsNoTracking();
+
             if (includes != null)
                 foreach (var include in includes)
                       entity = entity.Include(include);
