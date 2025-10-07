@@ -14,6 +14,7 @@ namespace Core_Layer.Entities
         public int TotalTrips { get; set; }
         public int CompletedTrips { get; set; }
         public int CancelledTrips { get; set; }
+        public DateTime UpdateTime { get; set; } 
         public Driver driver { get; set; }
     }
 }
