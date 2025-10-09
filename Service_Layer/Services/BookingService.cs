@@ -1,4 +1,5 @@
 ﻿using City_Bus_Management_System.DataLayer;
+using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using Core_Layer;
 using Data_Access_Layer.DataLayer.DTOs;
@@ -19,12 +20,14 @@ namespace Service_Layer.Services
         private IUnitOfWork unitOfWork;
         private IWalletService walletService;
         private IMemoryCache cache;
+        private IScheduleService scheduleService;
 
-        public BookingService(IUnitOfWork unitOfWork, IWalletService walletService,IMemoryCache _cache)
+        public BookingService(IUnitOfWork unitOfWork, IWalletService walletService,IMemoryCache _cache,IScheduleService scheduleService)
         {
             this.unitOfWork = unitOfWork;
             this.walletService = walletService;
             this.cache = _cache;
+            this.scheduleService = scheduleService;
         }
 
         public ResponseModel<BookingDTO> BookTicket(BookingDTO bookingdto)
@@ -37,15 +40,14 @@ namespace Service_Layer.Services
             {
                 unitOfWork.BeginTransaction();
 
+                var ticket = unitOfWork.Tickets.Find(t => t.Id == bookingdto.TicketId);
+
+                ValidateAvailableSeats(ticket,bookingdto.TripId);
+
                 unitOfWork.Bookings.AddAsync(booking);
                 unitOfWork.SaveAsync();
 
-                var ticket = unitOfWork.Tickets.Find(t => t.Id == bookingdto.TicketId);
-
-                var isDeducted = walletService.DeductBalance(
-                    Convert.ToDouble(ticket!.Price),
-                    bookingdto.passengerId!
-                );
+                var isDeducted = walletService.DeductBalance(Convert.ToDouble(ticket!.Price),bookingdto.passengerId!);
 
                 if (!isDeducted)
                     throw new Exception("Failed to deduct wallet balance.");
@@ -62,11 +64,33 @@ namespace Service_Layer.Services
                 isSuccess = false;
             }
 
-            return ResponseModelFactory<BookingDTO>.CreateResponse(
-                msg,
-                isSuccess ? booking.Adapt<BookingDTO>() : null!,
-                isSuccess
-            );
+            return ResponseModelFactory<BookingDTO>.CreateResponse(msg,isSuccess ? booking.Adapt<BookingDTO>() : null!,isSuccess);
+        }
+
+        private void ValidateAvailableSeats(Ticket Ticket,int TripId)
+        {
+            var schedule = unitOfWork.Schedules.Find(s => s.TripId == TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
+           
+            ValidateBookingTime(schedule);
+
+            DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(10);
+
+            var cacheKey = $"CountOfBookings[{schedule.trip!.Id}]";
+
+            cache.TryGetValue(cacheKey, out int countOfBookings);
+
+            if (countOfBookings >= schedule.bus!.TotalSeats)
+                throw new Exception("Booking limit reached. Cannot book more tickets at this time.");
+
+            countOfBookings++;
+            cache.Set(cacheKey, countOfBookings, new MemoryCacheEntryOptions { AbsoluteExpiration = expiryTime });
+
+        }
+
+        private static void ValidateBookingTime(Schedule schedule)
+        {
+            if (DateTime.Now.TimeOfDay > schedule.DepartureTime)
+                throw new Exception("Cannot book ticket for past departure time.");  
         }
 
         public ResponseModel<BookingDTO> CancelBooking(int bookingid)
@@ -84,13 +108,17 @@ namespace Service_Layer.Services
 
                 unitOfWork.Bookings.UpdateAsync(booking);
                 unitOfWork.SaveAsync();
+
+                HandleCancelingAtCache(booking);
+
                 var isrefunded = walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
 
                 if (!isrefunded)
                     throw new Exception("Failed to deduct wallet balance.");
+
                 cache.Remove("bookings");
                 unitOfWork.Commit();
-                return ResponseModelFactory<BookingDTO>.CreateResponse("Booking cancelled successfully",null!);
+                return ResponseModelFactory<BookingDTO>.CreateResponse("Booking cancelled successfully", null!);
             }
             catch (Exception ex)
             {
@@ -98,6 +126,23 @@ namespace Service_Layer.Services
 
                 return ResponseModelFactory<BookingDTO>.CreateResponse(ex.Message, null!, false);
             }
+        }
+
+        private void HandleCancelingAtCache(Booking booking)
+        {
+            var Ticket = unitOfWork.Tickets.Find(t => t.Id == booking.TicketId);
+
+            var schedule = unitOfWork.Schedules.Find(s => s.TripId == booking.TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
+
+            DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(5);
+
+            var cacheKey = $"CountOfBookings[{booking.TripId}]";
+
+            cache.TryGetValue(cacheKey, out int countOfBookings);
+
+            countOfBookings--;
+
+            cache.Set(cacheKey, countOfBookings, new MemoryCacheEntryOptions { AbsoluteExpiration = expiryTime });
         }
 
         public ResponseModel<List<BookingDTO>> GetBookings()
