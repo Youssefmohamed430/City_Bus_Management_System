@@ -4,6 +4,7 @@ using Core_Layer;
 using Core_Layer.Entities;
 using Core_Layer.IRepositries;
 using Data_Access_Layer.Repositries;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Data_Access_Layer
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        private IDbContextTransaction? _transaction;
 
         public IBaseRepository<Bus> Buses { get; private set; }
 
@@ -28,6 +30,8 @@ namespace Data_Access_Layer
         public IWalletRepository Wallets { get; private set; }
         public IBaseRepository<Passenger> Passengers { get; private set; }
         public IBaseRepository<DriverStatistics> DriverStatistics { get; }
+        public IBaseRepository<Booking> Bookings { get; }
+
 
         public UnitOfWork(AppDbContext context)
         {
@@ -44,6 +48,7 @@ namespace Data_Access_Layer
             Wallets = new WalletRepository(_context);
             Passengers = new BaseRepository<Passenger>(_context);
             DriverStatistics = new BaseRepository<DriverStatistics>(_context);
+            Bookings = new BaseRepository<Booking>(_context);
         }
 
         public async Task<int> SaveAsync()
@@ -54,6 +59,33 @@ namespace Data_Access_Layer
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        public void BeginTransaction()
+        {
+            if (_transaction == null)
+                _transaction = _context.Database.BeginTransaction();
+        }
+
+        public void Commit()
+        {
+            try
+            {
+                _context.SaveChanges();
+                _transaction?.Commit();
+            }
+            finally
+            {
+                _transaction?.Dispose();
+                _transaction = null;
+            }
+        }
+
+        public void Rollback()
+        {
+            _transaction?.Rollback();
+            _transaction?.Dispose();
+            _transaction = null;
         }
     }
 }

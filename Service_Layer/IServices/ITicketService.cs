@@ -7,6 +7,7 @@ namespace Service_Layer.IServices
     {
         ResponseModel<TicketDTO> AddTicket(TicketDTO ticketDTO);
         ResponseModel<List<TicketDTO>> GetAllTickets();
+        ResponseModel<TicketDTO> GetSingleTicketByBusTypeAndNumberOfStations(int numOfStations, string BusType);
         ResponseModel<List<TicketDTO>> GetTicketsByBusTypeAndNumberOfStations(int numOfStations,string BusType);
         ResponseModel<List<TicketDTO>> GetTicketByNumberOfStations(int numOfStations);
         ResponseModel<List<TicketDTO>> GetTicketByNumberOfStationsAndRangeOfPrice(int numOfStations,double MinPrice,double MaxPrice);

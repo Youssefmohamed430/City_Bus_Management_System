@@ -26,7 +26,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("ByDriverId/{Id}")]
         //[Authorize(Roles = "Driver")]
         public IActionResult GetSchedulesByDriverId(string Id)
         {
@@ -35,7 +35,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
 
-        [HttpGet("GetSchByName/{Name}")]
+        [HttpGet("ByDriverName/{Name}")]
         //[Authorize(Roles = "Admin")]
         public IActionResult GetSchedulesByDriverName(string Name)
         {
@@ -73,6 +73,13 @@ namespace City_Bus_Management_System.Controllers
         public IActionResult RemoveDriverSchedule(int SchId)
         {
             var result = _scheduleService.RemoveDriverSchedule(SchId);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+        }
+        [HttpGet("ByTripId/{tripid}")]
+        public IActionResult GetSchedulesByTripId(int tripid)
+        {
+            var result = _scheduleService.GetSchedulesByTripId(tripid);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }

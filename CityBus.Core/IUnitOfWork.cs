@@ -22,7 +22,11 @@ namespace Core_Layer
         public IBaseRepository<Route> Routes { get; }
         public IBaseRepository<Passenger> Passengers { get; }
         public IBaseRepository<DriverStatistics> DriverStatistics { get; }
+        public IBaseRepository<Booking> Bookings { get; }
 
         Task<int> SaveAsync();
+        void BeginTransaction();
+        void Commit();
+        void Rollback();
     }
 }

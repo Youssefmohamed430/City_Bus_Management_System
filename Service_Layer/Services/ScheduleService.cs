@@ -3,6 +3,7 @@ using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using Core_Layer;
+using Data_Access_Layer.Factories;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -186,6 +187,13 @@ namespace City_Bus_Management_System.Services
                     Result = null!
                 };
             }
+        }
+
+        public ResponseModel<List<ScheduleDTO>> GetSchedulesByTripId(int tripId)
+        {
+            var SchedulesByTripId = unitofWork.Schedules.GetSchedulesByTripId<ScheduleDTO>(tripId);
+
+            return ResponseModelFactory<List<ScheduleDTO>>.CreateResponse("Schedules fetched successfully!", SchedulesByTripId.ToList());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using City_Bus_Management_System.DataLayer.Data;
+﻿using City_Bus_Management_System.DataLayer;
+using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.DTOs;
 using City_Bus_Management_System.DataLayer.Entities;
 using Core_Layer.IRepositries;
@@ -61,6 +62,18 @@ namespace Data_Access_Layer.Repositries
                      .FirstOrDefault()!;
 
             return schedule;
+        }
+        public IQueryable<TDto> GetSchedulesByTripId<TDto>(int tripId)
+        {
+            var schedules = Context.Schedules.AsNoTracking()
+                     .Include(s => s.bus)
+                     .Include(s => s.driver)
+                     .ThenInclude(d => d.User)
+                     .Include(s => s.trip)
+                     .Where(s => !s.IsDeleted && s.TripId == tripId)
+                     .ProjectToType<TDto>();
+
+            return schedules;
         }
     }
 }

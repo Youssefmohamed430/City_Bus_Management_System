@@ -13,5 +13,6 @@ namespace Core_Layer.IRepositries
         IQueryable<TDto> FindAllSchedules<TDto>();
         TDto FindSchedulesByDriverId<TDto>(string id);
         TDto FindSchedulesByDriverName<TDto>(string Name);
+        IQueryable<TDto> GetSchedulesByTripId<TDto>(int tripId);
     }
 }

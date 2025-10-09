@@ -3,8 +3,8 @@
     public class Booking
     {
         public int BookingId { get; set; }
-        public required DateTime BookingDate { get; set; } = DateTime.Now;
-        public required string Status { get; set; }
+        public DateTime BookingDate { get; set; } = DateTime.Now;
+        public string Status { get; set; } = "Booked";
         public required string passengerId { get; set; }
         public int TicketId { get; set; }
         public int TripId { get; set; }

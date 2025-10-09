@@ -42,7 +42,7 @@ namespace Service_Layer.Services
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet charged successfully", wallet.Adapt<WalletDTO>());
         }
 
-        public ResponseModel<WalletDTO> DeductBalance(double amount, string passengerId)
+        public bool DeductBalance(double amount, string passengerId)
         {
             var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerId);
 
@@ -50,7 +50,7 @@ namespace Service_Layer.Services
             _unitOfWork.Wallets.UpdateAsync(wallet);
             _unitOfWork.SaveAsync();
 
-            return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet Deducted successfully", wallet.Adapt<WalletDTO>());
+            return true;
         }
 
         public ResponseModel<WalletDTO> GetWalletByPassengerId(string passengerId)
@@ -58,6 +58,17 @@ namespace Service_Layer.Services
             var wallet = _unitOfWork.Wallets.GetWalletByPassengerId<WalletDTO>(passengerId);
 
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet fetched successfully", wallet.Adapt<WalletDTO>());
+        }
+
+        public bool RefundBalance(double amount, string passengerId)
+        {
+            var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerId);
+
+            wallet.Balance += amount;
+            _unitOfWork.Wallets.UpdateAsync(wallet);
+            _unitOfWork.SaveAsync();
+
+            return false;
         }
     }
 }

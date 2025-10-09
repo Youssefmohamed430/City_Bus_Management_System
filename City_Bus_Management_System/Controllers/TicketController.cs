@@ -41,6 +41,13 @@ namespace City_Bus_Management_System.Controllers
             var result = ticketService.GetTicketByNumberOfStationsAndRangeOfPrice(numOfStations, minPrice, maxPrice);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
+        [HttpGet("single/{numOfStations}/{busType}")]
+        public IActionResult GetSingleTicketByBusTypeAndNumberOfStations(int numOfStations, string busType)
+        {
+            var result = ticketService.GetSingleTicketByBusTypeAndNumberOfStations(numOfStations, busType);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+        }
         [HttpPost]
         public IActionResult AddTicket([FromBody] TicketDTO ticketDTO)
         {
