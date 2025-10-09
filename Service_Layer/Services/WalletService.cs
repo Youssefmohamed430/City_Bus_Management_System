@@ -46,6 +46,9 @@ namespace Service_Layer.Services
         {
             var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerId);
 
+            if (wallet.Balance < amount)
+                return false;
+
             wallet.Balance -= amount;
             _unitOfWork.Wallets.UpdateAsync(wallet);
             _unitOfWork.SaveAsync();

@@ -70,8 +70,9 @@ namespace Service_Layer.Services
         private void ValidateAvailableSeats(Ticket Ticket,int TripId)
         {
             var schedule = unitOfWork.Schedules.Find(s => s.TripId == TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
-           
-            ValidateBookingTime(schedule);
+
+            if (ValidateBookingTime(schedule))
+                throw new Exception("Cannot book ticket for past departure time.");
 
             DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(10);
 
@@ -87,11 +88,8 @@ namespace Service_Layer.Services
 
         }
 
-        private static void ValidateBookingTime(Schedule schedule)
-        {
-            if (DateTime.Now.TimeOfDay > schedule.DepartureTime)
-                throw new Exception("Cannot book ticket for past departure time.");  
-        }
+        private static bool ValidateBookingTime(Schedule schedule)
+            => DateTime.Now.TimeOfDay > schedule.DepartureTime;
 
         public ResponseModel<BookingDTO> CancelBooking(int bookingid)
         {
@@ -133,6 +131,9 @@ namespace Service_Layer.Services
             var Ticket = unitOfWork.Tickets.Find(t => t.Id == booking.TicketId);
 
             var schedule = unitOfWork.Schedules.Find(s => s.TripId == booking.TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
+
+            if(ValidateBookingTime(schedule))
+                throw new Exception("Cannot cancel booking for past departure time.");
 
             DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(5);
 
