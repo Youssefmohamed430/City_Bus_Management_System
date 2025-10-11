@@ -35,4 +35,10 @@
     <ProjectReference Include="..\Service_Layer\Service_Layer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\FogotPasswordEmailTemplate.html" />
+    <None Include="wwwroot\VerificationCodeEmail.html" />
+    <None Include="wwwroot\Waselny.jpg" />
+  </ItemGroup>
+
 </Project>

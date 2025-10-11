@@ -169,14 +169,31 @@ namespace City_Bus_Management_System.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var head = @"https://localhost:44382/";
+            string htmlBody = HandleEmailBody(Email, token);
 
-            var ResetLink = $"<a href='{head}/Auth/ResetPassword?email={Email}&token={Uri.EscapeDataString(token)}'>Reset Password</a>";
+            await emailService.SendEmailAsync(user.Email, "Reset Password", htmlBody);
 
-            await emailService.SendEmailAsync(user.Email, "Reset Password", $"Click here to reset: {ResetLink}");
-
-            return new AuthModel { Message = "Reset password link has been sent.", IsAuthenticated = true};
+            return new AuthModel { Message = "Reset password link has been sent.", IsAuthenticated = true };
         }
+
+        private string HandleEmailBody(string Email, string token)
+        {
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Waselny.jpg");
+            var imageBytes = File.ReadAllBytes(imagePath);
+            var base64Image = Convert.ToBase64String(imageBytes);
+            var imageDataUrl = $"data:image/jpeg;base64,{base64Image}";
+
+
+            var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:44382";
+            var resetLink = $"{baseUrl}/Auth/ResetPassword?email={Uri.EscapeDataString(Email)}&token={Uri.EscapeDataString(token)}";
+
+            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "FogotPasswordEmailTemplate.html");
+            var htmlBody = File.ReadAllText(htmlPath);
+            htmlBody = htmlBody.Replace("{{LogoImage}}", imageDataUrl);
+            htmlBody = htmlBody.Replace("{{ResetLink}}", resetLink);
+            return htmlBody;
+        }
+
         public async Task<AuthModel> ResetPassword(ResetPassModelDto resetPassModel)
         {
             var user = await _userManager.FindByEmailAsync(resetPassModel.Email);
@@ -200,7 +217,7 @@ namespace City_Bus_Management_System.Services
         {
             var verificationCode = Random.Shared.Next(100000, 999999).ToString();
 
-            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "VerificationCodeEmail.html");
+            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot" , "VerificationCodeEmail.html");
             var htmlBody = File.ReadAllText(htmlPath);
 
             htmlBody = htmlBody.Replace("{{CODE}}", verificationCode);
