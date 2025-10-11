@@ -200,12 +200,18 @@ namespace City_Bus_Management_System.Services
         {
             var verificationCode = Random.Shared.Next(100000, 999999).ToString();
 
+            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "VerificationCodeEmail.html");
+            var htmlBody = File.ReadAllText(htmlPath);
+
+            htmlBody = htmlBody.Replace("{{CODE}}", verificationCode);
+            htmlBody = htmlBody.Replace("{{DATE}}", DateTime.Now.ToString("yyyy"));
+
             try
             {
                 await emailService.SendEmailAsync(
                     email,
                     "Verification Account",
-                    $"{verificationCode} is your verification code for your security."
+                    htmlBody
                 );
 
                 _cache.Set(email, verificationCode, TimeSpan.FromMinutes(10));

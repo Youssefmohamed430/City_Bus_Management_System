@@ -20,11 +20,12 @@ namespace City_Bus_Management_System.Services
         private readonly ILogger<AdminService> logger;
         private readonly IUnitOfWork unitOfWork;
 
-        public AdminService(UserManager<ApplicationUser> userManager, IEmailService emailService, ILogger<AdminService> logger)
+        public AdminService(UserManager<ApplicationUser> userManager, IEmailService emailService, ILogger<AdminService> logger,IUnitOfWork _unitOfWork)
         {
             this._userManager = userManager;
             this.emailService = emailService;
             this.logger = logger;
+            unitOfWork = _unitOfWork;
         }
 
         public async Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId)
