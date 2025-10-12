@@ -169,14 +169,14 @@ namespace City_Bus_Management_System.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            string htmlBody = HandleEmailBody(Email, token);
+            string htmlBody = HandleForgotEmailBody(Email, token);
 
             await emailService.SendEmailAsync(user.Email, "Reset Password", htmlBody);
 
             return new AuthModel { Message = "Reset password link has been sent.", IsAuthenticated = true };
         }
 
-        private string HandleEmailBody(string Email, string token)
+        private string HandleForgotEmailBody(string Email, string token)
         {
             var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Waselny.jpg");
             var imageBytes = File.ReadAllBytes(imagePath);

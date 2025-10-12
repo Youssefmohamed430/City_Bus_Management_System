@@ -79,23 +79,16 @@ namespace City_Bus_Management_System.Services
         }
         private async Task SendAcceptedEmail(DriverRequests request, ApplicationUser Driveruser, string password)
         {
-            var body = $@"
-                        <h2 style='color:#2c3e50;'>Accepted Request to CityBus</h2>
-                        <p>Your request has been <strong>accepted</strong>.</p>
-                        <p>
-                            <strong>User Name:</strong> {Driveruser.UserName}<br>
-                            <strong>Password:</strong> {password}
-                        </p>
-                        <p style='color:#e74c3c;'>
-                            Your password is default, please change it after your first login.
-                        </p>
-                        <hr>
-                        <p style='font-size:12px;color:#7f8c8d;'>CityBus Team</p>
-                    ";
+            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "AcceptDriverRequestEmailTemplate.html");
+            var htmlBody = File.ReadAllText(htmlPath);
+
+            htmlBody = htmlBody.Replace("{{DriverUserName}}", Driveruser.UserName);
+            htmlBody = htmlBody.Replace("{{password}}", password);
+
             await emailService.SendEmailAsync(
                 request.Email,
                 "Accepted Request to CityBus",
-                body
+                htmlBody
             );
         }
         public async Task<ResponseModel<DriverRequests>> RejectDriverRequest(int RequestId)
@@ -111,13 +104,12 @@ namespace City_Bus_Management_System.Services
 
             await unitOfWork.SaveAsync();
 
-            var body = $@"<p>Your request has been <strong>accepted</strong>.</p> 
-                        <hr>
-                       <p style='font-size:12px;color:#7f8c8d;'>CityBus Team</p>";
+            var htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "RejectedRequestEmailTemplate.html");
+            var htmlBody = File.ReadAllText(htmlPath);
 
-            await emailService.SendEmailAsync(request.Email,"Reject Request To CityBus",body);
+            await emailService.SendEmailAsync(request.Email,"Reject Request To Waselny",htmlBody);
 
-            return new ResponseModel<DriverRequests> { Message = "Reject Request To CityBus", Result = null };
+            return new ResponseModel<DriverRequests> { Message = "Reject Request To Waselny", Result = null! };
         }
         public ResponseModel<List<DriverRequestDTO>> GetRequests()
         {

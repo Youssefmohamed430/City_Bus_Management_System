@@ -20,6 +20,7 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddSlidingWindowLimiter("sliding", opt =>
@@ -128,6 +129,8 @@ builder.Services.AddMemoryCache();
 
 
 var app = builder.Build();
+
+app.UseStaticFiles();
 
 app.UseRateLimiter(); 
 
