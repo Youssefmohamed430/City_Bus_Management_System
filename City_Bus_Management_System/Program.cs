@@ -3,12 +3,14 @@ using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.DataLayer.Entities;
 using City_Bus_Management_System.Helpers;
+using City_Bus_Management_System.Hubs;
 using City_Bus_Management_System.Services;
 using Core_Layer;
 using Data_Access_Layer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -41,6 +43,8 @@ builder.Services.AddControllers()
         opts.JsonSerializerOptions.DefaultIgnoreCondition =
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
+
+builder.Services.AddSignalR();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -129,6 +133,8 @@ builder.Services.AddMemoryCache();
 
 
 var app = builder.Build();
+
+app.MapHub<TrackingHub>("/trackingHub");
 
 app.UseStaticFiles();
 
