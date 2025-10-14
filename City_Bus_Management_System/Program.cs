@@ -8,6 +8,7 @@ using City_Bus_Management_System.Services;
 using Core_Layer;
 using Data_Access_Layer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.SignalR;
@@ -44,7 +45,10 @@ builder.Services.AddControllers()
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true; // Helpful for debugging
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -55,13 +59,13 @@ builder.Services.RegisterMapsterConfiguration();
 builder.Services.AddCors(corsOptions =>
 
       corsOptions.AddPolicy("MyPolicy", CorsPolicy =>
-
-      CorsPolicy.AllowAnyHeader()
-
-      .AllowAnyMethod()
-
-      .AllowAnyOrigin())
-);
+          CorsPolicy.WithOrigins(
+                "https://youssefmohamed430.github.io"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+));
 
 var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
@@ -134,8 +138,6 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.MapHub<TrackingHub>("/trackingHub");
-
 app.UseStaticFiles();
 
 app.UseRateLimiter(); 
@@ -147,6 +149,8 @@ app.UseSwagger();
 //}
 
 app.UseCors("MyPolicy");
+
+app.MapHub<TrackingHub>("/trackingHub");
 
 app.UseHttpsRedirection();
 

@@ -10,7 +10,7 @@ namespace City_Bus_Management_System.Hubs
         {
             cache = memoryCache;
         }
-        public async Task SendLocationUpdate(string busId, double latitude, double longitude)
+        public async Task SendLocationUpdate(int busId, double latitude, double longitude)
         {
             var Location = longitude.ToString() + "," + latitude.ToString();
 
