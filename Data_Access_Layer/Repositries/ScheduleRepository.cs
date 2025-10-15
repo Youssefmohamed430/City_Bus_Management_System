@@ -75,5 +75,22 @@ namespace Data_Access_Layer.Repositries
 
             return schedules;
         }
+
+        public TDto GetCurrentScheduleByDriverId<TDto>(string Id)
+        {
+            TimeZoneInfo egyptZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            DateTime egyptNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptZone);
+
+            var schedules = Context.Schedules.AsNoTracking()
+                     .Include(s => s.bus)
+                     .Include(s => s.driver)
+                     .ThenInclude(d => d.User)
+                     .Include(s => s.trip)
+                     .Where(s => s.DriverId == Id && s.DepartureTime <= egyptNow.TimeOfDay && !s.IsDeleted)
+                     .ProjectToType<TDto>()
+                     .FirstOrDefault()!;
+
+            return schedules;
+        }
     }
 }

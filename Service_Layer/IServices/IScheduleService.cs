@@ -13,5 +13,6 @@ namespace Service_Layer.IServices
         ResponseModel<ScheduleDTO> AddSchedule(ScheduleDTO driverSchedule);
         ResponseModel<ScheduleDTO> UpdateDriverSchedule(int SchId,ScheduleDTO newSchedule);
         ResponseModel<ScheduleDTO> RemoveDriverSchedule(int SchId);
+        ScheduleDTO GetCurrentScheduleByDriverId(string Id);
     }
 }

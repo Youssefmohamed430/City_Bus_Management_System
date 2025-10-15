@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Service_Layer.IServices;
+using System.Linq;
 
 namespace City_Bus_Management_System.Services
 {
@@ -67,6 +68,19 @@ namespace City_Bus_Management_System.Services
                 Message = "Schedules By DriverId fetched successfully",
                 Result = schedulesByDriverId
             };
+        }
+        public ScheduleDTO GetCurrentScheduleByDriverId(string Id)
+        {
+            ScheduleDTO schedulesByDriverId = null!;
+
+            if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
+                schedulesByDriverId = schedules
+                    .FirstOrDefault(s => s.DriverId == Id && s.DepartureTime <= DateTime.Now.TimeOfDay)!;
+            else
+                schedulesByDriverId = unitofWork.Schedules
+                    .GetCurrentScheduleByDriverId<ScheduleDTO>(Id);
+
+            return schedulesByDriverId;
         }
         public ResponseModel<ScheduleDTO> GetSchedulesByDriverName(string DriverName)
         {

@@ -1,22 +1,27 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
+using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Hubs
 {
     public class TrackingHub : Hub
     {
         public IMemoryCache cache { get; set; }
-        public TrackingHub(IMemoryCache memoryCache)
+        public IScheduleService scheduleService { get; set; }
+        public TrackingHub(IMemoryCache memoryCache,IScheduleService _scheduleService)
         {
             cache = memoryCache;
+            scheduleService = _scheduleService;
         }
-        public async Task SendLocationUpdate(int busId, double latitude, double longitude)
+        public async Task SendLocationUpdate(string driverid, double latitude, double longitude)
         {
             var Location = longitude.ToString() + "," + latitude.ToString();
 
-            cache.Set($"Bus [{busId}]", Location , TimeSpan.FromMinutes(5));
+            var schedule = scheduleService.GetCurrentScheduleByDriverId(driverid);
 
-            await Clients.All.SendAsync("ReceiveLocationUpdate", busId, latitude, longitude);
+            cache.Set($"Bus [{schedule.BusId}]", Location , TimeSpan.FromMinutes(5));
+
+            await Clients.All.SendAsync($"ReceiveLocationUpdate[{schedule.TripId}]", schedule.BusId,latitude, longitude);
         }
     }
 }

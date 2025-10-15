@@ -46,6 +46,7 @@ namespace Service_Layer.Services
                 if(DriverData.UpdateTime == null! || (DateTime.Now - DriverData.UpdateTime).TotalHours < 2)
                     return new ResponseModel<object>() { Message = "Trip cannot be ended before 2 hours of start time", Result = null! };
                 DriverData.CompletedTrips++;
+                var schedule = 
                 // Send Notification to the user and Admin that the trip has Completed
                 msg = "Trip Completed Successfully";
             }

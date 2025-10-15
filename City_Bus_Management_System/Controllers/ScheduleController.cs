@@ -83,5 +83,12 @@ namespace City_Bus_Management_System.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
+        [HttpGet("CurrentByDriverId/{Id}")]
+        public IActionResult GetCurrentScheduleByDriverId(string Id)
+        {
+            var result = _scheduleService.GetCurrentScheduleByDriverId(Id);
+
+            return result != null ? Ok(result) : BadRequest("No Current Schedule Found");
+        }
     }
 }
