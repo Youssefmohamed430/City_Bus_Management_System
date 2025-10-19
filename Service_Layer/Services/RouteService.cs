@@ -129,14 +129,14 @@ namespace Service_Layer.Services
                 }
             }
 
-            var coordinates = CalcDistanceToStation(Tripid, userlng, userlat, nearest.Longitude, nearest.Latitude);
+            var coordinates = CalcDistanceToDistnation(userlng, userlat, nearest.Longitude, nearest.Latitude);
 
             nearest.Distance = coordinates.Result.Distance;
             nearest.Duration = coordinates.Result.Duration;
 
             return new ResponseModel<StationRouteDTO> { Message = "The Nearest Station fetched successfully", Result = nearest };
         }
-        public async Task<Coordinates> CalcDistanceToStation(int Tripid, double userlng, double userlat,double stationlong,double stationlat)
+        public async Task<Coordinates> CalcDistanceToDistnation(double userlng, double userlat,double stationlong,double stationlat)
         {
             var apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNjYzFiNmYxZmIzMjRmMWFiNGNiY2E5NjUwZDJkN2ViIiwiaCI6Im11cm11cjY0In0=";
             var start = userlat + "," + userlng; 
@@ -153,8 +153,8 @@ namespace Service_Layer.Services
 
             Coordinates result = new Coordinates
             {
-                Distance = (summary["distance"]?.Value<double>() ?? 0) / 1000, // km
-                Duration = TimeSpan.FromSeconds(summary["duration"]?.Value<double>() ?? 0).TotalMinutes // minutes
+                Distance = Math.Round((summary["distance"]?.Value<double>() ?? 0) / 1000), // km
+                Duration = Math.Round(TimeSpan.FromSeconds(summary["duration"]?.Value<double>() ?? 0).TotalMinutes) // minutes
             };
 
             return result;

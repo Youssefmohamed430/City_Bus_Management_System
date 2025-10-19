@@ -8,10 +8,12 @@ namespace City_Bus_Management_System.Hubs
     {
         public IMemoryCache cache { get; set; }
         public IScheduleService scheduleService { get; set; }
-        public TrackingHub(IMemoryCache memoryCache,IScheduleService _scheduleService)
+        public IRouteService routeService { get; set; }
+        public TrackingHub(IMemoryCache memoryCache,IScheduleService _scheduleService, IRouteService routeService)
         {
             cache = memoryCache;
             scheduleService = _scheduleService;
+            this.routeService = routeService;
         }
         public async Task SendLocationUpdate(string driverid, double latitude, double longitude)
         {

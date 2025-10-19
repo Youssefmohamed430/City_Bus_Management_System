@@ -57,5 +57,12 @@ namespace City_Bus_Management_System.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
+        [HttpGet("CalcDistanceToDistnation/{userlng}/{userlat}/{stationlong}/{stationlat}")]
+        public async Task<IActionResult> CalcDistanceToDistnation(double userlng, double userlat, double stationlong, double stationlat)
+        {
+            var result = await routeService.CalcDistanceToDistnation(userlng, userlat, stationlong, stationlat);
+
+            return Ok(result);
+        }
     }
 }
