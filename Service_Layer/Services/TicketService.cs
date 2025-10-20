@@ -12,7 +12,7 @@ namespace City_Bus_Management_System.Services
     {
         public ResponseModel<List<TicketDTO>> GetAllTickets()
         {
-            var tickets = unitOfWork.Tickets.FindAll<TicketDTO>(t => !t.IsDeleted);
+            var tickets = unitOfWork.GetRepository<Ticket>().FindAll<TicketDTO>(t => !t.IsDeleted);
 
             if (tickets == null || tickets.Count() == 0)
                 return ResponseModelFactory<List<TicketDTO>>.CreateResponse("No tickets found.", null!, false);
@@ -21,7 +21,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<TicketDTO> GetSingleTicketByBusTypeAndNumberOfStations(int numOfStations, string BusType)
         {
-            var ticket = unitOfWork.Tickets
+            var ticket = unitOfWork.GetRepository<Ticket>()
                 .Find<TicketDTO>(t => !t.IsDeleted && t.MinStations >= numOfStations && t.BusType == BusType);
 
             if (ticket == null)
@@ -31,7 +31,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<TicketDTO>> GetTicketByNumberOfStations(int numOfStations)
         {
-            var tickets = unitOfWork.Tickets
+            var tickets = unitOfWork.GetRepository<Ticket>()
                 .FindAll<TicketDTO>(t => !t.IsDeleted && t.MinStations >= numOfStations);
 
             if (tickets == null || tickets.Count() == 0)
@@ -41,7 +41,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<TicketDTO>> GetTicketByNumberOfStationsAndRangeOfPrice(int numOfStations, double MinPrice, double MaxPrice)
         {
-            var tickets = unitOfWork.Tickets
+            var tickets = unitOfWork.GetRepository<Ticket>()
                 .FindAll<TicketDTO>(t => !t.IsDeleted && t.MinStations >= numOfStations);
 
             if (tickets == null || tickets.Count() == 0)
@@ -56,7 +56,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<TicketDTO>> GetTicketsByBusTypeAndNumberOfStations(int numOfStations, string BusType)
         {
-            var tickets = unitOfWork.Tickets
+            var tickets = unitOfWork.GetRepository<Ticket>()
                 .FindAll<TicketDTO>(t => !t.IsDeleted && t.MinStations >= numOfStations);
 
             if (tickets == null || tickets.Count() == 0)
@@ -75,7 +75,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Tickets.AddAsync(ticket);
+                unitOfWork.GetRepository<Ticket>().AddAsync(ticket);
                 unitOfWork.SaveAsync();
                 var addedTicket = ticket.Adapt<TicketDTO>();
                 return ResponseModelFactory<TicketDTO>.CreateResponse("Ticket added successfully.", addedTicket);
@@ -87,12 +87,12 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<TicketDTO> DeleteTicket(int id)
         {
-            var ticket = unitOfWork.Tickets.Find<Ticket>(t => t.Id == id && !t.IsDeleted);
+            var ticket = unitOfWork.GetRepository<Ticket>().Find<Ticket>(t => t.Id == id && !t.IsDeleted);
 
             try
             {
                 ticket.IsDeleted = true;
-                unitOfWork.Tickets.UpdateAsync(ticket);
+                unitOfWork.GetRepository<Ticket>().UpdateAsync(ticket);
                 unitOfWork.SaveAsync();
 
                 return ResponseModelFactory<TicketDTO>.CreateResponse("Ticket Deleted successfully!", null!);
@@ -104,7 +104,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<TicketDTO> UpdateTicket(int id, TicketDTO UpdatedTicket)
         {
-            var ticket = unitOfWork.Tickets.Find(t => t.Id == id && !t.IsDeleted);  
+            var ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == id && !t.IsDeleted);  
 
             ticket.MinStations = Convert.ToInt32(UpdatedTicket.MinStations);
             ticket.BusType = UpdatedTicket.BusType;
@@ -112,7 +112,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Tickets.UpdateAsync(ticket);
+                unitOfWork.GetRepository<Ticket>().UpdateAsync(ticket);
                 unitOfWork.SaveAsync();
 
                 return ResponseModelFactory<TicketDTO>.CreateResponse("Ticket updated successfully", UpdatedTicket);

@@ -117,7 +117,7 @@ namespace City_Bus_Management_System.Services
 
             var passenger = user.Adapt<Passenger>();
 
-            await unitOfWork.Passengers.AddAsync(passenger);
+            await unitOfWork.GetRepository<Passenger>().AddAsync(passenger);
 
             await unitOfWork.SaveAsync();
 

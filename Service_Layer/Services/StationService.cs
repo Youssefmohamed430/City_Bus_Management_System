@@ -19,7 +19,7 @@ namespace City_Bus_Management_System.Services
         {
             if(!cache.TryGetValue("stations",out List<StationDTO> stations))
             {
-                stations = unitOfWork.Stations
+                stations = unitOfWork.GetRepository<Station>()
                     .FindAll<StationDTO>(s => !s.IsDeleted)
                     .ToList();
 
@@ -39,7 +39,7 @@ namespace City_Bus_Management_System.Services
             }
             else
             {
-                StationsByArea = unitOfWork.Stations
+                StationsByArea = unitOfWork.GetRepository<Station>()
                     .FindAll<StationDTO>(s => s.Area == area && !s.IsDeleted)
                     .ToList(); 
             }
@@ -59,7 +59,7 @@ namespace City_Bus_Management_System.Services
             }
             else
             {
-                StationsByName = unitOfWork.Stations
+                StationsByName = unitOfWork.GetRepository<Station>()
                     .Find<StationDTO>(s => s.Name == name && !s.IsDeleted);
             }
 
@@ -94,7 +94,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Stations.AddAsync(NewStation);
+                unitOfWork.GetRepository<Station>().AddAsync(NewStation);
                 unitOfWork.SaveAsync(); 
                 cache.Remove("schedules");
 
@@ -109,7 +109,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<StationDTO> UpdateStation(int stationId, StationDTO Updatedstation)
         {
-            var station = unitOfWork.Stations.Find(s => s.Id == stationId)!;
+            var station = unitOfWork.GetRepository<Station>().Find(s => s.Id == stationId)!;
 
             station.Area = Updatedstation.Area!;
             station.Name = Updatedstation.Name!;
@@ -119,7 +119,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Stations.UpdateAsync(station);
+                unitOfWork.GetRepository<Station>().UpdateAsync(station);
                 unitOfWork.SaveAsync();
                 cache.Remove("stations");
                 return new ResponseModel<StationDTO> { Message = "Station Updated successfully", Result = Updatedstation };
@@ -132,12 +132,12 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<StationDTO> DeleteStation(int stationid)
         {
-            var station = unitOfWork.Stations.Find(s => s.Id == stationid);
+            var station = unitOfWork.GetRepository<Station>().Find(s => s.Id == stationid);
 
             try
             {
                 station.IsDeleted = true;
-                unitOfWork.Stations.UpdateAsync(station);
+                unitOfWork.GetRepository<Station>().UpdateAsync(station);
                 unitOfWork.SaveAsync();
                 cache.Remove("schedules");
                 return new ResponseModel<StationDTO> { Message = "Station removed successfully", Result = null! };

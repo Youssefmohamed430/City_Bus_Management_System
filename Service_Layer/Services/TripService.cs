@@ -16,7 +16,7 @@ namespace City_Bus_Management_System.Services
         {
             if(!cache.TryGetValue("trips", out List<TripDTO> trips))
             {
-                trips = unitOfWork.Trips.FindAll<TripDTO>(t => !t.IsDeleted).ToList();
+                trips = unitOfWork.GetRepository<Trip>().FindAll<TripDTO>(t => !t.IsDeleted).ToList();
 
                 cache.Set("trips", trips, TimeSpan.FromMinutes(20));
             }
@@ -35,7 +35,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Trips.AddAsync(trip);
+                unitOfWork.GetRepository<Trip>().AddAsync(trip);
 
                 unitOfWork.SaveAsync();
 
@@ -61,9 +61,9 @@ namespace City_Bus_Management_System.Services
         {
             try
             {
-                var trip = unitOfWork.Trips.Find(t => t.Id == tripid);
+                var trip = unitOfWork.GetRepository<Trip>().Find(t => t.Id == tripid);
                 trip.IsDeleted = true;
-                unitOfWork.Trips.UpdateAsync(trip);
+                unitOfWork.GetRepository<Trip>().UpdateAsync(trip);
                 unitOfWork.SaveAsync();
 
                 cache.Remove("trips");
@@ -86,7 +86,7 @@ namespace City_Bus_Management_System.Services
 
         public ResponseModel<TripDTO> UpdateTrip(int tripid, TripDTO tripDto)
         {
-            var trip = unitOfWork.Trips.Find(t => t.Id == tripid);
+            var trip = unitOfWork.GetRepository<Trip>().Find(t => t.Id == tripid);
 
             trip.Duration = tripDto.Duration;
             trip.From = tripDto.From;
@@ -94,7 +94,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                unitOfWork.Trips.UpdateAsync(trip);
+                unitOfWork.GetRepository<Trip>().UpdateAsync(trip);
                 unitOfWork.SaveAsync();
 
                 cache.Remove("trips");

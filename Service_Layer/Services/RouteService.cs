@@ -31,7 +31,7 @@ namespace Service_Layer.Services
 
             try
             {
-                unitOfWork.Routes.AddAsync(newRoute);
+                unitOfWork.GetRepository<Route>().AddAsync(newRoute);
                 unitOfWork.SaveAsync(); 
                 msg = "Route added successfully";
                 isSuccess = true;
@@ -46,14 +46,14 @@ namespace Service_Layer.Services
 
         public ResponseModel<RouteDTO> DeleteRoute(int id)
         {
-            var route = unitOfWork.Routes.Find(r => r.Id == id && !r.IsDeleted);
+            var route = unitOfWork.GetRepository<Route>().Find(r => r.Id == id && !r.IsDeleted);
             bool isSuccess = true;
             string msg = "";
 
             try
             {
                 route.IsDeleted = true;
-                unitOfWork.Routes.UpdateAsync(route);
+                unitOfWork.GetRepository<Route>().UpdateAsync(route);
                 unitOfWork.SaveAsync();
                 msg = "Route Deleted successfully!";
             }
@@ -67,7 +67,7 @@ namespace Service_Layer.Services
 
         public ResponseModel<List<RouteDTO>> GetRouteForTrip(int tripId)
         {
-            var routes = unitOfWork.Routes
+            var routes = unitOfWork.GetRepository<Route>()
                 .FindAll<RouteDTO>(r => r.TripId == tripId && !r.IsDeleted, new string[] { "station", "trip" })
                 .OrderBy(r => r.Order);
 
@@ -76,14 +76,14 @@ namespace Service_Layer.Services
 
         public ResponseModel<List<RouteDTO>> GetRoutes()
         {
-            var routes = unitOfWork.Routes.FindAll<RouteDTO>(r => !r.IsDeleted, new string[] { "station", "trip" });
+            var routes = unitOfWork.GetRepository<Route>().FindAll<RouteDTO>(r => !r.IsDeleted, new string[] { "station", "trip" });
 
             return ResponseModelFactory<List<RouteDTO>>.CreateResponse("All Routes Fetched Successfully!", routes.ToList());
         }
 
         public ResponseModel<RouteDTO> UpdateRoute(int id, RouteDTO Editedroute)
         {
-            var route = unitOfWork.Routes.Find(r => r.Id == id && !r.IsDeleted);
+            var route = unitOfWork.GetRepository<Route>().Find(r => r.Id == id && !r.IsDeleted);
             bool isSuccess = true;
             string msg = "";
 
@@ -93,7 +93,7 @@ namespace Service_Layer.Services
                 route.StationId = Convert.ToInt32(Editedroute.StationId);
                 route.Order = Convert.ToInt32(Editedroute.Order);
 
-                unitOfWork.Routes.UpdateAsync(route);
+                unitOfWork.GetRepository<Route>().UpdateAsync(route);
                 unitOfWork.SaveAsync();
                 msg = "Route Updated successfully!";
             }
@@ -107,7 +107,7 @@ namespace Service_Layer.Services
 
         public ResponseModel<StationRouteDTO> GetTheNearestStationAtRoute(int Tripid,double userlng, double userlat)
         {
-            var routes = unitOfWork.Routes
+            var routes = unitOfWork.GetRepository<Route>()
                 .FindAll<StationRouteDTO>(r => r.TripId == Tripid && !r.IsDeleted, new string[] { "station", "trip" });
 
             double minDistance = double.MaxValue;

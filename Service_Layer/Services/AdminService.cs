@@ -18,14 +18,14 @@ namespace City_Bus_Management_System.Services
     {
         public async Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId)
         {
-            var request = unitOfWork.DriverReqs.Find(x => x.Id == RequestId);
+            var request = unitOfWork.GetRepository<DriverRequests>().Find(x => x.Id == RequestId);
 
             if(request == null)
                 return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null! };
 
             request.Status = "Accept";
 
-            await unitOfWork.DriverReqs.UpdateAsync(request);
+            await unitOfWork.GetRepository<DriverRequests>().UpdateAsync(request);
 
             ApplicationUser Driveruser = new ApplicationUser
             {
@@ -58,7 +58,7 @@ namespace City_Bus_Management_System.Services
 
             var driver = new Driver { SSN = request.SSN, Id = Driveruser.Id };
 
-            await unitOfWork.Drivers.AddAsync(driver);
+            await unitOfWork.GetRepository<Driver>().AddAsync(driver);
             await unitOfWork.SaveAsync();
 
             await SendAcceptedEmail(request, Driveruser, password);
@@ -81,14 +81,14 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<ResponseModel<DriverRequests>> RejectDriverRequest(int RequestId)
         {
-            var request = unitOfWork.DriverReqs.Find(x => x.Id == RequestId);
+            var request = unitOfWork.GetRepository<DriverRequests>().Find(x => x.Id == RequestId);
 
             if (request == null)
                 return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null };
 
             request.Status = "Rejected";
 
-            await unitOfWork.DriverReqs.UpdateAsync(request);
+            await unitOfWork.GetRepository<DriverRequests>().UpdateAsync(request);
 
             await unitOfWork.SaveAsync();
 
@@ -101,7 +101,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<DriverRequestDTO>> GetRequests()
         {
-            var requests = unitOfWork.DriverReqs.FindAll<DriverRequestDTO>(_ => true);
+            var requests = unitOfWork.GetRepository<DriverRequests>().FindAll<DriverRequestDTO>(_ => true);
 
             return new ResponseModel<List<DriverRequestDTO>> { Message = "All Requests", Result = requests.ToList() };
         }

@@ -15,7 +15,7 @@ namespace Service_Layer.Services
     {
         public ResponseModel<object> UpdateTripStatus(string driverId,string Status)
         {
-            var DriverData = unitOfWork.DriverStatistics.Find(d => d.DriverId == driverId);
+            var DriverData = unitOfWork.GetRepository<DriverStatistics>().Find(d => d.DriverId == driverId);
 
             if (DriverData == null)
             {
@@ -49,7 +49,7 @@ namespace Service_Layer.Services
             {
                 return new ResponseModel<object>() { Message = "Invalid Status", Result = null! };
             }
-            unitOfWork.DriverStatistics.UpdateAsync(DriverData);
+            unitOfWork.GetRepository<DriverStatistics>().UpdateAsync(DriverData);
             unitOfWork.SaveAsync();
             return new ResponseModel<object>() { Message = msg, Result = null!};
         }
@@ -65,7 +65,7 @@ namespace Service_Layer.Services
                 CancelledTrips = 0
             };
 
-            unitOfWork.DriverStatistics.AddAsync(DriverStats);
+            unitOfWork.GetRepository<DriverStatistics>().AddAsync(DriverStats);
             unitOfWork.SaveAsync();
             DriverData = DriverStats;
             return DriverData;

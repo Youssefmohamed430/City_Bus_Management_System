@@ -11,18 +11,9 @@ namespace Core_Layer
 {
     public interface IUnitOfWork : IDisposable
     {
-        public IBaseRepository<Bus> Buses { get; }
         public IScheduleRepository Schedules { get; }
         public IWalletRepository Wallets { get; }
-        public IBaseRepository<Trip> Trips { get; }
-        public IBaseRepository<DriverRequests> DriverReqs { get; }
-        public IBaseRepository<Driver> Drivers { get; }
-        public IBaseRepository<Station> Stations { get; }
-        public IBaseRepository<Ticket> Tickets { get; }
-        public IBaseRepository<Route> Routes { get; }
-        public IBaseRepository<Passenger> Passengers { get; }
-        public IBaseRepository<DriverStatistics> DriverStatistics { get; }
-        public IBaseRepository<Booking> Bookings { get; }
+        IBaseRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 
         Task<int> SaveAsync();
         void BeginTransaction();

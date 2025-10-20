@@ -29,11 +29,11 @@ namespace Service_Layer.Services
             {
                 unitOfWork.BeginTransaction();
 
-                var ticket = unitOfWork.Tickets.Find(t => t.Id == bookingdto.TicketId);
+                var ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == bookingdto.TicketId);
 
                 ValidateAvailableSeats(ticket,bookingdto.TripId);
 
-                unitOfWork.Bookings.AddAsync(booking);
+                unitOfWork.GetRepository<Booking>().AddAsync(booking);
                 unitOfWork.SaveAsync();
 
                 var isDeducted = walletService.DeductBalance(Convert.ToDouble(ticket!.Price),bookingdto.passengerId!);
@@ -82,7 +82,7 @@ namespace Service_Layer.Services
 
         public ResponseModel<BookingDTO> CancelBooking(int bookingid)
         {
-            var booking = unitOfWork.Bookings.Find(b => b.BookingId == bookingid,new string[] {"Ticket"});
+            var booking = unitOfWork.GetRepository<Booking>().Find(b => b.BookingId == bookingid,new string[] {"Ticket"});
 
             if (booking == null)
                 return ResponseModelFactory<BookingDTO>.CreateResponse("Booking not found", null!, false);
@@ -93,7 +93,7 @@ namespace Service_Layer.Services
 
                 booking.Status = "Cancelled";
 
-                unitOfWork.Bookings.UpdateAsync(booking);
+                unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                 unitOfWork.SaveAsync();
 
                 HandleCancelingAtCache(booking);
@@ -117,7 +117,7 @@ namespace Service_Layer.Services
 
         private void HandleCancelingAtCache(Booking booking)
         {
-            var Ticket = unitOfWork.Tickets.Find(t => t.Id == booking.TicketId);
+            var Ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == booking.TicketId);
 
             var schedule = unitOfWork.Schedules.Find(s => s.TripId == booking.TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
 
@@ -139,7 +139,7 @@ namespace Service_Layer.Services
         {
             if(!cache.TryGetValue("bookings", out List<BookingDTO> bookings))
             {
-                bookings = unitOfWork.Bookings.FindAll<BookingDTO>(_ => true,new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                bookings = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(_ => true,new string[] { "Trip", "Ticket", "passenger" }).ToList();
                 cache.Set("bookings", bookings, TimeSpan.FromMinutes(10));
             }
             return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings Fetched successfully", bookings, true);
@@ -152,7 +152,7 @@ namespace Service_Layer.Services
             if(cache.TryGetValue("bookings", out List<BookingDTO> bookings))
                 bookingByPassengerId = bookings.Where(b => b.passengerId == passengerid).ToList()!;
             else
-                bookingByPassengerId = unitOfWork.Bookings.FindAll<BookingDTO>(b => b.passengerId == passengerid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                bookingByPassengerId = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.passengerId == passengerid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
 
             return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByPassengerId);
         }
@@ -164,7 +164,7 @@ namespace Service_Layer.Services
             if (cache.TryGetValue("bookings", out List<BookingDTO> bookings))
                 bookingByRangeOfDate = bookings.Where(b => b.BookingDate >= start && b.BookingDate <= end).ToList()!;
             else
-                bookingByRangeOfDate = unitOfWork.Bookings.FindAll<BookingDTO>(b => b.BookingDate >= start && b.BookingDate <= end, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                bookingByRangeOfDate = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.BookingDate >= start && b.BookingDate <= end, new string[] { "Trip", "Ticket", "passenger" }).ToList();
 
             return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByRangeOfDate);
         }
@@ -176,7 +176,7 @@ namespace Service_Layer.Services
             if (cache.TryGetValue("bookings", out List<BookingDTO> bookings))
                 bookingByTicketId = bookings.Where(b => b.TicketId == ticketid).ToList()!;
             else
-                bookingByTicketId = unitOfWork.Bookings.FindAll<BookingDTO>(b => b.TicketId == ticketid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                bookingByTicketId = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.TicketId == ticketid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
 
             return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByTicketId);
         }
@@ -188,14 +188,14 @@ namespace Service_Layer.Services
             if (cache.TryGetValue("bookings", out List<BookingDTO> bookings))
                 bookingByTripId = bookings.Where(b => b.TripId == tripid).ToList()!;
             else
-                bookingByTripId = unitOfWork.Bookings.FindAll<BookingDTO>(b => b.TripId == tripid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                bookingByTripId = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.TripId == tripid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
 
             return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByTripId);
         }
 
         public ResponseModel<BookingDTO> UpdateBooking(int bookingid, BookingDTO Updatedbooking)
         {
-            var booking = unitOfWork.Bookings.Find(b => b.BookingId == bookingid, new string[] { "Trip", "Ticket", "passenger" });
+            var booking = unitOfWork.GetRepository<Booking>().Find(b => b.BookingId == bookingid, new string[] { "Trip", "Ticket", "passenger" });
 
             if (booking == null)
                 return ResponseModelFactory<BookingDTO>.CreateResponse("Booking not found", null!, false);
@@ -205,7 +205,7 @@ namespace Service_Layer.Services
                 booking.TicketId =  Convert.ToInt32(Updatedbooking.TicketId);
                 booking.TripId = Convert.ToInt32(Updatedbooking.TicketId);
 
-                unitOfWork.Bookings.UpdateAsync(booking);
+                unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                 unitOfWork.SaveAsync();
                 walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
                 cache.Remove("bookings");

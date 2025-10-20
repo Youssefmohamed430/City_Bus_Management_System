@@ -15,7 +15,7 @@ namespace City_Bus_Management_System.Services
     {
         public ResponseModel<List<BusDTO>> GetBuses()
         {
-            var buses = unitOfWork.Buses
+            var buses = unitOfWork.GetRepository<Bus>()
                 .FindAll<BusDTO>(b => !b.IsDeleted)
                 .ToList();
 
@@ -26,7 +26,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<BusDTO> GetBusByCode(string Code)
         {
-            var bus = unitOfWork.Buses
+            var bus = unitOfWork.GetRepository<Bus>()
                 .Find<BusDTO>(b => !b.IsDeleted && b.BusCode == Code);
 
             if (bus == null)
@@ -36,7 +36,7 @@ namespace City_Bus_Management_System.Services
         }
         public ResponseModel<List<BusDTO>> GetBusByType(string Type)
         {
-            var bus = unitOfWork.Buses
+            var bus = unitOfWork.GetRepository<Bus>()
                 .FindAll<BusDTO>(b => !b.IsDeleted && b.BusType == Type).ToList();
 
             if (bus.Count == 0)
@@ -51,7 +51,7 @@ namespace City_Bus_Management_System.Services
             bool IsSuccess = true;
             try
             {
-                await unitOfWork.Buses.AddAsync(bus);
+                await unitOfWork.GetRepository<Bus>().AddAsync(bus);
                 await unitOfWork.SaveAsync();
                 msg = "Bus added successfully";
             }
@@ -67,7 +67,7 @@ namespace City_Bus_Management_System.Services
         public async Task<ResponseModel<BusDTO>> UpdateBus(int id,BusDTO Editedbus)
         {
             string msg = "";
-            var bus = unitOfWork.Buses.Find(b => !b.IsDeleted && b.BusId == id);
+            var bus = unitOfWork.GetRepository<Bus>().Find(b => !b.IsDeleted && b.BusId == id);
             bus.BusCode = Editedbus.BusCode;
             bus.BusType = Editedbus.BusType;
             bus.TotalSeats = Editedbus.TotalSeats;
@@ -75,7 +75,7 @@ namespace City_Bus_Management_System.Services
 
             try
             {
-                await unitOfWork.Buses.UpdateAsync(bus);
+                await unitOfWork.GetRepository<Bus>().UpdateAsync(bus);
                 await unitOfWork.SaveAsync();
                 msg = "Bus updated successfully";
             }
@@ -90,14 +90,14 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<ResponseModel<BusDTO>> DeleteBus(int id)
         {
-            var deletedbus = unitOfWork.Buses.Find(b => !b.IsDeleted && b.BusId == id);
+            var deletedbus = unitOfWork.GetRepository<Bus>().Find(b => !b.IsDeleted && b.BusId == id);
             string msg = "";
             bool IsSuccess = true;
 
             try
             {
                 deletedbus.IsDeleted = true;
-                await unitOfWork.Buses.UpdateAsync(deletedbus);
+                await unitOfWork.GetRepository<Bus>().UpdateAsync(deletedbus);
                 await unitOfWork.SaveAsync();
                 msg = "Bus deleted successfully";
 
