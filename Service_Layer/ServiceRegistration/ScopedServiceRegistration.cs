@@ -1,4 +1,5 @@
-﻿using City_Bus_Management_System.Services;
+﻿using City_Bus_Management_System.Helpers;
+using City_Bus_Management_System.Services;
 using Core_Layer;
 using Data_Access_Layer;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<IBookingService, BookingService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddScoped<JWTService>();
 
             return services;
         }
