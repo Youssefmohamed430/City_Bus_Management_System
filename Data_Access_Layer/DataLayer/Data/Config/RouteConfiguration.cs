@@ -1,7 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer.Entities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Route = City_Bus_Management_System.DataLayer.Entities.Route;
+﻿using Route = City_Bus_Management_System.DataLayer.Entities.Route;
 
 namespace City_Bus_Management_System.DataLayer.Data.Config
 {

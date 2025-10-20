@@ -1,6 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.Entities;
-
+﻿
 namespace City_Bus_Management_System.Factories
 {
     public class AuthModelFactory

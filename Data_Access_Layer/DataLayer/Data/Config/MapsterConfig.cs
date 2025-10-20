@@ -1,7 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using Data_Access_Layer.DataLayer.DTOs;
-using Mapster;
+﻿using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 

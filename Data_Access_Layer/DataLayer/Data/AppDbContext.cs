@@ -1,6 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Route = City_Bus_Management_System.DataLayer.Entities.Route;
 
 namespace City_Bus_Management_System.DataLayer.Data

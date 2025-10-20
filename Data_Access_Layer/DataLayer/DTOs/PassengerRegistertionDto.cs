@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace City_Bus_Management_System.DataLayer.DTOs
 {
     public class PassengerRegistertionDto
