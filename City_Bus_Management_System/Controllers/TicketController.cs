@@ -1,9 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer.DTOs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Service_Layer.IServices;
-
-namespace City_Bus_Management_System.Controllers
+﻿namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]

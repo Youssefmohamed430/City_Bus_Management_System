@@ -1,14 +1,5 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.Data;
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using City_Bus_Management_System.Factories;
-using City_Bus_Management_System.Helpers;
-using City_Bus_Management_System.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using City_Bus_Management_System.Helpers;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Service_Layer.IServices;
 using System.IdentityModel.Tokens.Jwt;
 
 

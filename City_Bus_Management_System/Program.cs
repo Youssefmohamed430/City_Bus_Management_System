@@ -1,9 +1,6 @@
 using City_Bus_Management_System;
-using City_Bus_Management_System.DataLayer.Data;
 using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.Hubs;
-using City_Bus_Management_System.Services;
-using Core_Layer;
 using Service_Layer.ServiceRegistration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,11 +10,11 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddLogging(cfg => cfg.AddDebug());
 
 builder.Services.AddControllers()
-    .AddJsonOptions(opts =>
-    {
-        opts.JsonSerializerOptions.DefaultIgnoreCondition =
-            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-    });
+.AddJsonOptions(opts =>
+{
+    opts.JsonSerializerOptions.DefaultIgnoreCondition =
+        System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 builder.Services.AddSignalR(options =>
 {
@@ -57,4 +54,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();

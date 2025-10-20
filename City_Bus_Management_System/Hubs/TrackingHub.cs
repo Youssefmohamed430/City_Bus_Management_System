@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
-using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Hubs
 {
