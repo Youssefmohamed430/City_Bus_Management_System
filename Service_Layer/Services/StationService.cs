@@ -12,15 +12,8 @@ using System.Text.Json;
 
 namespace City_Bus_Management_System.Services
 {
-    public class StationService : IStationService
+    public class StationService(IMemoryCache cache, IUnitOfWork unitOfWork) : IStationService
     {
-        public IMemoryCache cache { get; set; }
-        private IUnitOfWork unitOfWork;
-        public StationService(IMemoryCache cache,IUnitOfWork _unitOfWork)
-        {
-            this.cache = cache;
-            this.unitOfWork = _unitOfWork;
-        }
 
         public ResponseModel<List<StationDTO>> GetStations()
         {

@@ -15,20 +15,9 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
-    public class BookingService : IBookingService
+    public class BookingService(IUnitOfWork unitOfWork, IWalletService walletService,
+        IMemoryCache cache, IScheduleService scheduleService) : IBookingService
     {
-        private IUnitOfWork unitOfWork;
-        private IWalletService walletService;
-        private IMemoryCache cache;
-        private IScheduleService scheduleService;
-
-        public BookingService(IUnitOfWork unitOfWork, IWalletService walletService,IMemoryCache _cache,IScheduleService scheduleService)
-        {
-            this.unitOfWork = unitOfWork;
-            this.walletService = walletService;
-            this.cache = _cache;
-            this.scheduleService = scheduleService;
-        }
 
         public ResponseModel<BookingDTO> BookTicket(BookingDTO bookingdto)
         {

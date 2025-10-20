@@ -11,13 +11,8 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
-    public class DriverService : IDriverService
+    public class DriverService(IUnitOfWork unitOfWork) : IDriverService
     {
-        public IUnitOfWork unitOfWork { get; set; }
-        public DriverService(IUnitOfWork _unitOfWork)
-        {
-            unitOfWork = _unitOfWork;
-        }
         public ResponseModel<object> UpdateTripStatus(string driverId,string Status)
         {
             var DriverData = unitOfWork.DriverStatistics.Find(d => d.DriverId == driverId);

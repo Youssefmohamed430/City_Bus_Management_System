@@ -11,15 +11,8 @@ using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Services
 {
-    public class BusService : IBusService
+    public class BusService(ILogger<BusService> logger, IUnitOfWork unitOfWork) : IBusService
     {
-        private ILogger<BusService> logger;
-        private IUnitOfWork unitOfWork;
-        public BusService(ILogger<BusService> logger, IUnitOfWork unitOfWork)
-        {
-            this.logger = logger;
-            this.unitOfWork = unitOfWork;
-        }
         public ResponseModel<List<BusDTO>> GetBuses()
         {
             var buses = unitOfWork.Buses

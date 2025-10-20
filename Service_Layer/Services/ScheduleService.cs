@@ -13,18 +13,8 @@ using System.Linq;
 
 namespace City_Bus_Management_System.Services
 {
-    public class ScheduleService : IScheduleService
+    public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork) : IScheduleService
     {
-        private readonly IMemoryCache cache;
-        private ILogger<BusService> logger;
-        private IUnitOfWork unitofWork;
-
-        public ScheduleService(IMemoryCache _cache, ILogger<BusService> logger,IUnitOfWork _unitOfWork)
-        {
-            this.cache = _cache;
-            this.logger = logger;
-            this.unitofWork = _unitOfWork;
-        }
 
         public ResponseModel<List<ScheduleDTO>> GetSchedules()
         {

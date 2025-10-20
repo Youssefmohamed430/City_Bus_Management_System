@@ -10,15 +10,8 @@ using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Services
 {
-    public class TripService : ITripService
+    public class TripService(IMemoryCache cache, IUnitOfWork unitOfWork) : ITripService
     {
-        public IMemoryCache cache { get; set; }
-        public IUnitOfWork unitOfWork { get; set; }
-        public TripService(IMemoryCache _cache,IUnitOfWork _unitOfWork)
-        {
-            cache = _cache;
-            unitOfWork = _unitOfWork;
-        }
         public ResponseModel<List<TripDTO>> GetAllTrips()
         {
             if(!cache.TryGetValue("trips", out List<TripDTO> trips))

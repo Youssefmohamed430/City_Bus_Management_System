@@ -12,13 +12,8 @@ using System.Threading.Tasks;
 
 namespace Data_Access_Layer.Repositries
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
+    public class BaseRepository<T>(AppDbContext _context) : IBaseRepository<T> where T : class
     {
-        public AppDbContext _context { get; set; }
-        public BaseRepository(AppDbContext context)
-        {
-            this._context = context;
-        }
         public async Task<T> AddAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);

@@ -13,21 +13,9 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace City_Bus_Management_System.Services
 {
-    public class AdminService : IAdminService
+    public class AdminService
+        (UserManager<ApplicationUser> _userManager, IEmailService emailService, ILogger<AdminService> logger, IUnitOfWork unitOfWork) : IAdminService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailService emailService;
-        private readonly ILogger<AdminService> logger;
-        private readonly IUnitOfWork unitOfWork;
-
-        public AdminService(UserManager<ApplicationUser> userManager, IEmailService emailService, ILogger<AdminService> logger,IUnitOfWork _unitOfWork)
-        {
-            this._userManager = userManager;
-            this.emailService = emailService;
-            this.logger = logger;
-            unitOfWork = _unitOfWork;
-        }
-
         public async Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId)
         {
             var request = unitOfWork.DriverReqs.Find(x => x.Id == RequestId);

@@ -8,13 +8,8 @@ using Service_Layer.IServices;
 
 namespace City_Bus_Management_System.Services
 {
-    public class TicketService : ITicketService
+    public class TicketService(IUnitOfWork unitOfWork) : ITicketService
     {
-        private IUnitOfWork unitOfWork;
-        public TicketService(IUnitOfWork _unitOfWork)
-        {
-            unitOfWork = _unitOfWork;
-        }
         public ResponseModel<List<TicketDTO>> GetAllTickets()
         {
             var tickets = unitOfWork.Tickets.FindAll<TicketDTO>(t => !t.IsDeleted);

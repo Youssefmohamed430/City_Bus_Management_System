@@ -21,13 +21,8 @@ namespace Service_Layer.Services
         public double Distance { get; set; }
         public double Duration { get; set; }
     }
-    public class RouteService : IRouteService
+    public class RouteService(IUnitOfWork unitOfWork) : IRouteService
     {
-        public IUnitOfWork unitOfWork { get; set; }
-        public RouteService(IUnitOfWork _unitOfWork)
-        {
-            unitOfWork = _unitOfWork;
-        }
         public ResponseModel<RouteDTO> AddRoute(RouteDTO route)
         {
             var newRoute = route.Adapt<Route>();

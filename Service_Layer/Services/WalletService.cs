@@ -13,13 +13,8 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
-    public class WalletService : IWalletService
+    public class WalletService(IUnitOfWork _unitOfWork) : IWalletService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public WalletService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
         public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
         {
             var wallet = walletDTO.Adapt<Wallet>();

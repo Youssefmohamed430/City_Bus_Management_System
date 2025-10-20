@@ -22,36 +22,11 @@ using System.Threading.Tasks;
 
 namespace City_Bus_Management_System.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService(UserManager<ApplicationUser> _userManager, AppDbContext _context,
+            JWTService _jwtservice, SignInManager<ApplicationUser> _signInManager,
+            IEmailService emailService, IConfiguration _configuration,
+            IMemoryCache _cache, ILogger<AuthService> logger, IWalletService walletService, IUnitOfWork unitOfWork) : IAuthService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly AppDbContext _context;
-        private readonly JWTService _jwtservice;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailService emailService;
-        private readonly IConfiguration _configuration;
-        private readonly IMemoryCache _cache;
-        private readonly ILogger<AuthService> logger;
-        private readonly IWalletService walletService;
-        private readonly IUnitOfWork unitOfWork;
-
-
-        public AuthService(UserManager<ApplicationUser> userManager, AppDbContext context,
-            JWTService jwtservice, SignInManager<ApplicationUser> signInManager,
-            IEmailService emailService, IConfiguration configuration, 
-            IMemoryCache cache, ILogger<AuthService> _logger, IWalletService walletService,IUnitOfWork unitOfWork)
-        {
-            _userManager = userManager;
-            _context = context;
-            _jwtservice = jwtservice;
-            _signInManager = signInManager;
-            this.emailService = emailService;
-            _configuration = configuration;
-            _cache = cache;
-            this.logger = _logger;
-            this.walletService = walletService;
-            this.unitOfWork = unitOfWork;
-        }
         public async Task<AuthModel> LogInasync(string username, string password)
         {
             logger.LogInformation("Login attempt for user {UserName}", username);
