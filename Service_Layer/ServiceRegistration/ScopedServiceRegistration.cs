@@ -1,15 +1,6 @@
-﻿using City_Bus_Management_System.Helpers;
-using City_Bus_Management_System.Services;
-using Core_Layer;
+﻿
 using Data_Access_Layer;
-using Microsoft.Extensions.DependencyInjection;
-using Service_Layer.IServices;
 using Service_Layer.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service_Layer.ServiceRegistration
 {

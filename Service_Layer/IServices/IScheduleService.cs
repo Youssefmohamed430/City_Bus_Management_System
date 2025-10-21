@@ -1,7 +1,4 @@
-﻿using Azure;
-using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.DTOs;
-
+﻿
 namespace Service_Layer.IServices
 {
     public interface IScheduleService

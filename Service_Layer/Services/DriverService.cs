@@ -1,13 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using Core_Layer;
-using Core_Layer.Entities;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using Service_Layer.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core_Layer.Entities;
 
 namespace Service_Layer.Services
 {

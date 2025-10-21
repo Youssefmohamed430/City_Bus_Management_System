@@ -1,7 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 
 namespace City_Bus_Management_System.Services

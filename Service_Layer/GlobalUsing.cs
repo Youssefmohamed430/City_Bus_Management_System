@@ -1,0 +1,16 @@
+﻿global using City_Bus_Management_System.DataLayer;
+global using City_Bus_Management_System.DataLayer.DTOs;
+global using City_Bus_Management_System.DataLayer.Entities;
+global using Data_Access_Layer.DataLayer.DTOs;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.AspNetCore.Identity;
+global using City_Bus_Management_System.Helpers;
+global using Core_Layer;
+global using Data_Access_Layer.Factories;
+global using City_Bus_Management_System.Services;
+global using Mapster;
+global using City_Bus_Management_System.Factories;
+global using Service_Layer.IServices;
+global using Microsoft.Extensions.Caching.Memory;
+global using Microsoft.Extensions.Logging;

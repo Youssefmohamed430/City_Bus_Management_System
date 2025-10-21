@@ -1,24 +1,9 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.Data;
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using City_Bus_Management_System.Factories;
-using City_Bus_Management_System.Helpers;
-using Core_Layer;
-using Data_Access_Layer.DataLayer.DTOs;
-using Mapster;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using City_Bus_Management_System.DataLayer.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Service_Layer.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace City_Bus_Management_System.Services
 {

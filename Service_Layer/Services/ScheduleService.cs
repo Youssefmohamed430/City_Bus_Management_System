@@ -1,16 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.Data;
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using Core_Layer;
-using Data_Access_Layer.Factories;
-using Mapster;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Service_Layer.IServices;
-using System.Linq;
-
+﻿
 namespace City_Bus_Management_System.Services
 {
     public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork) : IScheduleService

@@ -1,8 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-
-namespace Service_Layer.IServices
+﻿namespace Service_Layer.IServices
 {
     public interface IAuthService
     {

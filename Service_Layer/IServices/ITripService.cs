@@ -1,6 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.DTOs;
-
+﻿u
 namespace Service_Layer.IServices
 {
     public interface ITripService

@@ -1,10 +1,4 @@
-﻿using City_Bus_Management_System.DataLayer;
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using Core_Layer;
-using Data_Access_Layer.Factories;
-using Mapster;
-using Service_Layer.IServices;
+﻿
 
 namespace City_Bus_Management_System.Services
 {
