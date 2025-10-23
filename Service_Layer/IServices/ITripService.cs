@@ -1,4 +1,4 @@
-﻿u
+﻿
 namespace Service_Layer.IServices
 {
     public interface ITripService

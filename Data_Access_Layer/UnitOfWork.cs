@@ -7,9 +7,10 @@ using System.Collections.Concurrent;
 
 namespace Data_Access_Layer
 {
-    public class UnitOfWork(AppDbContext _context, IDbContextTransaction? _transaction) : IUnitOfWork
+    public class UnitOfWork(AppDbContext _context) : IUnitOfWork
     {
         private readonly ConcurrentDictionary<string, object> _repositories = new();
+        public IDbContextTransaction? _transaction;
         public IScheduleRepository Schedules { get; private set; } = new ScheduleRepository(_context);
         public IWalletRepository Wallets { get; private set; } = new WalletRepository(_context);
 
