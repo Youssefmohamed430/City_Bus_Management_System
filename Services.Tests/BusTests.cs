@@ -37,7 +37,7 @@ namespace Services.Tests
             var fakeLogger = A.Fake<ILogger<BusService>>(); 
             var fakeunitOfWork = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => fakeunitOfWork.Buses.FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored,null!))
+            A.CallTo(() => fakeunitOfWork.GetRepository<Bus>().FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored,null!))
                   .Returns(buses.AsQueryable());
 
             // Act
@@ -57,7 +57,7 @@ namespace Services.Tests
             var fakeLogger = A.Fake<ILogger<BusService>>();
             var fakeunitOfWork = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => fakeunitOfWork.Buses.FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored, null!))
+            A.CallTo(() => fakeunitOfWork.GetRepository<Bus>().FindAll<BusDTO>(A<Expression<Func<Bus, bool>>>.Ignored, null!))
                   .Returns(null!);
 
             // Act

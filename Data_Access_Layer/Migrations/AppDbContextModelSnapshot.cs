@@ -120,6 +120,12 @@ namespace City_Bus_Management_System.Migrations
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("StationFromId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StationToId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -135,6 +141,10 @@ namespace City_Bus_Management_System.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("BookingId");
+
+                    b.HasIndex("StationFromId");
+
+                    b.HasIndex("StationToId");
 
                     b.HasIndex("TicketId");
 
@@ -749,23 +759,39 @@ namespace City_Bus_Management_System.Migrations
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Booking", b =>
                 {
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Station", "StationFrom")
+                        .WithMany("FromStationsBookings")
+                        .HasForeignKey("StationFromId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Station", "StationTo")
+                        .WithMany("ToStationsBookings")
+                        .HasForeignKey("StationToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("City_Bus_Management_System.DataLayer.Entities.Ticket", "Ticket")
                         .WithMany("BookIngs")
                         .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("City_Bus_Management_System.DataLayer.Entities.Trip", "Trip")
                         .WithMany("Bookings")
                         .HasForeignKey("TripId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("City_Bus_Management_System.DataLayer.Entities.Passenger", "passenger")
                         .WithMany("BookIngs")
                         .HasForeignKey("passengerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("StationFrom");
+
+                    b.Navigation("StationTo");
 
                     b.Navigation("Ticket");
 
@@ -1012,7 +1038,11 @@ namespace City_Bus_Management_System.Migrations
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Station", b =>
                 {
+                    b.Navigation("FromStationsBookings");
+
                     b.Navigation("Routes");
+
+                    b.Navigation("ToStationsBookings");
                 });
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Ticket", b =>

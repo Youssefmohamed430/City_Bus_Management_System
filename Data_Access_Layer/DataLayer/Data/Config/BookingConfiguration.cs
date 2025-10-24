@@ -17,6 +17,16 @@
             builder.HasOne(b => b.Ticket)
                    .WithMany(ts => ts.BookIngs)
                    .HasForeignKey(b => b.TicketId);
+
+            builder.HasOne(b => b.StationFrom)
+                   .WithMany(s => s.FromStationsBookings)
+                   .HasForeignKey(b => b.StationFromId)
+                   .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(b => b.StationTo)
+                   .WithMany(s => s.ToStationsBookings)
+                   .HasForeignKey(b => b.StationToId)
+                   .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
