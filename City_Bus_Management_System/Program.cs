@@ -44,6 +44,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("MyPolicy");
 
 app.MapHub<TrackingHub>("/trackingHub");
+
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.UseHttpsRedirection();
