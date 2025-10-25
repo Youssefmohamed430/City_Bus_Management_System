@@ -41,11 +41,11 @@ namespace Service_Layer.Services
 
                     // Notify passengers with [ FromStation == NextStation ].
                     if (bookingsFrom != null && bookingsFrom.Count > 0)
-                        await notificationService.NotifstationsproximityFrom(bookingsFrom);
+                        await notificationService.NotifStationApproaching(bookingsFrom,Duration,true);
 
                     // Notify passengers with [ ToStation == NextStation ].
                     if (bookingsTo != null && bookingsTo.Count > 0)
-                        await notificationService.NotifstationsproximityTo(bookingsTo);
+                        await notificationService.NotifStationApproaching(bookingsTo,Duration,false);
                 }
 
                 if (Duration <= 1)

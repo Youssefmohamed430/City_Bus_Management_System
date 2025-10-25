@@ -17,19 +17,22 @@ namespace Service_Layer.Services
             throw new NotImplementedException();
         }
 
-        public async Task NotifStationFromApproaching(List<Passenger> bookingsFrom)
+        public async Task NotifStationApproaching(List<Passenger> bookingsFrom,int dur,bool isfrom)
         {
+            Notification notification = new Notification
+            {
+                Message =  isfrom ?
+                $"your bus is approaching your boarding station remaining {dur} minutes to approach. Please be ready to board." :
+                $"your bus is approaching your arrival station remaining {dur} minutes to arrive. Please be ready to go down.",
+
+                Date = DateTime.UtcNow
+            };
+
+            await unitOfWork.GetRepository<Notification>().AddAsync(notification);
+            await unitOfWork.SaveAsync();
+
             foreach (var passenger in bookingsFrom)
             {
-                 Notification notification = new Notification
-                 {
-                     Message = $"your bus is approaching your boarding station. Please be ready to board.",
-                     Date = DateTime.Now
-                 };
-
-                await unitOfWork.GetRepository<Notification>().AddAsync(notification);
-                await unitOfWork.SaveAsync();
-
                 UserNotification userNotification = new UserNotification
                 {
                     UserId = passenger.Id,
@@ -46,11 +49,6 @@ namespace Service_Layer.Services
                     date    = notification.Date
                 });
             }
-        }
-
-        public Task<ResponseModel<Notification>> NotifStationToApproaching(List<Passenger> bookingsTo)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -9,7 +9,6 @@ namespace Service_Layer.IServices
     public interface INotificationService
     {
         Task<ResponseModel<Notification>> GetNotificationById(int id);
-        Task NotifStationFromApproaching(List<Passenger> bookingsFrom);
-        Task<ResponseModel<Notification>> NotifStationToApproaching(List<Passenger> bookingsTo);
+        Task NotifStationApproaching(List<Passenger> bookingsFrom,int dur,bool isfrom);
     }
 }
