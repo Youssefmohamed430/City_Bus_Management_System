@@ -16,6 +16,7 @@ namespace Data_Access_Layer.Repositries
         public IQueryable<TDto> FindAllSchedules<TDto>()
         {
             var schedules = Context.Schedules.AsNoTracking()
+                     .AsSplitQuery()
                      .Include(s => s.bus)
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
@@ -29,6 +30,7 @@ namespace Data_Access_Layer.Repositries
         public TDto FindSchedulesByDriverId<TDto>(string id)
         {
             var schedule = Context.Schedules.AsNoTracking()
+                     .AsSplitQuery()
                      .Include(s => s.bus)
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
@@ -43,6 +45,7 @@ namespace Data_Access_Layer.Repositries
         public TDto FindSchedulesByDriverName<TDto>(string Name)
         {
             var schedule = Context.Schedules.AsNoTracking()
+                     .AsSplitQuery()
                      .Include(s => s.bus)
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
@@ -56,6 +59,7 @@ namespace Data_Access_Layer.Repositries
         public IQueryable<TDto> GetSchedulesByTripId<TDto>(int tripId)
         {
             var schedules = Context.Schedules.AsNoTracking()
+                     .AsSplitQuery()
                      .Include(s => s.bus)
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
@@ -72,6 +76,7 @@ namespace Data_Access_Layer.Repositries
             DateTime egyptNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptZone);
 
             var schedules = Context.Schedules.AsNoTracking()
+                     .AsSplitQuery()
                      .Include(s => s.bus)
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)

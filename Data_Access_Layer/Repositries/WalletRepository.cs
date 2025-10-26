@@ -14,6 +14,7 @@ namespace Data_Access_Layer.Repositries
         public TDto GetWalletByPassengerId<TDto>(string passengerId)
         {
             var wallet = context.Wallets
+                .AsSplitQuery()
                 .Include(w => w.passenger)
                 .ThenInclude(p => p.User)
                 .Where(w => w.passengerId == passengerId)
