@@ -6,7 +6,7 @@ namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class TrackingController(TrackingService trackingService) : ControllerBase
+    public class TrackingController(ITrackingService trackingService) : ControllerBase
     {
         [HttpGet("{tripId}/{buslng}/{buslat}")]
         public async Task<IActionResult> GetNextStationAtTrip(int tripId, double buslng, double buslat)

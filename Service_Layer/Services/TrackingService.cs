@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
-    public class TrackingService
+    public class TrackingService : ITrackingService
     {
         private readonly IUnitOfWork unitOfWork;
         public ConcurrentQueue<Station> StationsOrder = new ConcurrentQueue<Station>();

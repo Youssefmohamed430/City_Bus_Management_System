@@ -24,9 +24,12 @@ namespace City_Bus_Management_System.Hubs
             if(schedule == null)
                  schedule = scheduleService.GetCurrentScheduleByDriverId(driverid);
 
+            if (schedule == null)
+                return;
+
             trackingService?.GetNextStationAtTrip(Convert.ToInt32(schedule.TripId)!, longitude, latitude);
 
-            cache.Set($"Bus [{schedule.BusId}]", Location , TimeSpan.FromMinutes(5));
+            cache.Set($"Bus [{schedule.BusId}]", Location, TimeSpan.FromMinutes(5));
 
             await Clients.All.SendAsync($"ReceiveLocationUpdate[{schedule.TripId}]", schedule.BusId,latitude, longitude);
         }

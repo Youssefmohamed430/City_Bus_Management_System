@@ -120,8 +120,8 @@ namespace Service_Layer.Services
         public async Task<Coordinates> CalcDistanceToDistnation(double userlng, double userlat,double stationlong,double stationlat)
         {
             var apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNjYzFiNmYxZmIzMjRmMWFiNGNiY2E5NjUwZDJkN2ViIiwiaCI6Im11cm11cjY0In0=";
-            var start = userlat + "," + userlng; 
-            var end = stationlat + "," + stationlong;   
+            var start = $"{userlng},{userlat}";
+            var end = $"{stationlong},{stationlat}";
 
             var url = $"https://api.openrouteservice.org/v2/directions/driving-car?api_key={apiKey}&start={start}&end={end}";
 

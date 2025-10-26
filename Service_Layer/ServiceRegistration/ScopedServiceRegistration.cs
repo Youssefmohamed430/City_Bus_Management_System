@@ -19,6 +19,8 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IDriverService, DriverService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<ITrackingService, TrackingService>();
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddScoped<JWTService>();

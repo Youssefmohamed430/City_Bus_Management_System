@@ -6,6 +6,8 @@ using Service_Layer.ServiceRegistration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddScoped<INotificationHubService, NotificationHub>();
+
 
 builder.Services.AddLogging(cfg => cfg.AddDebug());
 
