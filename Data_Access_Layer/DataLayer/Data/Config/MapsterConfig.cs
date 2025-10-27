@@ -41,6 +41,8 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
             .Map(dest => dest.BusType, src => src.Ticket.BusType)
             .Map(dest => dest.Price, src => src.Ticket.Price)
             .Map(dest => dest.TripId, src => src.TripId)
+            .Map(dest => dest.StationFromId, src => src.StationFromId)
+            .Map(dest => dest.StationToId, src => src.StationToId)
             .Map(dest => dest.passengerName, src => src.passenger.User.Name);
 
             TypeAdapterConfig<BookingDTO, Booking>
