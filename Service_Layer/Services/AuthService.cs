@@ -79,45 +79,58 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> CreateUser(string email)
         {
-            if(!_cache.TryGetValue($"passenger:{email}", out PassengerRegistertionDto? model))
-                return new AuthModel() { Message = "Verification code expired or invalid." };
-
-            var user = model.Adapt<ApplicationUser>();
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
+            try
             {
-                var errors = "";
+                unitOfWork.BeginTransaction();
 
-                foreach (var error in result.Errors)
-                    errors += $"{error.Description}, ";
+                if (!_cache.TryGetValue($"passenger:{email}", out PassengerRegistertionDto? model))
+                    return new AuthModel() { Message = "Verification code expired or invalid." };
 
-                logger.LogError("Failed to create user {Email}. Errors: {Errors}", email, errors);
+                var user = model.Adapt<ApplicationUser>();
 
-                return new AuthModel() { Message = errors };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = "";
+
+                    foreach (var error in result.Errors)
+                        errors += $"{error.Description}, ";
+
+                    logger.LogError("Failed to create user {Email}. Errors: {Errors}", email, errors);
+
+                    return new AuthModel() { Message = errors };
+                }
+
+                await _userManager.AddToRoleAsync(user, "Passenger");
+
+                var passenger = user.Adapt<Passenger>();
+
+                await unitOfWork.GetRepository<Passenger>().AddAsync(passenger);
+
+                await unitOfWork.SaveAsync();
+
+                walletService.CreateWallet(new WalletDTO { passengerId = user.Id });
+
+                var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
+
+                user.EmailConfirmed = true;
+
+                var refreshToken = await HandleRefreshToken(user, JWTSecurityToken);
+
+                logger.LogInformation("Passenger account created successfully for {Email}", email);
+
+                unitOfWork.Commit();
+
+                return new AuthModelFactory()
+                    .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken), refreshToken.Token, refreshToken.ExpiresOn, "Code Verfied successfully!");
             }
-
-            await _userManager.AddToRoleAsync(user, "Passenger");
-
-            var passenger = user.Adapt<Passenger>();
-
-            await unitOfWork.GetRepository<Passenger>().AddAsync(passenger);
-
-            await unitOfWork.SaveAsync();
-
-            walletService.CreateWallet(new WalletDTO { passengerId = user.Id });
-
-            var JWTSecurityToken = await _jwtservice.CreateJwtToken(user);
-
-            user.EmailConfirmed = true;
-
-            var refreshToken = await HandleRefreshToken(user, JWTSecurityToken);
-
-            logger.LogInformation("Passenger account created successfully for {Email}", email);
-
-            return new AuthModelFactory()
-                .CreateAuthModel(user.Id, model.UserName, model.Email, JWTSecurityToken.ValidTo, new List<string> { "Passenger" }, new JwtSecurityTokenHandler().WriteToken(JWTSecurityToken),refreshToken.Token,refreshToken.ExpiresOn,"Code Verfied successfully!");
+            catch (Exception ex)
+            {
+                unitOfWork.Rollback();
+                logger.LogError(ex, "Error creating user for {Email}", email);
+                return new AuthModel { Message = "An error occurred while creating the user." };
+            }
         }
         public async Task<AuthModel> ForgotPassword(string Email)
         {

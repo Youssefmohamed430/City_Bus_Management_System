@@ -6,52 +6,65 @@ namespace City_Bus_Management_System.Services
     {
         public async Task<ResponseModel<DriverRequests>> AcceptDriverRequest(int RequestId)
         {
-            var request = unitOfWork.GetRepository<DriverRequests>().Find(x => x.Id == RequestId);
-
-            if(request == null)
-                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null! };
-
-            request.Status = "Accept";
-
-            await unitOfWork.GetRepository<DriverRequests>().UpdateAsync(request);
-
-            ApplicationUser Driveruser = new ApplicationUser
+            try
             {
-                Name = request.Name,
-                Email = request.Email,
-                PhoneNumber = request.Phone,
-                UserName = request.Name + request.Id
-            };
+                unitOfWork.BeginTransaction();
 
-            var password = request.Name + request.Id + "23";
+                var request = unitOfWork.GetRepository<DriverRequests>().Find(x => x.Id == RequestId);
 
-            var result = await _userManager.CreateAsync(Driveruser, password);
+                if (request == null)
+                    return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Request Not Found", Result = null! };
 
-            if (!result.Succeeded)
-            {
-                var errors = "";
+                request.Status = "Accept";
 
-                foreach (var error in result.Errors)
-                    errors += $"{error.Description}, ";
+                await unitOfWork.GetRepository<DriverRequests>().UpdateAsync(request);
 
-                logger.LogError("Error Creating Driver User: {Errors}", errors);
+                ApplicationUser Driveruser = new ApplicationUser
+                {
+                    Name = request.Name,
+                    Email = request.Email,
+                    PhoneNumber = request.Phone,
+                    UserName = request.Name + request.Id
+                };
 
-                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = errors, Result = null };
+                var password = request.Name + request.Id + "23";
+
+                var result = await _userManager.CreateAsync(Driveruser, password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = "";
+
+                    foreach (var error in result.Errors)
+                        errors += $"{error.Description}, ";
+
+                    logger.LogError("Error Creating Driver User: {Errors}", errors);
+
+                    return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = errors, Result = null };
+                }
+
+                await _userManager.AddToRoleAsync(Driveruser, "Driver");
+
+                Driveruser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(Driveruser);
+
+                var driver = new Driver { SSN = request.SSN, Id = Driveruser.Id };
+
+                await unitOfWork.GetRepository<Driver>().AddAsync(driver);
+                await unitOfWork.SaveAsync();
+
+                await SendAcceptedEmail(request, Driveruser, password);
+
+                unitOfWork.Commit();
+
+                return new ResponseModel<DriverRequests> { Message = "Request Accepted", Result = request };
             }
-
-            await _userManager.AddToRoleAsync(Driveruser, "Driver");
-
-            Driveruser.EmailConfirmed = true;
-            await _userManager.UpdateAsync(Driveruser);
-
-            var driver = new Driver { SSN = request.SSN, Id = Driveruser.Id };
-
-            await unitOfWork.GetRepository<Driver>().AddAsync(driver);
-            await unitOfWork.SaveAsync();
-
-            await SendAcceptedEmail(request, Driveruser, password);
-
-            return new ResponseModel<DriverRequests> { Message = "Request Accepted", Result = request };
+            catch (Exception ex)
+            {
+                unitOfWork.Rollback();
+                logger.LogError("Error Accepting Driver Request: {Message}", ex.Message);
+                return new ResponseModel<DriverRequests>() { IsSuccess = false, Message = "Error Accepting Driver Request", Result = null! };
+            }
         }
         private async Task SendAcceptedEmail(DriverRequests request, ApplicationUser Driveruser, string password)
         {
