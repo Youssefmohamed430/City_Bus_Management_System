@@ -3,7 +3,7 @@
     public class ScheduleDTO
     {
         public int? SchId { get; set; }
-        public TimeSpan DepartureTime { get; set; } // 14 PM | 2 AM
+        public DateTime DepartureDateTime { get; set; } 
         public string? BusCode { get; set; }
         public int? BusId { get; set; }
         public string? BusType { get; set; }

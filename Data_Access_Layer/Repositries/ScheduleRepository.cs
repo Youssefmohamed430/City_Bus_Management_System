@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System.DataLayer.Data;
 using Core_Layer.IRepositries;
+using Data_Access_Layer.Helpers;
 using Mapster;
 
 namespace Data_Access_Layer.Repositries
@@ -27,7 +28,7 @@ namespace Data_Access_Layer.Repositries
             return schedules;
         }
 
-        public TDto FindSchedulesByDriverId<TDto>(string id)
+        public IQueryable<TDto> FindSchedulesByDriverId<TDto>(string id)
         {
             var schedule = Context.Schedules.AsNoTracking()
                      .AsSplitQuery()
@@ -36,13 +37,12 @@ namespace Data_Access_Layer.Repositries
                      .ThenInclude(d => d.User)
                      .Include(s => s.trip)
                      .Where(s => !s.IsDeleted && s.DriverId == id)
-                     .ProjectToType<TDto>()
-                     .FirstOrDefault()!;
+                     .ProjectToType<TDto>();
 
             return schedule;
         }
 
-        public TDto FindSchedulesByDriverName<TDto>(string Name)
+        public IQueryable<TDto> FindSchedulesByDriverName<TDto>(string Name)
         {
             var schedule = Context.Schedules.AsNoTracking()
                      .AsSplitQuery()
@@ -51,8 +51,7 @@ namespace Data_Access_Layer.Repositries
                      .ThenInclude(d => d.User)
                      .Include(s => s.trip)
                      .Where(s => !s.IsDeleted && s.driver.User.Name.ToLower() == Name.ToLower())
-                     .ProjectToType<TDto>()
-                     .FirstOrDefault()!;
+                     .ProjectToType<TDto>();
 
             return schedule;
         }
@@ -81,7 +80,7 @@ namespace Data_Access_Layer.Repositries
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
                      .Include(s => s.trip)
-                     .Where(s => s.DriverId == Id && s.DepartureTime <= egyptNow.TimeOfDay && !s.IsDeleted)
+                     .Where(s => s.DriverId == Id && EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) == EgyptTimeHelper.Now)
                      .ProjectToType<TDto>()
                      .FirstOrDefault()!;
 

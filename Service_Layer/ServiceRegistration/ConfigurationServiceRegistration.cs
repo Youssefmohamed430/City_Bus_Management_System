@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Http.Json;
+
 namespace Service_Layer.ServiceRegistration
 {
     public static class ConfigurationServiceRegistration
@@ -13,6 +15,12 @@ namespace Service_Layer.ServiceRegistration
                 options.Lockout.MaxFailedAccessAttempts = 3;
                 options.Lockout.AllowedForNewUsers = true;
             });
+
+            services.Configure<JsonOptions>(opts =>
+            {
+                opts.SerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+            });
+
 
             return services;
         }

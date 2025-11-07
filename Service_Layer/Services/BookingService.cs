@@ -1,10 +1,15 @@
 ﻿
+using City_Bus_Management_System.DataLayer.Entities;
+using Data_Access_Layer.Helpers;
+using System.Collections.Concurrent;
+
 namespace Service_Layer.Services
 {
     public class BookingService(IUnitOfWork unitOfWork, IWalletService walletService,
         IMemoryCache cache, IScheduleService scheduleService) : IBookingService
     {
-
+        public Dictionary<int, int> CountOfBookings { get; set; } = new Dictionary<int, int>();
+        private static readonly ConcurrentDictionary<int, object> TripLocks = new();
         public ResponseModel<BookingDTO> BookTicket(BookingDTO bookingdto)
         {
             string msg = "";
@@ -44,27 +49,36 @@ namespace Service_Layer.Services
 
         private void ValidateAvailableSeats(Ticket Ticket,int TripId)
         {
-            var schedule = unitOfWork.Schedules.Find(s => s.TripId == TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
+            var schedule = unitOfWork.Schedules.Find(s => s.TripId == TripId &&
+            s.bus.BusType == Ticket.BusType &&
+            EgyptTimeHelper.SplitFromUtc(s.DepartureDateTime).date  == EgyptTimeHelper.TodayDateOnly
+            , new string[] { "bus", "trip" });
 
             if (ValidateBookingTime(schedule))
                 throw new Exception("Cannot book ticket for past departure time.");
 
-            DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(10);
+            HandleCountOfBookings(schedule);
+        }
 
-            var cacheKey = $"CountOfBookings[{schedule.trip!.Id}]";
+        private void HandleCountOfBookings(Schedule schedule)
+        {
+            var tripId = schedule.trip!.Id;
+            var lockObj = TripLocks.GetOrAdd(tripId, new object());
 
-            cache.TryGetValue(cacheKey, out int countOfBookings);
+            lock (lockObj)
+            {
+                if (!CountOfBookings.ContainsKey(tripId))
+                    CountOfBookings[tripId] = 0;
 
-            if (countOfBookings >= schedule.bus!.TotalSeats)
-                throw new Exception("Booking limit reached. Cannot book more tickets at this time.");
+                if (CountOfBookings[tripId] >= schedule.bus!.TotalSeats)
+                    throw new Exception("Booking limit reached.");
 
-            countOfBookings++;
-            cache.Set(cacheKey, countOfBookings, new MemoryCacheEntryOptions { AbsoluteExpiration = expiryTime });
-
+                CountOfBookings[tripId]++;
+            }
         }
 
         private static bool ValidateBookingTime(Schedule schedule)
-            => DateTime.Now.TimeOfDay > schedule.DepartureTime;
+            => EgyptTimeHelper.SplitFromUtc(EgyptTimeHelper.Now).time > EgyptTimeHelper.SplitFromUtc(schedule.DepartureDateTime).time;
 
         public ResponseModel<BookingDTO> CancelBooking(int bookingid)
         {
@@ -82,7 +96,7 @@ namespace Service_Layer.Services
                 unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                 unitOfWork.SaveAsync();
 
-                HandleCancelingAtCache(booking);
+                HandleCanceling(booking);
 
                 var isrefunded = walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
 
@@ -101,24 +115,22 @@ namespace Service_Layer.Services
             }
         }
 
-        private void HandleCancelingAtCache(Booking booking)
+        private void HandleCanceling(Booking booking)
         {
             var Ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == booking.TicketId);
 
-            var schedule = unitOfWork.Schedules.Find(s => s.TripId == booking.TripId && s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" });
+            var schedule = unitOfWork.Schedules.Find(s => s.TripId == booking.TripId &&
+                        s.bus.BusType == Ticket.BusType &&
+                        EgyptTimeHelper.SplitFromUtc(s.DepartureDateTime).date == EgyptTimeHelper.TodayDateOnly
+                        , new string[] { "bus", "trip" });
 
-            if(ValidateBookingTime(schedule))
+            if (ValidateBookingTime(schedule))
                 throw new Exception("Cannot cancel booking for past departure time.");
 
-            DateTime expiryTime = Convert.ToDateTime(schedule.DepartureTime).AddMinutes(5);
+            var tripId = booking.TripId ;
+            var lockObj = TripLocks.GetOrAdd(tripId, new object());
 
-            var cacheKey = $"CountOfBookings[{booking.TripId}]";
-
-            cache.TryGetValue(cacheKey, out int countOfBookings);
-
-            countOfBookings--;
-
-            cache.Set(cacheKey, countOfBookings, new MemoryCacheEntryOptions { AbsoluteExpiration = expiryTime });
+            lock (lockObj) {  CountOfBookings[tripId]--; }
         }
 
         public ResponseModel<List<BookingDTO>> GetBookings()

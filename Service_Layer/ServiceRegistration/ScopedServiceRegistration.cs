@@ -18,7 +18,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IDriverService, DriverService>();
-            services.AddScoped<IBookingService, BookingService>();
+            services.AddSingleton<IBookingService, BookingService>();
             services.AddScoped<ITrackingService, TrackingService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();

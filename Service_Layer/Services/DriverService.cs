@@ -1,4 +1,5 @@
 ﻿using Core_Layer.Entities;
+using Data_Access_Layer.Helpers;
 
 namespace Service_Layer.Services
 {
@@ -17,7 +18,7 @@ namespace Service_Layer.Services
             if (Status == "Start")
             {
                 DriverData.TotalTrips++;
-                DriverData.UpdateTime = DateTime.Now;
+                DriverData.UpdateTime = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now);
                 // Send Notification to the user and Admin that the trip has Started
                 msg = "Trip Started Successfully";
             }
@@ -29,7 +30,7 @@ namespace Service_Layer.Services
             }
             else if (Status == "End")
             {
-                if(DriverData.UpdateTime == null! || (DateTime.Now - DriverData.UpdateTime).TotalHours < 2)
+                if(DriverData.UpdateTime == null! || (EgyptTimeHelper.Now - DriverData.UpdateTime).TotalHours < 2)
                     return new ResponseModel<object>() { Message = "Trip cannot be ended before 2 hours of start time", Result = null! };
                 DriverData.CompletedTrips++;
                 var schedule = 

@@ -1,4 +1,6 @@
 ﻿
+using Data_Access_Layer.Helpers;
+
 namespace City_Bus_Management_System.Services
 {
     public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork) : IScheduleService
@@ -25,22 +27,18 @@ namespace City_Bus_Management_System.Services
                 Result = schedules
             };
         }
-        public ResponseModel<ScheduleDTO> GetSchedulesByDriverId(string Id)
+        public ResponseModel<List<ScheduleDTO>> GetSchedulesByDriverId(string Id)
         {
-            ScheduleDTO schedulesByDriverId = null!;
+            List<ScheduleDTO> schedulesByDriverId = null!;
 
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
-            {
                 schedulesByDriverId = schedules
-                    .FirstOrDefault(s => s.DriverId == Id)!;
-            }
+                    .Where(s => s.DriverId == Id)!.ToList();
             else
-            {
                 schedulesByDriverId = unitofWork.Schedules
-                    .FindSchedulesByDriverId<ScheduleDTO>(Id);
-            }
+                    .FindSchedulesByDriverId<ScheduleDTO>(Id).ToList();
 
-            return new ResponseModel<ScheduleDTO>
+            return new ResponseModel<List<ScheduleDTO>>
             {
                 IsSuccess = true,
                 Message = "Schedules By DriverId fetched successfully",
@@ -53,29 +51,30 @@ namespace City_Bus_Management_System.Services
 
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
                 schedulesByDriverId = schedules
-                    .FirstOrDefault(s => s.DriverId == Id && s.DepartureTime <= DateTime.Now.TimeOfDay)!;
+                    .FirstOrDefault(s => s.DriverId == Id &&
+                    EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) == EgyptTimeHelper.Now)!;
             else
                 schedulesByDriverId = unitofWork.Schedules
                     .GetCurrentScheduleByDriverId<ScheduleDTO>(Id);
 
             return schedulesByDriverId;
         }
-        public ResponseModel<ScheduleDTO> GetSchedulesByDriverName(string DriverName)
+        public ResponseModel<List<ScheduleDTO>> GetSchedulesByDriverName(string DriverName)
         {
-            ScheduleDTO schedulesByDriverName = null!;
+            List<ScheduleDTO> schedulesByDriverName = null!;
 
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
             {
                 schedulesByDriverName = schedules
-                    .FirstOrDefault(s => s.DriverName.ToLower() == DriverName.ToLower())!;
+                    .Where(s => s.DriverName.ToLower() == DriverName.ToLower())!.ToList();
             }
             else
             {
                 schedulesByDriverName = unitofWork.Schedules
-                    .FindSchedulesByDriverName<ScheduleDTO>(DriverName);
+                    .FindSchedulesByDriverName<ScheduleDTO>(DriverName).ToList();
             }
 
-            return new ResponseModel<ScheduleDTO>
+            return new ResponseModel<List<ScheduleDTO>>
             {
                 IsSuccess = true,
                 Message = "Schedules By Driver Name fetched successfully",
@@ -116,7 +115,7 @@ namespace City_Bus_Management_System.Services
         {
             var schedule = unitofWork.Schedules.Find(x => x.SchId == SchId);
 
-            schedule.DepartureTime = newSchedule.DepartureTime;
+            schedule.DepartureDateTime = EgyptTimeHelper.ConvertToUtc(newSchedule.DepartureDateTime);
             schedule.BusId = Convert.ToInt32(newSchedule.BusId);
             schedule.DriverId = newSchedule.DriverId;
             schedule.TripId = Convert.ToInt32(newSchedule.TripId);

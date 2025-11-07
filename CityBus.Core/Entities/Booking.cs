@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.DataLayer.Entities
+﻿using Data_Access_Layer.Helpers;
+
+namespace City_Bus_Management_System.DataLayer.Entities
 {
     public class Booking
     {
@@ -15,5 +17,9 @@
         public Passenger? passenger { get; set; }
         public Ticket? Ticket { get; set; }
         public Trip? Trip { get; set; }
+        public Booking()
+        {
+            BookingDate = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now);
+        }
     }
 }
