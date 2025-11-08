@@ -5,7 +5,7 @@ namespace City_Bus_Management_System.DataLayer.Entities
     public class Booking
     {
         public int BookingId { get; set; }
-        public DateTime BookingDate { get; set; } = DateTime.Now;
+        public DateTime BookingDate { get; set; } 
         public string Status { get; set; } = "Booked";
         public required string passengerId { get; set; }
         public int TicketId { get; set; }

@@ -52,7 +52,8 @@ namespace City_Bus_Management_System.Services
             if (cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
                 schedulesByDriverId = schedules
                     .FirstOrDefault(s => s.DriverId == Id &&
-                    EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) == EgyptTimeHelper.Now)!;
+                            EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Date == EgyptTimeHelper.Now.Date &&
+                            EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Hour == EgyptTimeHelper.Now.Hour)!;
             else
                 schedulesByDriverId = unitofWork.Schedules
                     .GetCurrentScheduleByDriverId<ScheduleDTO>(Id);

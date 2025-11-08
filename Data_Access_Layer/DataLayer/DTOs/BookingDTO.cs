@@ -18,7 +18,7 @@ namespace Data_Access_Layer.DataLayer.DTOs
         public int StationToId { get; set; }
         public BookingDTO()
         {
-            BookingDate = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now);
+            BookingDate = EgyptTimeHelper.Now;
         }
     }
 }

@@ -48,6 +48,14 @@ app.UseCors("MyPolicy");
 app.MapHub<TrackingHub>("/trackingHub");
 app.MapHub<NotificationHub>("/notificationHub");
 
+app.MapPost("/Booking", (BookingDTO dookingdto, IBookingService bookingService) =>
+{
+    bookingService.BookTicket(dookingdto);
+    return Results.Ok("Booking created!");
+})
+.RequireRateLimiting("Sliding"); 
+
+
 app.UseHttpsRedirection();
 
 app.UseMiddleware<GlobalExceptionHandler>();
