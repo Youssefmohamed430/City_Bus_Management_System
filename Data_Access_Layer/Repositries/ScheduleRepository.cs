@@ -80,9 +80,11 @@ namespace Data_Access_Layer.Repositries
                      .Include(s => s.driver)
                      .ThenInclude(d => d.User)
                      .Include(s => s.trip)
-                     .Where(s => s.DriverId == Id &&
-                      EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Date == EgyptTimeHelper.Now.Date &&
+                     .Where(s => s.DriverId == Id)
+                     .AsEnumerable()
+                     .Where(s => EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Date == EgyptTimeHelper.Now.Date &&
                       EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Hour == EgyptTimeHelper.Now.Hour)
+                     .AsQueryable()
                      .ProjectToType<TDto>()
                      .FirstOrDefault()!;
 

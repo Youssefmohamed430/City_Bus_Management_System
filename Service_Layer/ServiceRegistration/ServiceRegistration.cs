@@ -4,9 +4,9 @@ using Service_Layer.Services;
 
 namespace Service_Layer.ServiceRegistration
 {
-    public static class ScopedServiceRegistration
+    public static class ServiceRegistration
     {
-        public static IServiceCollection AddScopedService(this IServiceCollection services)
+        public static IServiceCollection AddService(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAdminService, AdminService>();
@@ -19,7 +19,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IDriverService, DriverService>();
             services.AddSingleton<IBookingService, BookingService>();
-            services.AddScoped<ITrackingService, TrackingService>();
+            services.AddSingleton<ITrackingService, TrackingService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();

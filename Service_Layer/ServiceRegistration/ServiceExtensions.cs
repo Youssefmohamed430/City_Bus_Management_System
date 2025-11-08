@@ -9,7 +9,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddDataBaseConfiguration();   
             services.AddIdentityService();          
             services.AddJwtAuthentication(config);   
-            services.AddScopedService();                  
+            services.AddService();                  
             services.AddCorsPolicy();                
             services.AddRateLimiter();               
 

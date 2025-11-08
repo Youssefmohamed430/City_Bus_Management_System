@@ -2,109 +2,138 @@
 
 namespace Service_Layer.Services
 {
-    public class TrackingService(IUnitOfWork unitOfWork, IRouteService routeService, INotificationService notificationService, ILogger<TrackingService> logger) : ITrackingService
+    public class TrackingService(IServiceScopeFactory _scopeFactory, ILogger<TrackingService> logger) : ITrackingService
     {
         public ConcurrentQueue<Station> StationsOrder = new ConcurrentQueue<Station>();
         public List<Passenger> bookingsFrom = null!;
         public List<Passenger> bookingsTo = null!;
-        private int lastNotificationDuration = 0;
+        private int lastNotificationDuration = 0 ;
         
         public async Task GetNextStationAtTrip(int tripId, double buslng, double buslat)
         {
-            if (StationsOrder.IsEmpty)
-                FillQueue(tripId);
-
-            if (StationsOrder.TryPeek(out Station? nextStation))
+            using (var scope = _scopeFactory.CreateScope())
             {
-                var coor = await routeService.CalcDistanceToDistnation(buslng, buslat, nextStation.Longitude, nextStation.Latitude);
-                int Duration = (int)coor.Duration;
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var routeService = scope.ServiceProvider.GetRequiredService<IRouteService>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                
+                if (StationsOrder.IsEmpty)
+                    FillQueue(tripId);
 
-                logger.LogInformation($"Duration to next station: {Duration} minutes");
-
-                bool shouldNotify = false;
-
-                if (Duration <= 15 && Duration > 10 && lastNotificationDuration != 15)
+                if (StationsOrder.TryPeek(out Station? nextStation))
                 {
-                    shouldNotify = true;
-                    lastNotificationDuration = 15;
-                }
-                else if (Duration <= 10 && Duration > 5 && lastNotificationDuration != 10)
-                {
-                    shouldNotify = true;
-                    lastNotificationDuration = 10;
-                }
-                else if (Duration <= 5 && Duration > 1 && lastNotificationDuration != 5)
-                {
-                    shouldNotify = true;
-                    lastNotificationDuration = 5;
-                }
+                    var coor = await routeService.CalcDistanceToDistnation(buslng, buslat, nextStation.Longitude, nextStation.Latitude);
+                    int Duration = (int)coor.Duration;
 
-                if (shouldNotify)
-                {
-                    logger.LogInformation($"Sending notifications for Duration: {lastNotificationDuration}");
-                    
-                    if (bookingsFrom == null)
-                        GetBookingsFrom(tripId, nextStation);
+                    logger.LogInformation($"Duration to next station: {Duration} minutes");
 
-                    if (bookingsTo == null)
-                        GetBookingsTo(tripId, nextStation);
-
-                    if (bookingsFrom != null && bookingsFrom.Count > 0)
+                    int? newDuration = Duration switch
                     {
-                        logger.LogInformation($"Notifying {bookingsFrom.Count} passengers boarding at station {nextStation.Name}");
-                        await notificationService.NotifStationApproaching(bookingsFrom, lastNotificationDuration, true);
+                        <= 15 and > 10 => 15 , <= 10 and > 5 => 10,
+                        <= 5 and > 1 => 5 , _ => null
+                    };
+
+                    bool shouldNotify = newDuration is not null && newDuration != lastNotificationDuration;
+
+                    if (shouldNotify)
+                    {
+                        lastNotificationDuration = newDuration.Value;
+
+                        logger.LogInformation($"Sending notifications for Duration: {lastNotificationDuration}");
+
+                        await NotifybookingsAsFrom(tripId, notificationService, nextStation);
+
+                        await NotifybookingAsTo(tripId, notificationService, nextStation);
                     }
 
-                    if (bookingsTo != null && bookingsTo.Count > 0)
+                    if (Duration <= 1)
                     {
-                        logger.LogInformation($"Notifying {bookingsTo.Count} passengers alighting at station {nextStation.Name}");
-                        await notificationService.NotifStationApproaching(bookingsTo, lastNotificationDuration, false);
+                        logger.LogInformation($"Reached station {nextStation.Name}, moving to next");
+                        
+                        Reset();
                     }
-                }
-
-                if (Duration <= 1)
-                {
-                    logger.LogInformation($"Reached station {nextStation.Name}, moving to next");
-                    StationsOrder.TryDequeue(out _);
-                    bookingsFrom = null!;
-                    bookingsTo = null!;
-                    lastNotificationDuration = 0; 
                 }
             }
         }
+
+        private void Reset()
+        {
+            StationsOrder.TryDequeue(out _);
+            bookingsFrom = null!;
+            bookingsTo = null!;
+            lastNotificationDuration = 0;
+        }
+
+        private async Task NotifybookingAsTo(int tripId, INotificationService notificationService, Station nextStation)
+        {
+            if (bookingsTo == null)
+                GetBookingsTo(tripId, nextStation);
+
+            if (bookingsTo != null && bookingsTo.Count > 0)
+            {
+                logger.LogInformation($"Notifying {bookingsTo.Count} passengers alighting at station {nextStation.Name}");
+                await notificationService.NotifStationApproaching(bookingsTo, lastNotificationDuration, false);
+            }
+        }
+
+        private async Task NotifybookingsAsFrom(int tripId, INotificationService notificationService, Station nextStation)
+        {
+            if (bookingsFrom == null)
+                GetBookingsFrom(tripId, nextStation);
+
+            if (bookingsFrom != null && bookingsFrom.Count > 0)
+            {
+                logger.LogInformation($"Notifying {bookingsFrom.Count} passengers boarding at station {nextStation.Name}");
+                await notificationService.NotifStationApproaching(bookingsFrom, lastNotificationDuration, true);
+            }
+        }
+
         private void GetBookingsTo(int tripId, Station nextStation)
         {
-            bookingsTo = unitOfWork.GetRepository<Booking>()
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                bookingsTo = unitOfWork.GetRepository<Booking>()
                                    .FindAll(b => b.TripId == tripId
                                               && b.StationToId == nextStation.Id
                                               && b.Status == "Booked",
                                               new string[] { "passenger" })
                                    .Select(b => b.passenger!)
                                    .ToList();
+            }
         }
 
         private void GetBookingsFrom(int tripId, Station nextStation)
         {
-            bookingsFrom = unitOfWork.GetRepository<Booking>()
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                bookingsFrom = unitOfWork.GetRepository<Booking>()
                                      .FindAll(b => b.TripId == tripId
                                                 && b.StationFromId == nextStation.Id
                                                 && b.Status == "Booked",
                                                 new string[] { "passenger" })
                                      .Select(b => b.passenger!)
                                      .ToList();
+            }
         }
 
         private void FillQueue(int tripId)
         {
-            var stations = unitOfWork.GetRepository<Route>()
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+                var stations = unitOfWork.GetRepository<Route>()
                                 .FindAll(r => r.TripId == tripId && !r.IsDeleted, new string[] { "station" })
                                 .OrderBy(r => r.Order)
                                 .Select(r => r.station)
                                 .Skip(1)
                                 .ToList();
 
-            foreach (var station in stations)
-                StationsOrder.Enqueue(station);
+                foreach (var station in stations)
+                    StationsOrder.Enqueue(station);
+            } 
         }
     }
 }
