@@ -5,12 +5,8 @@ namespace Service_Layer.ServiceRegistration
 {
     public static class DataBaseConfigurationServiceRegistration
     {
-        public static IServiceCollection AddDataBaseConfiguration(this IServiceCollection services)
-        {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-
+        public static IServiceCollection AddDataBaseConfiguration(this IServiceCollection services,IConfigurationRoot config)
+        {            
             var Connectionstring = config.GetSection("constr").Value;
 
             services.AddDbContextPool<AppDbContext>(options =>

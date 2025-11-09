@@ -5,8 +5,13 @@ namespace Service_Layer.ServiceRegistration
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
+            var appsettingsconfig = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             services.AddAppConfigurations(config);   
-            services.AddDataBaseConfiguration();   
+            services.AddDataBaseConfiguration(appsettingsconfig);   
+            services.AddSerilogConfigs(appsettingsconfig);   
             services.AddIdentityService();          
             services.AddJwtAuthentication(config);   
             services.AddService();                  

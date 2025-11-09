@@ -1,9 +1,17 @@
 using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.Hubs;
+using Serilog;
 using Service_Layer.ServiceRegistration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Host.UseSerilog((context, services, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+                 .Enrich.FromLogContext()
+                 .WriteTo.Console());
+
 
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddScoped<INotificationHubService, NotificationHub>();
@@ -32,6 +40,8 @@ builder.Services.RegisterMapsterConfiguration();
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.UseStaticFiles();
 
@@ -67,3 +77,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+try
+{
+    Log.Logger.Information("Application Started Successfully");
+}
+catch (Exception ex)
+{
+    Log.Logger.Fatal(ex, "Application Failed to Start");
+}
+
