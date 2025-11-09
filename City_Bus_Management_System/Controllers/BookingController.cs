@@ -61,7 +61,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
 
-        [HttpPut("cancel/{bookingid}")]
+        [HttpPatch("{bookingid}")]
         public IActionResult CancelBooking(int bookingid)
         {
             var result = bookingService.CancelBooking(bookingid);

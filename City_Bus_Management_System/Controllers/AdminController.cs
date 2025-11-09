@@ -20,14 +20,14 @@ namespace City_Bus_Management_System.Controllers
             this.context = context;
             _userManager = userManager;
         }
-        [HttpPost("AcceptRequest/{Id}")]
+        [HttpPatch("AcceptRequest/{Id}")]
         public async Task<IActionResult> AcceptRequest(int Id)
         {
             var result = await adminService.AcceptDriverRequest(Id);
 
             return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
-        [HttpPost("RejectRequest/{RequestId}")]
+        [HttpPatch("RejectRequest/{RequestId}")]
         public async Task<IActionResult> RejectRequest(int RequestId)
         {
             var result = await adminService.RejectDriverRequest(RequestId);
