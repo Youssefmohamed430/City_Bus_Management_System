@@ -263,5 +263,18 @@ namespace Service_Layer.Services
                 }
             }
         }
+        public StationDTO GetPassengerStartStationAsync(string passengerId)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+                var StartStationbooking = unitOfWork.GetRepository<Booking>()
+                    .Find(b => b.passengerId == passengerId,new string[] { "StationFrom" })
+                    .StationFrom.Adapt<StationDTO>();
+
+                return StartStationbooking;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.Controllers
+﻿using Service_Layer.Services;
+
+namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -66,6 +68,13 @@
         {
             var result = bookingService.CancelBooking(bookingid);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+        }
+        [HttpGet("StartStation/{passid}")]
+        public IActionResult GetPassengerStartStationAsync(string passid)
+        {
+            var result = bookingService.GetPassengerStartStationAsync(passid);
+
+            return Ok(result);
         }
     }
 }

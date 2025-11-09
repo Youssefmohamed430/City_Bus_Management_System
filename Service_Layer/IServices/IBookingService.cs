@@ -10,5 +10,6 @@
         ResponseModel<BookingDTO> BookTicket(BookingDTO booking);
         ResponseModel<BookingDTO> UpdateBooking(int bookingid,BookingDTO booking);
         ResponseModel<BookingDTO> CancelBooking(int bookingid);
+        StationDTO GetPassengerStartStationAsync(string passengerId);
     }
 }
