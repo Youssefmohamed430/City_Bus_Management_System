@@ -1,5 +1,6 @@
 ﻿
 using Data_Access_Layer;
+using Service_Layer.BackgroundJobs;
 using Service_Layer.Services;
 
 namespace Service_Layer.ServiceRegistration
@@ -23,6 +24,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddScoped<IBackgroundJobService, BackgroundJobService>();
             services.AddScoped<JWTService>();
 
             return services;

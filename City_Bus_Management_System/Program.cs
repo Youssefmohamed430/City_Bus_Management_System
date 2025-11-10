@@ -1,6 +1,8 @@
 using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.Hubs;
+using Hangfire;
+using Hangfire.SqlServer;
 using Serilog;
 using Service_Layer.ServiceRegistration;
 try
@@ -9,38 +11,33 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.Services.AddHangfire(configuration => configuration
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(builder.Configuration.GetConnectionString("constr"),
+                        new SqlServerStorageOptions
+                        {
+                            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                            QueuePollInterval = TimeSpan.Zero,
+                            UseRecommendedIsolationLevel = true,
+                            DisableGlobalLocks = true
+                        }));
+
+    builder.Services.AddHangfireServer();
 
     builder.Host.UseSerilog((context, services, configuration) =>
         configuration.ReadFrom.Configuration(context.Configuration)
                      .Enrich.FromLogContext()
                      .WriteTo.Console());
 
-
     builder.Services.AddApplicationServices(builder.Configuration);
     builder.Services.AddScoped<INotificationHubService, NotificationHub>();
-
-
-    builder.Services.AddLogging(cfg => cfg.AddDebug());
-
-    builder.Services.AddControllers()
-    .AddJsonOptions(opts =>
-    {
-        opts.JsonSerializerOptions.DefaultIgnoreCondition =
-            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-    });
-
-    builder.Services.AddSignalR(options =>
-    {
-        options.EnableDetailedErrors = true; // Helpful for debugging
-    });
-
-    builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddSwaggerGen();
 
     builder.Services.RegisterMapsterConfiguration();
-
-    builder.Services.AddMemoryCache();
 
     var app = builder.Build();
 
@@ -77,11 +74,15 @@ try
 
     app.UseAuthorization();
 
+    app.UseHangfireDashboard("/hangfire");
+
     app.MapControllers();
 
     Log.Logger.Information("Application Started Successfully");
 
     app.Run();
+
+    BackgroundJobsAddition.AddBackgroundJobServices();
 }
 catch (Exception ex)
 {

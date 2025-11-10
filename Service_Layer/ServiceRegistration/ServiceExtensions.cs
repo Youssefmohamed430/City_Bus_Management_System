@@ -16,7 +16,8 @@ namespace Service_Layer.ServiceRegistration
             services.AddJwtAuthentication(config);   
             services.AddService();                  
             services.AddCorsPolicy();                
-            services.AddRateLimiter();               
+            services.AddRateLimiter();
+            services.AddRemainingAppConfigs();
 
 
             return services;

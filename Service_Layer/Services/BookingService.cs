@@ -1,11 +1,10 @@
 ﻿
-using City_Bus_Management_System.DataLayer.Entities;
 using Data_Access_Layer.Helpers;
 using System.Collections.Concurrent;
 
 namespace Service_Layer.Services
 {
-    public class BookingService(IMemoryCache cache,IServiceScopeFactory _scopeFactory) : IBookingService
+    public class BookingService(IMemoryCache cache,IServiceScopeFactory _scopeFactory,ILogger logger) : IBookingService
     {
         public Dictionary<int, int> CountOfBookings { get; set; } = new Dictionary<int, int>();
         private static readonly ConcurrentDictionary<int, object> TripLocks = new();
@@ -80,11 +79,31 @@ namespace Service_Layer.Services
                     CountOfBookings[tripId] = 0;
 
                 if (CountOfBookings[tripId] >= schedule.bus!.TotalSeats)
-                    throw new Exception("Booking limit reached.");
+                    throw new Exception("No available seats.");
 
                 CountOfBookings[tripId]++;
             }
         }
+
+        //public void CleanOldBookingCounts()
+        //{
+        //    var now = EgyptTimeHelper.Now;
+
+        //    using (var scope = _scopeFactory.CreateScope())
+        //    {
+        //        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+        //        var expiredSchedules = unitOfWork.Schedules
+        //        .FindAll(s => EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) < now)
+        //        .Select(s => s.TripId)
+        //        .ToList();
+
+        //        foreach (var tripId in expiredSchedules)
+        //            CountOfBookings.Remove(tripId);
+
+        //        logger.LogInformation($"Cleaned {expiredSchedules.Count} trip counters");
+        //    }
+        //}
 
         private static bool ValidateBookingTime(Schedule schedule)
         {

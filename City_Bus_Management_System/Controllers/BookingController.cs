@@ -63,7 +63,7 @@ namespace City_Bus_Management_System.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
 
-        [HttpPatch("{bookingid}")]
+        [HttpPatch("cancel/{bookingid}")]
         public IActionResult CancelBooking(int bookingid)
         {
             var result = bookingService.CancelBooking(bookingid);
