@@ -23,7 +23,7 @@ namespace Service_Layer.ServiceRegistration
                 "*/30 * * * *"); // Every 30 minutes
 
             RecurringJob.AddOrUpdate<IBackgroundJobService>(
-                "refresh-all-caches",
+                "clean-expired-refresh-tokens",
                 service => service.CleanExpiredRefreshTokens(),
                 Cron.Daily); 
         }

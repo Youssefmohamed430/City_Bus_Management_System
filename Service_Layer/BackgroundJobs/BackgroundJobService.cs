@@ -11,7 +11,7 @@ namespace Service_Layer.BackgroundJobs
 {
     public class BackgroundJobService(
         UserManager<ApplicationUser> _userManager , IUnitOfWork _unitOfWork,
-        ILogger logger , IMemoryCache _cache
+        ILogger<BackgroundJobService> logger , IMemoryCache _cache
     ) : IBackgroundJobService
     {
 

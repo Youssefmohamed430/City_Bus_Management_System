@@ -7,7 +7,7 @@ using Serilog;
 using Service_Layer.ServiceRegistration;
 try
 {
-    Log.Information("Starting up the application...");
+    Log.Logger.Information("Starting up the application...");
 
     var builder = WebApplication.CreateBuilder(args);
 
@@ -76,13 +76,14 @@ try
 
     app.UseHangfireDashboard("/hangfire");
 
+    BackgroundJobsAddition.AddBackgroundJobServices();
+
     app.MapControllers();
 
     Log.Logger.Information("Application Started Successfully");
 
     app.Run();
 
-    BackgroundJobsAddition.AddBackgroundJobServices();
 }
 catch (Exception ex)
 {

@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace Service_Layer.Services
 {
-    public class BookingService(IMemoryCache cache,IServiceScopeFactory _scopeFactory,ILogger logger) : IBookingService
+    public class BookingService(IMemoryCache cache,IServiceScopeFactory _scopeFactory) : IBookingService
     {
         public Dictionary<int, int> CountOfBookings { get; set; } = new Dictionary<int, int>();
         private static readonly ConcurrentDictionary<int, object> TripLocks = new();
@@ -18,6 +18,7 @@ namespace Service_Layer.Services
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<BookingService>>();
                 try
                 {              
                     unitOfWork.BeginTransaction();
