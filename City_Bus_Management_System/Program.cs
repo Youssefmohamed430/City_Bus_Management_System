@@ -15,7 +15,7 @@ try
                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
-                    .UseSqlServerStorage(builder.Configuration.GetConnectionString("constr"),
+                    .UseSqlServerStorage(builder.Configuration.GetSection("constr").Value,
                         new SqlServerStorageOptions
                         {
                             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),

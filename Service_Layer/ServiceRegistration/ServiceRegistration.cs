@@ -19,7 +19,12 @@ namespace Service_Layer.ServiceRegistration
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IDriverService, DriverService>();
-            services.AddSingleton<IBookingService, BookingService>();
+            services.AddSingleton<IBookingService>(sp =>
+            {
+                var cache = sp.GetRequiredService<IMemoryCache>();
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
+                return new BookingService(cache, scopeFactory);
+            });
             services.AddSingleton<ITrackingService, TrackingService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
