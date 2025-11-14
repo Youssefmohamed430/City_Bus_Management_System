@@ -13,11 +13,13 @@ namespace Service_Layer.ServiceRegistration
             services.AddLogging(cfg => cfg.AddDebug());
 
             services.AddControllers()
-            .AddJsonOptions(opts =>
-            {
-                opts.JsonSerializerOptions.DefaultIgnoreCondition =
-                    System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-            });
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler =
+                        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition =
+                        System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+                });
 
             services.AddSignalR(options =>
             {

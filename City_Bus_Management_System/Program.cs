@@ -3,6 +3,7 @@ using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.Hubs;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Service_Layer.ServiceRegistration;
 try
@@ -35,8 +36,16 @@ try
     builder.Services.AddApplicationServices(builder.Configuration);
     builder.Services.AddScoped<INotificationHubService, NotificationHub>();
 
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "CityBus API",
+            Version = "v1"
+        });
 
+        options.CustomSchemaIds(type => type.FullName);
+    });
     builder.Services.RegisterMapsterConfiguration();
 
     var app = builder.Build();

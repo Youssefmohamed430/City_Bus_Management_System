@@ -10,7 +10,7 @@ namespace Service_Layer.ServiceRegistration
         {
             services.AddRateLimiter(options =>
             {
-                options.AddSlidingWindowLimiter("sliding", opt =>
+                options.AddSlidingWindowLimiter("Sliding", opt =>
                 {
                     opt.PermitLimit = 10;
                     opt.Window = TimeSpan.FromMinutes(1);
