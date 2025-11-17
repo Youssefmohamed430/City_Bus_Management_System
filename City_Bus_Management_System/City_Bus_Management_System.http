@@ -1,6 +1,18 @@
-@City_Bus_Management_System_HostAddress = http://localhost:5247
+@City_Bus_Management_System_HostAddress = https://localhost:44382
 
-GET {{City_Bus_Management_System_HostAddress}}/weatherforecast/
-Accept: application/json
+
+
+###
+
+GET {{City_Bus_Management_System_HostAddress}}/admin
+
+###
+
+GET {{City_Bus_Management_System_HostAddress}}/route
+
+###
+
+@tripId=1
+GET {{City_Bus_Management_System_HostAddress}}/route/RouteForTrip/{{tripId}}
 
 ###
