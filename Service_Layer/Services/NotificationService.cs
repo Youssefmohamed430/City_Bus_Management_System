@@ -29,6 +29,7 @@ namespace Service_Layer.Services
                 Date = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now)    
             };
 
+
             await unitOfWork.GetRepository<Notification>().AddAsync(notification);
             await unitOfWork.SaveAsync();
 
@@ -41,7 +42,6 @@ namespace Service_Layer.Services
                 };
 
                 await unitOfWork.GetRepository<UserNotification>().AddAsync(userNotification);
-                await unitOfWork.SaveAsync();
 
                 await notificationHub.SendNotificationToUser(passenger.Id, new
                 {
@@ -50,6 +50,7 @@ namespace Service_Layer.Services
                     date    = notification.Date
                 });
             }
+            await unitOfWork.SaveAsync();
         }
     }
 }

@@ -4,6 +4,8 @@ using Core_Layer.IRepositries;
 using Data_Access_Layer.Repositries;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Collections.Concurrent;
+using EFCore.BulkExtensions;
+
 
 namespace Data_Access_Layer
 {

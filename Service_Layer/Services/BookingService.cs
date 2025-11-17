@@ -269,13 +269,15 @@ namespace Service_Layer.Services
                 try
                 {
                     booking.TicketId = Convert.ToInt32(Updatedbooking.TicketId);
-                    booking.TripId = Convert.ToInt32(Updatedbooking.TicketId);
+                    booking.TripId = Convert.ToInt32(Updatedbooking.TripId);
+                    booking.StationFromId = Updatedbooking.StationFromId;
+                    booking.StationToId = Updatedbooking.StationToId;
 
                     unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                     unitOfWork.SaveAsync();
                     walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
                     cache.Remove("bookings");
-                    return ResponseModelFactory<BookingDTO>.CreateResponse("Booking cancelled successfully", null!);
+                    return ResponseModelFactory<BookingDTO>.CreateResponse("Booking Updated successfully", null!);
                 }
                 catch (Exception ex)
                 {
