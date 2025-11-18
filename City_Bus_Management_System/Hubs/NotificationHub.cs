@@ -10,9 +10,40 @@ namespace City_Bus_Management_System.Hubs
         {
             this.hubContext = hubContext;
         }
+        private static string GetUserGroup(string userId) => $"user:{userId}";
+
+        public override async Task OnConnectedAsync()
+        {
+            var http = Context.GetHttpContext();
+            if (http != null)
+            {
+                var userId = http.Request.Query["userId"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, GetUserGroup(userId));
+                }
+            }
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            var http = Context.GetHttpContext();
+            if (http != null)
+            {
+                var userId = http.Request.Query["userId"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetUserGroup(userId));
+                }
+            }
+            await base.OnDisconnectedAsync(exception);
+        }
+
         public async Task SendNotificationToUser(string userId, object notification)
         {
-            await hubContext.Clients.User(userId)
+            var groupName = GetUserGroup(userId);
+            await hubContext.Clients.Group(groupName)
                 .SendAsync("ReceiveNotification", notification);
         }
     }
