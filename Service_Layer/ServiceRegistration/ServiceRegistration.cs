@@ -25,7 +25,7 @@ namespace Service_Layer.ServiceRegistration
                 var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
                 return new BookingService(cache, scopeFactory);
             });
-            services.AddSingleton<ITrackingService, TrackingService>();
+            services.AddSingleton<ITrackingService, TrackingServiceV2>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();

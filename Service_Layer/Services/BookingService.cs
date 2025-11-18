@@ -60,7 +60,8 @@ namespace Service_Layer.Services
                schedule = unitOfWork.Schedules.FindAll(s => s.TripId == TripId &&
                     s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" })
                     .AsEnumerable()
-                    .FirstOrDefault(s => EgyptTimeHelper.SplitFromUtc(s.DepartureDateTime).date == EgyptTimeHelper.TodayDateOnly)!;
+                    .FirstOrDefault(s => EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) == EgyptTimeHelper.Now
+                                        && EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Hour == EgyptTimeHelper.Now.Hour)!;
             } 
 
             if (ValidateBookingTime(schedule))
