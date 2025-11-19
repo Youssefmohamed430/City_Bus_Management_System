@@ -25,12 +25,15 @@ namespace Service_Layer.Services
 
                     var ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == bookingdto.TicketId);
 
-                    ValidateAvailableSeats(ticket,bookingdto.TripId);
+                    ValidateAvailableSeats(ticket,bookingdto.TripId
+                        ,Convert.ToInt32(bookingdto.numberOfTickets));
 
                     unitOfWork.GetRepository<Booking>().AddAsync(booking);
                     unitOfWork.SaveAsync();
 
-                    var isDeducted = walletService.DeductBalance(Convert.ToDouble(ticket!.Price),bookingdto.passengerId!);
+                    booking.totalPrice = Convert.ToInt32(ticket!.Price * bookingdto.numberOfTickets);
+
+                    var isDeducted = walletService.DeductBalance(booking.totalPrice,bookingdto.passengerId!);
 
                     if (!isDeducted)
                         throw new Exception("Failed to deduct wallet balance.");
@@ -50,7 +53,7 @@ namespace Service_Layer.Services
             return ResponseModelFactory<BookingDTO>.CreateResponse(msg,isSuccess ? booking.Adapt<BookingDTO>() : null!,isSuccess);
         }
 
-        private void ValidateAvailableSeats(Ticket Ticket, int TripId)
+        private void ValidateAvailableSeats(Ticket Ticket, int TripId,int numOfTickets)
         {
             Schedule schedule;
             using (var scope = _scopeFactory.CreateScope())
@@ -67,10 +70,10 @@ namespace Service_Layer.Services
             if (ValidateBookingTime(schedule))
                 throw new Exception("Cannot book ticket for past departure time.");
 
-            HandleCountOfBookings(schedule);
+            HandleCountOfBookings(schedule,numOfTickets);
         }
 
-        private void HandleCountOfBookings(Schedule schedule)
+        private void HandleCountOfBookings(Schedule schedule,int numOfTickets)
         {
             var tripId = schedule.trip!.Id;
             var lockObj = TripLocks.GetOrAdd(tripId, new object());
@@ -80,32 +83,12 @@ namespace Service_Layer.Services
                 if (!CountOfBookings.ContainsKey(tripId))
                     CountOfBookings[tripId] = 0;
 
-                if (CountOfBookings[tripId] >= schedule.bus!.TotalSeats)
+                if (CountOfBookings[tripId] + numOfTickets > schedule.bus!.TotalSeats)
                     throw new Exception("No available seats.");
 
-                CountOfBookings[tripId]++;
+                CountOfBookings[tripId] += numOfTickets; 
             }
         }
-
-        //public void CleanOldBookingCounts()
-        //{
-        //    var now = EgyptTimeHelper.Now;
-
-        //    using (var scope = _scopeFactory.CreateScope())
-        //    {
-        //        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-        //        var expiredSchedules = unitOfWork.Schedules
-        //        .FindAll(s => EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) < now)
-        //        .Select(s => s.TripId)
-        //        .ToList();
-
-        //        foreach (var tripId in expiredSchedules)
-        //            CountOfBookings.Remove(tripId);
-
-        //        logger.LogInformation($"Cleaned {expiredSchedules.Count} trip counters");
-        //    }
-        //}
 
         private static bool ValidateBookingTime(Schedule schedule)
         {
@@ -137,7 +120,7 @@ namespace Service_Layer.Services
 
                     HandleCanceling(booking);
 
-                    var isrefunded = walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
+                    var isrefunded = walletService.RefundBalance(booking!.totalPrice, booking.passengerId!);
 
                     if (!isrefunded)
                         throw new Exception("Failed to deduct wallet balance.");
@@ -173,7 +156,7 @@ namespace Service_Layer.Services
                 var tripId = booking.TripId;
                 var lockObj = TripLocks.GetOrAdd(tripId, new object());
 
-                lock (lockObj) { CountOfBookings[tripId]--; }
+                lock (lockObj) { CountOfBookings[tripId] -= booking.numberOfTickets; }
             }
         }
 
@@ -270,6 +253,7 @@ namespace Service_Layer.Services
                 try
                 {
                     booking.TicketId = Convert.ToInt32(Updatedbooking.TicketId);
+                    booking.totalPrice = Convert.ToInt32(booking.Ticket.Price * booking.numberOfTickets);
                     booking.TripId = Convert.ToInt32(Updatedbooking.TripId);
                     booking.StationFromId = Updatedbooking.StationFromId;
                     booking.StationToId = Updatedbooking.StationToId;
