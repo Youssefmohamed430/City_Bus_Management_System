@@ -10,6 +10,8 @@ namespace City_Bus_Management_System.DataLayer.Entities
         public required string passengerId { get; set; }
         public int TicketId { get; set; }
         public int TripId { get; set; }
+        public int numberOfTickets { get; set; }
+        public int totalPrice { get; set; } 
         public int StationFromId { get; set; }
         public Station StationFrom { get; set; }
         public int StationToId { get; set; }

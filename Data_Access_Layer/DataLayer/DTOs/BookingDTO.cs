@@ -12,7 +12,8 @@ namespace Data_Access_Layer.DataLayer.DTOs
         public string? passengerName { get; set; }
         public int TicketId { get; set; }
         public int TripId { get; set; }
-        public double? Price { get; set; } 
+        public int numberOfTickets { get; set; }
+        public int? totalPrice { get; set; } 
         public string? BusType { get; set; }
         public int StationFromId { get; set; }
         public int StationToId { get; set; }
