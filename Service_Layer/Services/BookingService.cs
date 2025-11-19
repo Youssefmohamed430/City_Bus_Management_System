@@ -63,8 +63,13 @@ namespace Service_Layer.Services
                schedule = unitOfWork.Schedules.FindAll(s => s.TripId == TripId &&
                     s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" })
                     .AsEnumerable()
-                    .FirstOrDefault(s => EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime) == EgyptTimeHelper.Now
-                                        && EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime).Hour == EgyptTimeHelper.Now.Hour)!;
+                    .FirstOrDefault(s =>
+                    {
+                        var dep = EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime);
+                        var now = EgyptTimeHelper.Now;
+
+                        return dep.Date == now.Date && dep.Hour > now.Hour;
+                    })!;
             } 
 
             if (ValidateBookingTime(schedule))
@@ -148,7 +153,13 @@ namespace Service_Layer.Services
                 var schedule = unitOfWork.Schedules.FindAll(s => s.TripId == booking.TripId &&
                     s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" })
                     .AsEnumerable()
-                    .FirstOrDefault(s => EgyptTimeHelper.SplitFromUtc(s.DepartureDateTime).date == EgyptTimeHelper.TodayDateOnly)!;
+                    .FirstOrDefault(s =>
+                    {
+                        var dep = EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime);
+                        var now = EgyptTimeHelper.Now;
+
+                        return dep.Date == now.Date && dep.Hour > now.Hour;
+                    })!;
 
                 if (ValidateBookingTime(schedule))
                     throw new Exception("Cannot cancel booking for past departure time.");
