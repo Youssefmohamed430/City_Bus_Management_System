@@ -3,7 +3,7 @@ using Data_Access_Layer.Helpers;
 
 namespace City_Bus_Management_System.Services
 {
-    public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork) : IScheduleService
+    public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork,INotificationService notificationService) : IScheduleService
     {
 
         public ResponseModel<List<ScheduleDTO>> GetSchedules()
@@ -93,6 +93,13 @@ namespace City_Bus_Management_System.Services
                 unitofWork.SaveAsync();
 
                 cache.Remove("schedules");
+
+                var date = EgyptTimeHelper.ConvertFromUtc(schedule.DepartureDateTime).ToString("yyyy-MM-dd");
+                var time = EgyptTimeHelper.ConvertFromUtc(schedule.DepartureDateTime).ToString("HH:mm");
+
+                notificationService
+                    .SendNotification(schedule.DriverId!,
+                    $"A new shift has been added to your schedule on {date} and at {time}.");
 
                 return new ResponseModel<ScheduleDTO>
                 {

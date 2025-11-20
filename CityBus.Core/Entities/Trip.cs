@@ -10,7 +10,7 @@
         public List<Schedule>? Schedules { get; set; }
         public List<Booking>? Bookings { get; set; }
         public List<Route>? Routes { get; set; }
-        public List<RevenueReport>? RevenueReports { get; set; }
+        //public List<RevenueReport>? RevenueReports { get; set; }
 
     }
 }

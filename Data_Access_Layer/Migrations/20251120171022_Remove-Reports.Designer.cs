@@ -4,6 +4,7 @@ using City_Bus_Management_System.DataLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace City_Bus_Management_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251120171022_Remove-Reports")]
+    partial class RemoveReports
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,6 +191,42 @@ namespace City_Bus_Management_System.Migrations
                     b.ToTable("Buses");
                 });
 
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.BusUsageReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BusId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ReportDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPassengers")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalTrips")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusId");
+
+                    b.HasIndex("ReportId")
+                        .IsUnique();
+
+                    b.ToTable("BusUsageReport");
+                });
+
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Driver", b =>
                 {
                     b.Property<string>("Id")
@@ -275,6 +314,62 @@ namespace City_Bus_Management_System.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Passengers");
+                });
+
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Report", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Report");
+                });
+
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.RevenueReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NumberOfTickets")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReportDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalRevenue")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("tripId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId")
+                        .IsUnique();
+
+                    b.HasIndex("tripId");
+
+                    b.ToTable("RevenueReport");
                 });
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Route", b =>
@@ -714,6 +809,23 @@ namespace City_Bus_Management_System.Migrations
                     b.Navigation("passenger");
                 });
 
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.BusUsageReport", b =>
+                {
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Bus", "bus")
+                        .WithMany("BusUsageReports")
+                        .HasForeignKey("BusId");
+
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Report", "report")
+                        .WithOne("BusUsagereports")
+                        .HasForeignKey("City_Bus_Management_System.DataLayer.Entities.BusUsageReport", "ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("bus");
+
+                    b.Navigation("report");
+                });
+
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Driver", b =>
                 {
                     b.HasOne("City_Bus_Management_System.DataLayer.Entities.ApplicationUser", "User")
@@ -734,6 +846,23 @@ namespace City_Bus_Management_System.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.RevenueReport", b =>
+                {
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Report", "report")
+                        .WithOne("Revenuereport")
+                        .HasForeignKey("City_Bus_Management_System.DataLayer.Entities.RevenueReport", "ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("City_Bus_Management_System.DataLayer.Entities.Trip", "trip")
+                        .WithMany("RevenueReports")
+                        .HasForeignKey("tripId");
+
+                    b.Navigation("report");
+
+                    b.Navigation("trip");
                 });
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Route", b =>
@@ -885,6 +1014,8 @@ namespace City_Bus_Management_System.Migrations
 
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Bus", b =>
                 {
+                    b.Navigation("BusUsageReports");
+
                     b.Navigation("Schedules");
                 });
 
@@ -907,6 +1038,13 @@ namespace City_Bus_Management_System.Migrations
                     b.Navigation("wallet");
                 });
 
+            modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Report", b =>
+                {
+                    b.Navigation("BusUsagereports");
+
+                    b.Navigation("Revenuereport");
+                });
+
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Station", b =>
                 {
                     b.Navigation("FromStationsBookings");
@@ -924,6 +1062,8 @@ namespace City_Bus_Management_System.Migrations
             modelBuilder.Entity("City_Bus_Management_System.DataLayer.Entities.Trip", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("RevenueReports");
 
                     b.Navigation("Routes");
 

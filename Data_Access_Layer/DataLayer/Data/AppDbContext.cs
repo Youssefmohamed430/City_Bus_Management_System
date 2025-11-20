@@ -17,9 +17,9 @@ namespace City_Bus_Management_System.DataLayer.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserNotification> UserNotifications { get; set; }
-        public DbSet<Report> Reports { get; set; }
-        public DbSet<BusUsageReport> BusUsageReports { get; set; }
-        public DbSet<RevenueReport> RevenueReports { get; set; }
+        //public DbSet<Report> Reports { get; set; }
+        //public DbSet<BusUsageReport> BusUsageReports { get; set; }
+        //public DbSet<RevenueReport> RevenueReports { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {

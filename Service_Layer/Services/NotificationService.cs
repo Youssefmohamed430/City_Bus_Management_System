@@ -11,11 +11,22 @@ using System.Threading.Tasks;
 
 namespace Service_Layer.Services
 {
-    public class NotificationService(IUnitOfWork unitOfWork,INotificationHubService notificationHub) : INotificationService
+    public class NotificationService(IMemoryCache cache,IUnitOfWork unitOfWork,INotificationHubService notificationHub) : INotificationService
     {
-        public Task<ResponseModel<Notification>> GetNotificationById(int id)
+        public ResponseModel<List<Notification>> GetNotificationById(string id)
         {
-            throw new NotImplementedException();
+            if(!cache.TryGetValue($"Notification_{id}",out List<Notification> notification))
+            {
+                notification = unitOfWork.GetRepository<UserNotification>()
+                    .FindAll(n => n.UserId == id,new string[] { "Notif", "User"})
+                    .Select(n => n.Notif)
+                    .ToList()!;
+                if(notification == null || notification.Count <= 0)
+                    return ResponseModelFactory<List<Notification>>.CreateResponse("Notification not found", null);
+       
+                cache.Set($"Notification_{id}", notification, TimeSpan.FromMinutes(10));
+            }
+            return ResponseModelFactory<List<Notification>>.CreateResponse("Notification retrieved successfully", notification);
         }
 
         public async Task NotifStationApproaching(List<Passenger> bookingsFrom,int dur,bool isfrom)
@@ -50,6 +61,36 @@ namespace Service_Layer.Services
                     date    = notification.Date
                 });
             }
+            await unitOfWork.SaveAsync();
+        }
+
+        public async Task SendNotification(string Id, string Msg)
+        {
+            Notification notification = new Notification
+            {
+                Message = Msg,
+                Date = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now)
+            };
+
+
+            await unitOfWork.GetRepository<Notification>().AddAsync(notification);
+            await unitOfWork.SaveAsync();
+
+            UserNotification userNotification = new UserNotification
+            {
+                 UserId = Id,
+                 NotifId = notification.NotifId,
+            };
+
+            await unitOfWork.GetRepository<UserNotification>().AddAsync(userNotification);
+
+            await notificationHub.SendNotificationToUser(Id, new
+            {
+                  notifid = notification.NotifId,
+                  msg = notification.Message,
+                  date = notification.Date
+            });
+
             await unitOfWork.SaveAsync();
         }
     }

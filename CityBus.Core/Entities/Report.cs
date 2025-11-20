@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public required string Type { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public RevenueReport? Revenuereport { get; set; }
-        public BusUsageReport? BusUsagereports { get; set; }
+        //public RevenueReport? Revenuereport { get; set; }
+        //public BusUsageReport? BusUsagereports { get; set; }
     }
 }

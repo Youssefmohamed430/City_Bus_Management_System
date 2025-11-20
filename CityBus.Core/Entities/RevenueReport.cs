@@ -8,7 +8,7 @@
         public required double TotalRevenue { get; set; }
         public int NumberOfTickets { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public Report? report { get; set; }
-        public Trip? trip { get; set; }
+        //public Report? report { get; set; }
+        //public Trip? trip { get; set; }
     }
 }

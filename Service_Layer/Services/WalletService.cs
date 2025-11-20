@@ -2,7 +2,7 @@
 
 namespace Service_Layer.Services
 {
-    public class WalletService(IUnitOfWork _unitOfWork) : IWalletService
+    public class WalletService(IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
     {
         public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
         {
@@ -11,6 +11,9 @@ namespace Service_Layer.Services
             _unitOfWork.Wallets.AddAsync(wallet);
 
             _unitOfWork.SaveAsync();
+
+            notificationService.SendNotification(wallet.passengerId,
+                "Wallet created, please charge it to book trips.");
 
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet created successfully", wallet.Adapt<WalletDTO>());
         }
@@ -22,6 +25,9 @@ namespace Service_Layer.Services
             wallet.Balance += amount;
             _unitOfWork.Wallets.UpdateAsync(wallet);
             _unitOfWork.SaveAsync();
+
+            notificationService.SendNotification(wallet.passengerId,
+                $"Wallet charged Successfully with {amount} pounds.");
 
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet charged successfully", wallet.Adapt<WalletDTO>());
         }
@@ -36,6 +42,9 @@ namespace Service_Layer.Services
             wallet.Balance -= amount;
             _unitOfWork.Wallets.UpdateAsync(wallet);
             _unitOfWork.SaveAsync();
+
+            notificationService.SendNotification(wallet.passengerId,
+                $"Wallet deducted Successfully with {amount} pounds.");
 
             return true;
         }

@@ -1,4 +1,7 @@
 ﻿
+using City_Bus_Management_System.DataLayer.DTOs;
+using City_Bus_Management_System.DataLayer.Entities;
+using Data_Access_Layer.DataLayer.DTOs;
 using Data_Access_Layer.Helpers;
 using System.Collections.Concurrent;
 
@@ -18,6 +21,7 @@ namespace Service_Layer.Services
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<BookingService>>();
                 try
                 {              
@@ -39,6 +43,9 @@ namespace Service_Layer.Services
                         throw new Exception("Failed to deduct wallet balance.");
 
                     cache.Remove("bookings");
+
+                    notificationService.SendNotification(bookingdto.passengerId!,
+                        $"The ticket for the trip has been successfully booked and balance deducted.");
 
                     unitOfWork.Commit();
                     msg = "Booking Successful and balance deducted!";
@@ -108,6 +115,7 @@ namespace Service_Layer.Services
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
                 var booking = unitOfWork.GetRepository<Booking>().Find(b => b.BookingId == bookingid, new string[] { "Ticket" });
 
@@ -131,6 +139,10 @@ namespace Service_Layer.Services
                         throw new Exception("Failed to deduct wallet balance.");
 
                     cache.Remove("bookings");
+
+                    var msg = $"The ticket for the trip has been successfully cancelled and balance refunded.";
+                    notificationService.SendNotification(booking.passengerId, msg);
+
                     unitOfWork.Commit();
                     return ResponseModelFactory<BookingDTO>.CreateResponse("Booking cancelled successfully", null!);
                 }
@@ -257,6 +269,7 @@ namespace Service_Layer.Services
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
                 var booking = unitOfWork.GetRepository<Booking>().Find(b => b.BookingId == bookingid, new string[] { "Trip", "Ticket", "passenger" });
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
                 if (booking == null)
                     return ResponseModelFactory<BookingDTO>.CreateResponse("Booking not found", null!, false);
@@ -273,6 +286,11 @@ namespace Service_Layer.Services
                     unitOfWork.SaveAsync();
                     walletService.RefundBalance(booking!.Ticket!.Price, booking.passengerId!);
                     cache.Remove("bookings");
+
+                    var msg = $"The ticket for the trip has been successfully Updated.";
+
+                    notificationService.SendNotification(booking.passengerId, msg);
+
                     return ResponseModelFactory<BookingDTO>.CreateResponse("Booking Updated successfully", null!);
                 }
                 catch (Exception ex)
@@ -281,6 +299,7 @@ namespace Service_Layer.Services
                 }
             }
         }
+
         public StationDTO GetPassengerStartStationAsync(string passengerId)
         {
             using (var scope = _scopeFactory.CreateScope())

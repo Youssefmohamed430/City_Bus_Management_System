@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,8 @@ namespace Service_Layer.IServices
 {
     public interface INotificationService
     {
-        Task<ResponseModel<Notification>> GetNotificationById(int id);
+        ResponseModel<List<Notification>> GetNotificationById(string id);
         Task NotifStationApproaching(List<Passenger> bookingsFrom,int dur,bool isfrom);
+        Task SendNotification(string Id,string Msg);
     }
 }
