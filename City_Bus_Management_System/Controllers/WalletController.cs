@@ -16,12 +16,21 @@
 
             return response.IsSuccess ? Ok(response) : BadRequest(response.Message);
         }
-        [HttpPut("{amount}/{passengerId}")]
-        public IActionResult ChargeWallet(double amount, string passengerId)
+        [HttpPut("{amount}")]
+        public IActionResult ChargeWallet(double amount)
         {
-            var response = walletService.ChargeWallet(amount, passengerId);
+            var response = walletService.ChargeWallet(amount);
             
-            return response.IsSuccess ? Ok(response) : BadRequest(response.Message);
+            return Ok(response);
+        }
+        [HttpPost("callback/{passengerid}")]
+        public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload,string passengerid)
+        {
+            string hmacHeader = Request.Headers["hmac"].FirstOrDefault()!;
+
+            var result = await walletService.PaymobCallback(payload, hmacHeader,passengerid);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
     }
 }

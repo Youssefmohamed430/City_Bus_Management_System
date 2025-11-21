@@ -1,16 +1,20 @@
 using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data.Config;
 using City_Bus_Management_System.Hubs;
+using DotNetEnv;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Service_Layer.ServiceRegistration;
+using Service_Layer.Services;
 try
 {
     Log.Logger.Information("Starting up the application...");
 
     var builder = WebApplication.CreateBuilder(args);
+
+    Env.Load();
 
     builder.Services.AddHangfire(configuration => configuration
                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -25,6 +29,12 @@ try
                             UseRecommendedIsolationLevel = true,
                             DisableGlobalLocks = true
                         }));
+
+    builder.Services.AddHttpClient<PayMobService>(client =>
+    {
+        client.BaseAddress = new Uri("https://accept.paymob.com/api/");
+    });
+
 
     builder.Services.AddHangfireServer();
 

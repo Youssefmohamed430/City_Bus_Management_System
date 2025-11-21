@@ -1,8 +1,13 @@
 ﻿
 
+using Azure.Core;
+using City_Bus_Management_System.DataLayer.Entities;
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
+
 namespace Service_Layer.Services
 {
-    public class WalletService(IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
+    public class WalletService(IPayMobService payMobService,IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
     {
         public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
         {
@@ -18,7 +23,12 @@ namespace Service_Layer.Services
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet created successfully", wallet.Adapt<WalletDTO>());
         }
 
-        public ResponseModel<WalletDTO> ChargeWallet(double amount, string passengerId)
+        public Task<string> ChargeWallet(double amount)
+        {
+            return payMobService.PayWithCard((int)amount);
+        }
+
+        public ResponseModel<WalletDTO> UpdateBalance(double amount, string passengerId)
         {
             var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerId);
 
@@ -30,6 +40,38 @@ namespace Service_Layer.Services
                 $"Wallet charged Successfully with {amount} pounds.");
 
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet charged successfully", wallet.Adapt<WalletDTO>());
+        }
+
+        public async Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader, string passengerid)
+        {
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                if (await payMobService.PaymobCallback(payload, hmacHeader))
+                {
+                    await notificationService.SendNotification(passengerid,
+                    $"Your card has been successfully debited with {Convert.ToInt32(payload.obj.amount_cents) / 100} pounds.");
+
+                    UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100, passengerid);
+
+                    _unitOfWork.Commit();
+
+                    return ResponseModelFactory<object>.CreateResponse(
+                        "The payment process was completed successfully", null!);
+                }
+                else { 
+                    _unitOfWork.Commit();
+
+                return ResponseModelFactory<object>.CreateResponse(
+                       "Sorry, The payment process was failed.", null!, false);
+            }
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                return ResponseModelFactory<object>.CreateResponse(
+                    $"Sorry, An error occurred during the payment process. {ex.Message}", null!, false);
+            }
         }
 
         public bool DeductBalance(double amount, string passengerId)

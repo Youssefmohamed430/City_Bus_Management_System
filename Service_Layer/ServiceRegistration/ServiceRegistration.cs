@@ -30,6 +30,7 @@ namespace Service_Layer.ServiceRegistration
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+            services.AddScoped<IPayMobService, PayMobService>();
             services.AddScoped<JWTService>();
 
             return services;
