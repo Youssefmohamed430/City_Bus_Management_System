@@ -17,11 +17,18 @@
             return response.IsSuccess ? Ok(response) : BadRequest(response.Message);
         }
         [HttpPut("{amount}")]
-        public IActionResult ChargeWallet(double amount)
+        public async Task<IActionResult> ChargeWallet(double amount)
         {
-            var response = walletService.ChargeWallet(amount);
-            
-            return Ok(response);
+            try
+            {
+                var iframeUrl = await walletService.ChargeWallet(amount);
+
+                return Ok(new { iframeUrl = iframeUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpPost("callback/{passengerid}")]
         public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload,string passengerid)

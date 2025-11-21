@@ -30,10 +30,7 @@ try
                             DisableGlobalLocks = true
                         }));
 
-    builder.Services.AddHttpClient<PayMobService>(client =>
-    {
-        client.BaseAddress = new Uri("https://accept.paymob.com/api/");
-    });
+    builder.Services.AddHttpClient();
 
 
     builder.Services.AddHangfireServer();
