@@ -17,11 +17,16 @@ namespace Service_Layer.Services
         private readonly int _iframeId;
         private readonly string _hmacSecretKey;
         private readonly string _baseUrl = "https://accept.paymob.com/api/";
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PayMobService(IHttpClientFactory httpClientFactory, ILogger<PayMobService> logger)
+        public PayMobService(
+            IHttpClientFactory httpClientFactory, ILogger<PayMobService> logger
+            ,IUnitOfWork unitOfWork)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+
+            this._unitOfWork = unitOfWork;
 
             // قراءة المتغيرات من Environment Variables
             _apiKey = Environment.GetEnvironmentVariable("PAYMOP_API_KEY") ?? "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SndjbTltYVd4bFgzQnJJam94TVRNd01UZ3NJbU5zWVhOeklqb2lUV1Z5WTJoaGJuUWlMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuazJvdExPbXNZajFQM1FFNTBfeU1mWVBZS0U3S3VuTEpKMThRRkgzR1V0a3dXZG5wNG5kQlc3eDc1WGpOcHNyUTV0ckVPRzZlX2VkdG9jVjJDcHpzc2c=";
@@ -140,18 +145,21 @@ namespace Service_Layer.Services
 
                 using var client = CreateClient();
 
+                var passenger = _unitOfWork.Wallets
+                    .GetWalletByPassengerId<WalletDTO>(passengerid);
+
                 var body = new
                 {
                     auth_token = token,
-                    amount_cents = amountCents,
+                    amount_cents = amountCents * 100,
                     expiration = 3600,
                     order_id = orderId,
                     billing_data = new
                     {
                         apartment = passengerid,
-                        email = "customer@mail.com",
+                        email = passenger.email,
                         floor = "NA",
-                        first_name = "John",
+                        first_name = passenger.Name,
                         street = "NA",
                         building = "NA",
                         phone_number = "01000000000",
@@ -277,7 +285,7 @@ namespace Service_Layer.Services
                 _logger.LogInformation("HMAC verified successfully. Payment success: {Success}",
                     payload.obj.success);
 
-                return payload.obj.success;
+                return Convert.ToBoolean(payload.obj.success);
             }
             catch (Exception ex)
             {

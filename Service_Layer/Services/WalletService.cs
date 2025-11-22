@@ -42,7 +42,7 @@ namespace Service_Layer.Services
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet charged successfully", wallet.Adapt<WalletDTO>());
         }
 
-        public async Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader, string passengerid)
+        public async Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader)
         {
             try
             {
@@ -51,10 +51,10 @@ namespace Service_Layer.Services
                 
                 if (await payMobService.PaymobCallback(payload, hmacHeader))
                 {
-                    await notificationService.SendNotification(passengerid,
+                    var passengerId = payload.obj.payment_key_claims.billing_data.apartment;
+                    await notificationService.SendNotification(passengerId,
                     $"Your card has been successfully debited with {Convert.ToInt32(payload.obj.amount_cents) / 100} pounds.");
 
-                    var passengerId = payload.obj.payment_key_claims.billing_data.apartment;
 
                     UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100,passengerId);
 

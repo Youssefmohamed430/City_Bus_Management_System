@@ -36,15 +36,16 @@ namespace City_Bus_Management_System.Controllers
             }
         }
         [HttpPost("callback")]
-        public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload, string passengerid)
+        public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload)
         {
             ResponseModel<object> result = null!;
             try
             {
                 Logger.LogInformation("Received Paymob callback: {@Payload}", payload);
-                string hmacHeader = Request.Headers["hmac"].FirstOrDefault()!;
 
-                result = await walletService.PaymobCallback(payload, hmacHeader, passengerid);
+                var hmacHeader = Request.Query["hmac"].FirstOrDefault();
+
+                result = await walletService.PaymobCallback(payload, hmacHeader);
             }
             catch (Exception ex)
             {

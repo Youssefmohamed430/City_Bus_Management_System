@@ -12,7 +12,7 @@ namespace Service_Layer.IServices
         ResponseModel<WalletDTO> UpdateBalance(double amount, string passengerid);
         bool DeductBalance(double amount,string passengerId);
         bool RefundBalance(double amount,string passengerId);
-        Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader, string passengerid);
+        Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader);
 
     }
 }

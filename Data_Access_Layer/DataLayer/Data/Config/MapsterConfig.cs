@@ -38,7 +38,8 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
 
             TypeAdapterConfig<Wallet, WalletDTO>
                 .NewConfig()
-                .Map(dest => dest.Name, src => src.passenger.User.Name);
+                .Map(dest => dest.Name, src => src.passenger.User.Name)
+                .Map(dest => dest.email, src => src.passenger.User.Email);
 
             TypeAdapterConfig<Booking, BookingDTO>
                 .NewConfig()
