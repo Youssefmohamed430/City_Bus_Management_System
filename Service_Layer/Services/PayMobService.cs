@@ -97,7 +97,7 @@ namespace Service_Layer.Services
                 {
                     auth_token = token,
                     delivery_needed = false,
-                    amount_cents = amountCents,
+                    amount_cents = amountCents * 100,
                     currency = "EGP",
                     items = Array.Empty<object>()
                 };

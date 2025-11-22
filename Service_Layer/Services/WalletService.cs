@@ -9,6 +9,7 @@ namespace Service_Layer.Services
 {
     public class WalletService(IPayMobService payMobService,IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
     {
+        public string passengerid { get; set; }
         public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
         {
             var wallet = walletDTO.Adapt<Wallet>();
@@ -23,14 +24,15 @@ namespace Service_Layer.Services
             return ResponseModelFactory<WalletDTO>.CreateResponse("Wallet created successfully", wallet.Adapt<WalletDTO>());
         }
 
-        public Task<string> ChargeWallet(double amount)
+        public Task<string> ChargeWallet(double amount,string passengerid)
         {
+            this.passengerid = passengerid;
             return payMobService.PayWithCard((int)amount);
         }
 
-        public ResponseModel<WalletDTO> UpdateBalance(double amount, string passengerId)
+        public ResponseModel<WalletDTO> UpdateBalance(double amount)
         {
-            var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerId);
+            var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerid);
 
             wallet.Balance += amount;
             _unitOfWork.Wallets.UpdateAsync(wallet);
@@ -52,7 +54,7 @@ namespace Service_Layer.Services
                     await notificationService.SendNotification(passengerid,
                     $"Your card has been successfully debited with {Convert.ToInt32(payload.obj.amount_cents) / 100} pounds.");
 
-                    UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100, passengerid);
+                    UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100);
 
                     _unitOfWork.Commit();
 

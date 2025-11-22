@@ -8,8 +8,8 @@ namespace Service_Layer.IServices
     {
         ResponseModel<WalletDTO> GetWalletByPassengerId(string passengerId);
         ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO);
-        Task<string> ChargeWallet(double amount);
-        ResponseModel<WalletDTO> UpdateBalance(double amount, string passengerId);
+        Task<string> ChargeWallet(double amount, string passengerid);
+        ResponseModel<WalletDTO> UpdateBalance(double amount);
         bool DeductBalance(double amount,string passengerId);
         bool RefundBalance(double amount,string passengerId);
         Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader, string passengerid);
