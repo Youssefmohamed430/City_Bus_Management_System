@@ -9,7 +9,7 @@ namespace Service_Layer.IServices
 {
     public interface IPayMobService
     {
-        Task<string> PayWithCard(int amountCents);
+        Task<string> PayWithCard(int amountCents,string passengerid);
         Task<bool> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader);
     }
 }

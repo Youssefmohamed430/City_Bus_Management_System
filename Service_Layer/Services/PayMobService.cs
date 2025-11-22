@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using City_Bus_Management_System.DataLayer.Entities;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -131,7 +132,7 @@ namespace Service_Layer.Services
         }
 
         // 3) GET PAYMENT KEY
-        public async Task<string> GetPaymentKeyAsync(string token, int orderId, int amountCents)
+        public async Task<string> GetPaymentKeyAsync(string token, int orderId, int amountCents,string passengerid)
         {
             try
             {
@@ -147,7 +148,7 @@ namespace Service_Layer.Services
                     order_id = orderId,
                     billing_data = new
                     {
-                        apartment = "NA",
+                        apartment = passengerid,
                         email = "customer@mail.com",
                         floor = "NA",
                         first_name = "John",
@@ -202,7 +203,7 @@ namespace Service_Layer.Services
         }
 
         // العملية الكاملة
-        public async Task<string> PayWithCard(int amountCents)
+        public async Task<string> PayWithCard(int amountCents,string passengerid)
         {
             try
             {
@@ -214,7 +215,7 @@ namespace Service_Layer.Services
                 var orderId = await CreateOrderAsync(token, amountCents);
                 _logger.LogInformation("Step 2/3: Order created with ID: {OrderId}", orderId);
 
-                var paymentKey = await GetPaymentKeyAsync(token, orderId, amountCents);
+                var paymentKey = await GetPaymentKeyAsync(token, orderId, amountCents, passengerid);
                 _logger.LogInformation("Step 3/3: Payment key generated");
 
                 var iframeUrl = GetIframeUrl(paymentKey);
@@ -242,7 +243,7 @@ namespace Service_Layer.Services
                 var dataString = $"{payload.obj.amount_cents}" +
                                  $"{payload.obj.created_at}" +
                                  $"{payload.obj.currency}" +
-                                 $"{payload.obj.error_occurred.ToString().ToLower()}" +
+                                 $"{payload.obj.error_occured.ToString().ToLower()}" +
                                  $"{payload.obj.has_parent_transaction.ToString().ToLower()}" +
                                  $"{payload.obj.id}" +
                                  $"{payload.obj.integration_id}" +
@@ -252,7 +253,7 @@ namespace Service_Layer.Services
                                  $"{payload.obj.is_refunded.ToString().ToLower()}" +
                                  $"{payload.obj.is_standalone_payment.ToString().ToLower()}" +
                                  $"{payload.obj.is_voided.ToString().ToLower()}" +
-                                 $"{payload.obj.order_id}" +
+                                 $"{payload.obj.order.id}" +
                                  $"{payload.obj.owner}" +
                                  $"{payload.obj.pending.ToString().ToLower()}" +
                                  $"{payload.obj.source_data.pan}" +

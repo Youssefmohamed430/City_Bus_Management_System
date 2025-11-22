@@ -7,9 +7,8 @@ using System.Text;
 
 namespace Service_Layer.Services
 {
-    public class WalletService(IPayMobService payMobService,IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
+    public class WalletService(ILogger<WalletService> logger,IPayMobService payMobService,IUnitOfWork _unitOfWork,INotificationService notificationService) : IWalletService
     {
-        public string passengerid { get; set; }
         public ResponseModel<WalletDTO> CreateWallet(WalletDTO walletDTO)
         {
             var wallet = walletDTO.Adapt<Wallet>();
@@ -26,11 +25,10 @@ namespace Service_Layer.Services
 
         public Task<string> ChargeWallet(double amount,string passengerid)
         {
-            this.passengerid = passengerid;
-            return payMobService.PayWithCard((int)amount);
+            return payMobService.PayWithCard((int)amount,passengerid);
         }
 
-        public ResponseModel<WalletDTO> UpdateBalance(double amount)
+        public ResponseModel<WalletDTO> UpdateBalance(double amount,string passengerid)
         {
             var wallet = _unitOfWork.Wallets.Find(w => w.passengerId == passengerid);
 
@@ -48,13 +46,17 @@ namespace Service_Layer.Services
         {
             try
             {
+                logger.LogInformation("Paymob callback received with payload: {payload}", System.Text.Json.JsonSerializer.Serialize(payload));
                 _unitOfWork.BeginTransaction();
+                
                 if (await payMobService.PaymobCallback(payload, hmacHeader))
                 {
                     await notificationService.SendNotification(passengerid,
                     $"Your card has been successfully debited with {Convert.ToInt32(payload.obj.amount_cents) / 100} pounds.");
 
-                    UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100);
+                    var passengerId = payload.obj.payment_key_claims.billing_data.apartment;
+
+                    UpdateBalance((double)Convert.ToInt32(payload.obj.amount_cents) / 100,passengerId);
 
                     _unitOfWork.Commit();
 

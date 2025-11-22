@@ -1,13 +1,18 @@
-﻿namespace City_Bus_Management_System.Controllers
+﻿using City_Bus_Management_System.DataLayer;
+using System.Text.Json;
+
+namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class WalletController : ControllerBase
     {
         public IWalletService walletService { get; set; }
-        public WalletController(IWalletService walletService)
+        public ILogger<WalletController> Logger { get; set; }
+        public WalletController(IWalletService walletService, ILogger<WalletController> logger)
         {
             this.walletService = walletService;
+            Logger = logger;
         }
         [HttpGet("{Id}")]
         public IActionResult GetWalletByPassengerId(string Id)
@@ -30,14 +35,32 @@
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [HttpGet("callback")]
-        public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload,string passengerid)
+        [HttpPost("callback")]
+        public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload, string passengerid)
         {
-            string hmacHeader = Request.Headers["hmac"].FirstOrDefault()!;
+            ResponseModel<object> result = null!;
+            try
+            {
+                Logger.LogInformation("Received Paymob callback: {@Payload}", payload);
+                string hmacHeader = Request.Headers["hmac"].FirstOrDefault()!;
 
-            var result = await walletService.PaymobCallback(payload, hmacHeader,passengerid);
-
+                result = await walletService.PaymobCallback(payload, hmacHeader, passengerid);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error logging Paymob callback");
+            }
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
+
+        //[HttpPost("callback")]
+        //public async Task<IActionResult> PaymobCallback([FromBody] JsonElement payload)
+        //{
+        //    var raw = payload.GetRawText();
+        //    Logger.LogInformation("Raw Payload: " + raw);
+
+        //    return Ok();
+        //}
+
     }
 }
