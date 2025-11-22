@@ -5,6 +5,7 @@ namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class NotificationController : ControllerBase
     {
         public INotificationService notificationService { get; set; }

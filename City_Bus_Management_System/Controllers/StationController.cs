@@ -11,7 +11,7 @@
             this.stationService = stationService;
         }
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetStations()
         {
             var result = stationService.GetStations();  
@@ -19,7 +19,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("{name}")]
-        //[Authorize]
+        [Authorize]
         public IActionResult GetStationByName(string name)
         {
             var result = stationService.GetStationByName(name);
@@ -27,7 +27,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("GetStationByArea/{area}")]
-        //[Authorize]
+        [Authorize]
         public IActionResult GetStationByArea(string area)
         {
             var result = stationService.GetStationsByArea(area);
@@ -35,7 +35,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("GetTheNearestStation")]
-        //[Authorize]
+        [Authorize]
         public IActionResult GetTheNearestStation([FromBody] LocationDTO myLocation)
         {
             var result = stationService.GetTheNearestStation(myLocation);
@@ -44,7 +44,7 @@
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddStation(StationDTO station)
         {
             if(!ModelState.IsValid) 
@@ -55,7 +55,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpPut("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateStation(int id , StationDTO station)
         {
             if (!ModelState.IsValid)
@@ -66,7 +66,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteStation(int id)
         {
             var result = stationService.DeleteStation(id);

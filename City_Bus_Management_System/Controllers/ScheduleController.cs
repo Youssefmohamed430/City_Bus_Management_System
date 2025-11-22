@@ -11,7 +11,7 @@
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetSchedules()
         {
             var result = _scheduleService.GetSchedules();
@@ -20,7 +20,7 @@
         }
 
         [HttpGet("ByDriverId/{Id}")]
-        //[Authorize(Roles = "Driver")]
+        [Authorize(Roles = "Driver")]
         public IActionResult GetSchedulesByDriverId(string Id)
         {
             var result = _scheduleService.GetSchedulesByDriverId(Id);
@@ -29,7 +29,7 @@
         }
 
         [HttpGet("ByDriverName/{Name}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetSchedulesByDriverName(string Name)
         {
             var result = _scheduleService.GetSchedulesByDriverName(Name);
@@ -38,7 +38,7 @@
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddSchedule([FromBody] ScheduleDTO Schedule)
         {
             if(!ModelState.IsValid)
@@ -50,7 +50,7 @@
         }
 
         [HttpPut("{SchId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateDriverSchedule(int SchId, [FromBody] ScheduleDTO newSchedule)
         {
             if (!ModelState.IsValid)
@@ -62,7 +62,7 @@
         }
 
         [HttpDelete("{SchId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult RemoveDriverSchedule(int SchId)
         {
             var result = _scheduleService.RemoveDriverSchedule(SchId);
@@ -70,6 +70,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("ByTripId/{tripid}")]
+        [Authorize]
         public IActionResult GetSchedulesByTripId(int tripid)
         {
             var result = _scheduleService.GetSchedulesByTripId(tripid);
@@ -77,6 +78,7 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [HttpGet("CurrentByDriverId/{Id}")]
+        [Authorize(Roles = "Driver")]
         public IActionResult GetCurrentScheduleByDriverId(string Id)
         {
             var result = _scheduleService.GetCurrentScheduleByDriverId(Id);

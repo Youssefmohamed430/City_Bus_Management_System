@@ -10,6 +10,7 @@
             driverService = _driverService;
         }
         [HttpPut("{driverId}/{Status}")]
+        [Authorize(Roles = "Driver")]
         public IActionResult UpdateTripStatus(string driverId, string Status)
         {
             var result = driverService.UpdateTripStatus(driverId, Status);

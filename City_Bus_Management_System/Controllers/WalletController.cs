@@ -5,6 +5,7 @@ namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(Roles = "Passenger")]
     public class WalletController : ControllerBase
     {
         public IWalletService walletService { get; set; }
@@ -36,6 +37,7 @@ namespace City_Bus_Management_System.Controllers
             }
         }
         [HttpPost("callback")]
+        [AllowAnonymous]
         public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload)
         {
             ResponseModel<object> result = null!;
@@ -53,15 +55,5 @@ namespace City_Bus_Management_System.Controllers
             }
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
-
-        //[HttpPost("callback")]
-        //public async Task<IActionResult> PaymobCallback([FromBody] JsonElement payload)
-        //{
-        //    var raw = payload.GetRawText();
-        //    Logger.LogInformation("Raw Payload: " + raw);
-
-        //    return Ok();
-        //}
-
     }
 }

@@ -266,7 +266,7 @@ namespace City_Bus_Management_System.Services
             return new RefreshToken
             {
                 Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddDays(10),
+                ExpiresOn = DateTime.UtcNow.AddMinutes(10),
                 CreatedOn = DateTime.UtcNow
             };
         }
