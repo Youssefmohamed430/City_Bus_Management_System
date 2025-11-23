@@ -44,7 +44,7 @@ namespace City_Bus_Management_System.Helpers
                     issuer: _jwt.Issuer,    
                     audience: _jwt.Audience,
                     claims: claims,
-                    expires: EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now).AddMinutes(_jwt.DurationInMinutes),
+                    expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
                     signingCredentials: signingCredentials
                 );
 

@@ -283,7 +283,7 @@ namespace City_Bus_Management_System.Services
             if (!refreshToken.IsActive)
                 return new AuthModel { Message = "InActive token." };
 
-            refreshToken.RevokedOn = DateTime.UtcNow;
+            refreshToken.RevokedOn = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now);
 
             var newRefreshToken = GenerateRefreshToken();
             user.RefreshTokens.Add(newRefreshToken);

@@ -1,9 +1,11 @@
 ﻿
+using Data_Access_Layer.Helpers;
+
 namespace City_Bus_Management_System.Factories
 {
     public class AuthModelFactory
     {
-        public AuthModel CreateAuthModel(string id, string username, string email, DateTime expiresOn,List<string> roles, string JWTSecurityToken,string refreshToken,DateTime Expires,string Message = "")
+        public AuthModel CreateAuthModel(string id, string username, string email, DateTime expiresOn,List<string> roles, string JWTSecurityToken,string refreshToken,DateTime refreshTokenExpiration, string Message = "")
         {
             return new AuthModel()
             {
@@ -15,7 +17,7 @@ namespace City_Bus_Management_System.Factories
                 Roles = roles,
                 Token = JWTSecurityToken,
                 RefreshToken = refreshToken,
-                RefreshTokenExpiration = Expires,
+                RefreshTokenExpiration = EgyptTimeHelper.ConvertFromUtc(refreshTokenExpiration),
             };
         }
     }
