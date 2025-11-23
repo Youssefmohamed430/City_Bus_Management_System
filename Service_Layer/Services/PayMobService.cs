@@ -244,8 +244,12 @@ namespace Service_Layer.Services
         {
             try
             {
-                _logger.LogInformation("Received PayMob callback. Transaction ID: {TransactionId}, Success: {Success}",
-                    payload.obj.id, payload.obj.success);
+
+                if (payload.obj.data?.message != null)
+                {
+                    _logger.LogWarning("PayMob Error Message: {Message}", payload.obj.data.message);
+                    _logger.LogWarning("TXN Response Code: {Code}", payload.obj.data.txn_response_code);
+                }
 
                 // بناء الـ data string للتحقق من HMAC
                 var dataString = $"{payload.obj.amount_cents}" +
