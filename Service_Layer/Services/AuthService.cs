@@ -273,9 +273,11 @@ namespace City_Bus_Management_System.Services
         }
         public async Task<AuthModel> RefreshToken(string token)
         {
-            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
+            var user = await _userManager.Users
+                    .Include(u => u.RefreshTokens)  
+                    .SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
 
-            if(user == null)
+            if (user == null)
                 return new AuthModel { Message = "Invalid token." };
 
             var refreshToken = user.RefreshTokens.Single(t => t.Token == token);

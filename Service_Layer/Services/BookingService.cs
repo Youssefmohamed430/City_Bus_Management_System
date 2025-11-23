@@ -124,10 +124,13 @@ namespace Service_Layer.Services
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-                var booking = unitOfWork.GetRepository<Booking>().Find(b => b.BookingId == bookingid, new string[] { "Ticket" });
+                var booking = unitOfWork.GetRepository<Booking>().Find(
+                            b => b.BookingId == bookingid && b.Status != "Cancelled",
+                            new string[] { "Ticket", "Trip", "Trip.Schedules", "Trip.Schedules.bus" });
 
                 if (booking == null)
-                    return ResponseModelFactory<BookingDTO>.CreateResponse("Booking not found", null!, false);
+                    return ResponseModelFactory<BookingDTO>.CreateResponse(
+                        "Booking not found or already cancelled", null!, false);
 
                 try
                 {
@@ -138,7 +141,7 @@ namespace Service_Layer.Services
                     unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                     unitOfWork.SaveAsync();
 
-                    HandleCanceling(booking);
+                    HandleCanceling(booking,unitOfWork);
 
                     var isrefunded = walletService.RefundBalance(booking!.totalPrice, booking.passengerId!);
 
@@ -162,32 +165,46 @@ namespace Service_Layer.Services
             } 
         }
 
-        private void HandleCanceling(Booking booking)
+        private void HandleCanceling(Booking booking,IUnitOfWork unitOfWork)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                var Ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == booking.TicketId);
+            var ticket = booking.Ticket ?? unitOfWork.GetRepository<Ticket>()
+                .Find(t => t.Id == booking.TicketId);
 
-                var schedule = unitOfWork.Schedules.FindAll(s => s.TripId == booking.TripId &&
-                    s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" })
+            var schedule = booking.Trip?.Schedules?
+                .FirstOrDefault(s =>
+                {
+                    var dep = EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime);
+                    var now = EgyptTimeHelper.Now;
+
+                    return dep > now;
+                })!;
+
+
+            if (schedule == null)
+            {
+                schedule = unitOfWork.Schedules.FindAll(
+                    s => s.TripId == booking.TripId && s.bus.BusType == ticket.BusType,
+                    new string[] { "bus", "trip" })
                     .AsEnumerable()
                     .FirstOrDefault(s =>
                     {
                         var dep = EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime);
                         var now = EgyptTimeHelper.Now;
 
-                        return dep.Date == now.Date && dep.Hour > now.Hour;
+                        return dep > now;
                     })!;
+            }
 
-                if (ValidateBookingTime(schedule))
+            if (schedule == null)
+                throw new Exception("No upcoming schedule found for the specified trip and bus type.");
+
+            if (ValidateBookingTime(schedule))
                     throw new Exception("Cannot cancel booking for past departure time.");
 
                 var tripId = booking.TripId;
                 var lockObj = TripLocks.GetOrAdd(tripId, new object());
 
                 lock (lockObj) { CountOfBookings[tripId] -= booking.numberOfTickets; }
-            }
         }
 
         public ResponseModel<List<BookingDTO>> GetBookings()
