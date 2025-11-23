@@ -1,4 +1,5 @@
 ﻿using City_Bus_Management_System.DataLayer.Data;
+using Data_Access_Layer.Helpers;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
@@ -30,7 +31,7 @@ namespace City_Bus_Management_System.Services
                 return new AuthModelFactory()
                     .CreateAuthModel(user.Id, user.UserName, user.Email, token.ValidTo,
                         token.Claims.Where(c => c.Type == "roles").Select(c => c.Value).ToList(),
-                        new JwtSecurityTokenHandler().WriteToken(token), refreshtoken.Token, refreshtoken.ExpiresOn);
+                        new JwtSecurityTokenHandler().WriteToken(token), refreshtoken.Token,EgyptTimeHelper.ConvertFromUtc(refreshtoken.ExpiresOn));
             }
             else if (result.IsLockedOut)
             {
@@ -266,8 +267,8 @@ namespace City_Bus_Management_System.Services
             return new RefreshToken
             {
                 Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddMinutes(10),
-                CreatedOn = DateTime.UtcNow
+                ExpiresOn = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now).AddDays(10),
+                CreatedOn = EgyptTimeHelper.ConvertToUtc(EgyptTimeHelper.Now)
             };
         }
         public async Task<AuthModel> RefreshToken(string token)
