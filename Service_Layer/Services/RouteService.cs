@@ -53,9 +53,17 @@ namespace Service_Layer.Services
 
         public ResponseModel<List<RouteDTO>> GetRouteForTrip(int tripId)
         {
+            var trip = unitOfWork.GetRepository<Trip>().Find(t => t.Id == tripId && !t.IsDeleted);
+
+            if (trip == null)
+                return ResponseModelFactory<List<RouteDTO>>.CreateResponse("Trip Not Found for the Given Trip ID.", new List<RouteDTO>(), false);
+
             var routes = unitOfWork.GetRepository<Route>()
                 .FindAll<RouteDTO>(r => r.TripId == tripId && !r.IsDeleted, new string[] { "station", "trip" })
                 .OrderBy(r => r.Order);
+
+            if (!routes.Any())
+                return ResponseModelFactory<List<RouteDTO>>.CreateResponse("No Routes Found for the Given Trip ID.", new List<RouteDTO>(),false);
 
             return ResponseModelFactory<List<RouteDTO>>.CreateResponse("Route For Trip Fetched Successfully!", routes.ToList());
         }
