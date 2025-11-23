@@ -29,6 +29,9 @@ namespace Service_Layer.Services
 
                     var ticket = unitOfWork.GetRepository<Ticket>().Find(t => t.Id == bookingdto.TicketId);
 
+                    if(ticket == null)
+                        throw new Exception("Ticket not found.");
+
                     ValidateAvailableSeats(ticket,bookingdto.TripId
                         ,Convert.ToInt32(bookingdto.numberOfTickets));
 
@@ -66,8 +69,9 @@ namespace Service_Layer.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+               var logger = scope.ServiceProvider.GetRequiredService<ILogger<BookingService>>();
 
-               schedule = unitOfWork.Schedules.FindAll(s => s.TripId == TripId &&
+                schedule = unitOfWork.Schedules.FindAll(s => s.TripId == TripId &&
                     s.bus.BusType == Ticket.BusType, new string[] { "bus", "trip" })
                     .AsEnumerable()
                     .FirstOrDefault(s =>
@@ -75,8 +79,11 @@ namespace Service_Layer.Services
                         var dep = EgyptTimeHelper.ConvertFromUtc(s.DepartureDateTime);
                         var now = EgyptTimeHelper.Now;
 
-                        return dep.Date == now.Date && dep.Hour > now.Hour;
+                        return dep > now;
                     })!;
+
+                if (schedule == null)
+                    throw new Exception("No upcoming schedule found for the specified trip and bus type.");
             } 
 
             if (ValidateBookingTime(schedule))

@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Service_Layer.ServiceRegistration;
 using Service_Layer.Services;
+using Sprache;
 using System.Text;
 try
 {
@@ -73,14 +74,7 @@ try
     app.UseCors("MyPolicy");
 
     app.MapHub<TrackingHub>("/trackingHub");
-    app.MapHub<NotificationHub>("/notificationHub");
-
-    app.MapPost("/Booking", (BookingDTO dookingdto, IBookingService bookingService) =>
-    {
-        bookingService.BookTicket(dookingdto);
-        return Results.Ok("Booking created!");
-    })
-    .RequireRateLimiting("Sliding"); 
+    app.MapHub<NotificationHub>("/notificationHub"); 
 
 
     app.UseHttpsRedirection();

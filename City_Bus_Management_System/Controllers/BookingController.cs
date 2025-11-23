@@ -1,4 +1,5 @@
-﻿using Service_Layer.Services;
+﻿using Microsoft.AspNetCore.RateLimiting;
+using Service_Layer.Services;
 
 namespace City_Bus_Management_System.Controllers
 {
@@ -60,7 +61,7 @@ namespace City_Bus_Management_System.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Passenger")]
-
+        [EnableRateLimiting("Sliding")]
         public IActionResult BookTicket([FromBody] BookingDTO booking)
         {
             var result = bookingService.BookTicket(booking);
