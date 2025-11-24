@@ -83,6 +83,7 @@
             return Ok(dbContext.Users.ToList());
         }
         [HttpPost("CreateAdmin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAdmin(AdminDTO model)
         {
             var result = await authService.CreateAdmin(model);
