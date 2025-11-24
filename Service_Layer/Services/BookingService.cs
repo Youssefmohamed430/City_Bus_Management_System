@@ -245,10 +245,19 @@ namespace Service_Layer.Services
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 List<BookingDTO> bookingByRangeOfDate = null!;
 
+                if(start > end)
+                    return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Invalid date range!", null!, false);
+
+                if(start > EgyptTimeHelper.Now)
+                    return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Start date cannot be in the future!", null!, false);
+
                 if (cache.TryGetValue("bookings", out List<BookingDTO> bookings))
                     bookingByRangeOfDate = bookings.Where(b => b.BookingDate >= start && b.BookingDate <= end).ToList()!;
                 else
                     bookingByRangeOfDate = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.BookingDate >= start && b.BookingDate <= end, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+
+                if(bookingByRangeOfDate == null|| bookingByRangeOfDate.Count == 0)
+                    return ResponseModelFactory<List<BookingDTO>>.CreateResponse("No bookings found in the specified date range!", null!, false);
 
                 return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByRangeOfDate);
             }
@@ -266,6 +275,9 @@ namespace Service_Layer.Services
                 else
                     bookingByTicketId = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.TicketId == ticketid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
 
+                if (bookingByTicketId == null || bookingByTicketId.Count == 0)
+                    return ResponseModelFactory<List<BookingDTO>>.CreateResponse("No bookings found with this ticket.", null!, false);
+
                 return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByTicketId);
             }
         }
@@ -281,6 +293,9 @@ namespace Service_Layer.Services
                     bookingByTripId = bookings.Where(b => b.TripId == tripid).ToList()!;
                 else
                     bookingByTripId = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(b => b.TripId == tripid, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                
+                if (bookingByTripId == null || bookingByTripId.Count == 0)
+                    return ResponseModelFactory<List<BookingDTO>>.CreateResponse("No bookings found with this trip.", null!, false);
 
                 return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings fetched successfully!", bookingByTripId);
             }
