@@ -171,6 +171,7 @@ GET  /Wallet/{passengerId}              # Get wallet balance
 PUT  /Wallet/{amount}/{passengerId}     # Charge wallet
 POST /Wallet/callback                   # PayMob callback
 ```
+Full APIs Docs on Postman at Link : https://documenter.getpostman.com/view/43759248/2sB3dHXts9
 
 ## 🔄 Real-Time Features
 
