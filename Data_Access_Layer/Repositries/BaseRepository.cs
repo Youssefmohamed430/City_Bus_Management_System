@@ -28,6 +28,17 @@ namespace Data_Access_Layer.Repositries
             return entity.FirstOrDefault(criteria)!;
         }
 
+        public T FindWithTracking(Expression<Func<T, bool>> criteria, string[] includes = null)
+        {
+            var entity = _context.Set<T>().AsTracking();
+
+            if (includes != null)
+                foreach (var include in includes)
+                    entity = entity.Include(include);
+
+            return entity.FirstOrDefault(criteria)!;
+        }
+
         public IQueryable<T> FindAll(Expression<Func<T, bool>> criteria, string[] includes = null)
         {
             var entity = _context.Set<T>()

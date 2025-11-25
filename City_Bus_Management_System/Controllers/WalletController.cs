@@ -36,6 +36,15 @@ namespace City_Bus_Management_System.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("SendMoney")]
+        public async Task<IActionResult> SendMoneyBetweenTwoWallets([FromBody] TransformMoneyDTO transformMoneyDTO)
+        {
+            var response = await walletService.SendMoneyBetweenTwoWallets(transformMoneyDTO);
+
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
+        }
+
         [HttpPost("callback")]
         [AllowAnonymous]
         public async Task<IActionResult> PaymobCallback([FromBody] PaymobCallback payload)

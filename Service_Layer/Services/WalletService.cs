@@ -4,6 +4,7 @@ using Azure.Core;
 using City_Bus_Management_System.DataLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Text.Json;
 
 namespace Service_Layer.Services
 {
@@ -111,6 +112,89 @@ namespace Service_Layer.Services
             _unitOfWork.SaveAsync();
 
             return false;
+        }
+
+        public Task<ResponseModel<WalletDTO>> SendMoneyBetweenTwoWallets(TransformMoneyDTO transformMoneyDTO)
+        {
+            try
+            {
+                _unitOfWork.BeginTransaction();
+
+                var walletFrom = _unitOfWork.Wallets.FindWithTracking(w => w.passengerId == transformMoneyDTO.PassengerFromId
+                , new string[] { "passenger.User" });
+
+
+                logger.LogInformation("Sender wallet details: {walletFrom}", JsonSerializer.Serialize(walletFrom.Adapt<WalletDTO>()));
+
+                var walletTo = _unitOfWork.GetRepository<ApplicationUser>()
+                     .FindWithTracking(u => u.UserName == transformMoneyDTO.PassengerToUserName, new string[] { "Passenger.wallet" })?.Passenger?.wallet;
+
+                logger.LogInformation("Recipient wallet details: {walletTo}", JsonSerializer.Serialize(walletTo.Adapt<WalletDTO>()));
+
+                if (walletTo == null)
+                    throw new Exception("Recipient wallet not found.");
+
+                if (walletFrom.Balance < transformMoneyDTO.Amount)
+                    throw new Exception("Insufficient balance in sender's wallet.");
+
+                UpdateWalletBalance(transformMoneyDTO.Amount, walletFrom, walletTo);
+
+                NotifyUpdate(transformMoneyDTO.PassengerToUserName, transformMoneyDTO.Amount, walletFrom, walletTo);
+
+                _unitOfWork.Commit();
+
+                return Task.FromResult(ResponseModelFactory<WalletDTO>.CreateResponse(
+                    "Money transferred successfully", walletFrom.Adapt<WalletDTO>()));
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                logger.LogError("Error during money transfer: {Message}", ex.Message);
+
+                return Task.FromResult(ResponseModelFactory<WalletDTO>.CreateResponse(
+                    $"Sorry, An error occurred during the transaction process. {ex.Message}", null!, false));
+            }
+        }
+
+        private void NotifyUpdate(string PassengerTwoUserName, int amount, Wallet walletFrom, Wallet walletTo)
+        {
+            try
+            {
+                notificationService.SendNotification(walletFrom.passengerId,
+                                $"You have sent {amount} pounds to {PassengerTwoUserName} successfully.");
+
+                notificationService.SendNotification(walletTo.passengerId,
+                    $"You have received {amount} pounds from {walletFrom.passenger?.User?.UserName} successfully.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error sending notifications: " + ex.Message);
+            }
+        }
+
+        private void UpdateWalletBalance(int amount, Wallet walletFrom, Wallet walletTo)
+        {
+            try
+            {
+                walletFrom.Balance -= amount;
+                walletTo.Balance += amount;
+
+                _unitOfWork.Wallets.UpdateAsync(walletFrom);
+                _unitOfWork.Wallets.UpdateAsync(walletTo);
+
+                _unitOfWork.SaveAsync();
+
+                logger.LogInformation("Wallet balances updated successfully: {walletFrom}, {walletTo}",
+                    JsonSerializer.Serialize(walletFrom.Adapt<WalletDTO>()),
+                    JsonSerializer.Serialize(walletTo.Adapt<WalletDTO>()));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error updating wallet balances: {Message}", ex.Message);
+
+                throw new Exception("Error updating wallet balances: " + ex.Message);
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Core_Layer.IRepositries
         T GetByUserId(string id);
         IQueryable<TDto> GetAll<TDto>();
         T Find(Expression<Func<T, bool>> criteria, string[] includes = null);
+        T FindWithTracking(Expression<Func<T, bool>> criteria, string[] includes = null);
         TDto Find<TDto>(Expression<Func<T, bool>> criteria, string[] includes = null);
         IQueryable<T> FindAll(Expression<Func<T, bool>> criteria, string[] includes = null);
         IQueryable<TDto> FindAll<TDto>(Expression<Func<T, bool>> criteria, string[] includes = null);

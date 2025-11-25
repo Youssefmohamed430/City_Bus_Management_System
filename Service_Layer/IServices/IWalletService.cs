@@ -13,6 +13,6 @@ namespace Service_Layer.IServices
         bool DeductBalance(double amount,string passengerId);
         bool RefundBalance(double amount,string passengerId);
         Task<ResponseModel<object>> PaymobCallback([FromBody] PaymobCallback payload, string hmacHeader);
-
+        Task<ResponseModel<WalletDTO>> SendMoneyBetweenTwoWallets(TransformMoneyDTO transformMoneyDTO);
     }
 }

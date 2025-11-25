@@ -11,7 +11,7 @@
             this.stationService = stationService;
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public IActionResult GetStations()
         {
             var result = stationService.GetStations();  
