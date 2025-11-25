@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core_Layer", "CityBus.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service_Layer", "Service_Layer\Service_Layer.csproj", "{396E2C70-17C8-4481-BE0A-851065560C1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Tests", "Services.Tests\Services.Tests.csproj", "{507D92C5-6681-4B96-8731-77AD2B6978D0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{396E2C70-17C8-4481-BE0A-851065560C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{396E2C70-17C8-4481-BE0A-851065560C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{396E2C70-17C8-4481-BE0A-851065560C1E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{507D92C5-6681-4B96-8731-77AD2B6978D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{507D92C5-6681-4B96-8731-77AD2B6978D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{507D92C5-6681-4B96-8731-77AD2B6978D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{507D92C5-6681-4B96-8731-77AD2B6978D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
