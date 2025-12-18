@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.Controllers
+﻿using City_Bus_Management_System.Attributes;
+
+namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -12,11 +14,12 @@
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [Cacheable("schedules")]
         public IActionResult GetSchedules()
         {
             var result = _scheduleService.GetSchedules();
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+            return result != null ? Ok(result) : BadRequest();
         }
 
         [HttpGet("ByDriverId/{Id}")]

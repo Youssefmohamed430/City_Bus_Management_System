@@ -2,7 +2,7 @@
 {
     public interface IBookingService
     {
-        ResponseModel<List<BookingDTO>> GetBookings();
+        List<BookingDTO> GetBookings();
         ResponseModel<List<BookingDTO>> GetBookingsByPassengerId(string passengerid);
         ResponseModel<List<BookingDTO>> GetBookingsByTripId(int tripid);
         ResponseModel<List<BookingDTO>> GetBookingsByTicketId(int ticketid);

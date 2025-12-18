@@ -3,7 +3,7 @@ namespace Service_Layer.IServices
 {
     public interface IStationService
     {
-        ResponseModel<List<StationDTO>> GetStations();
+        List<StationDTO> GetStations();
         ResponseModel<StationDTO> GetStationByName(string name);
         ResponseModel<List<StationDTO>> GetStationsByArea(string area);
         ResponseModel<StationDTO> GetTheNearestStation(LocationDTO myLocation);

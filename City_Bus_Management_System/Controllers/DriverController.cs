@@ -17,5 +17,12 @@
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
+        [HttpGet]
+        public IActionResult GetDrivers()
+        {
+            var result = driverService.GetDrivers();
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+        }
     }
 }

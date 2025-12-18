@@ -6,27 +6,10 @@ namespace City_Bus_Management_System.Services
     public class ScheduleService(IMemoryCache cache, ILogger<BusService> logger, IUnitOfWork unitofWork,INotificationService notificationService) : IScheduleService
     {
 
-        public ResponseModel<List<ScheduleDTO>> GetSchedules()
-        {
-            if(!cache.TryGetValue("schedules", out List<ScheduleDTO> schedules))
-            {
-                schedules = unitofWork.Schedules
+        public List<ScheduleDTO> GetSchedules()
+            => unitofWork.Schedules
                     .FindAllSchedules<ScheduleDTO>().ToList();
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                                .SetAbsoluteExpiration(TimeSpan.FromMinutes(15))
-                                .SetPriority(CacheItemPriority.Normal);
-
-                cache.Set("schedules", schedules, cacheEntryOptions);
-            }
-               
-            return new ResponseModel<List<ScheduleDTO>>
-            {
-                IsSuccess = true,
-                Message = "Schedules fetched successfully",
-                Result = schedules
-            };
-        }
+            
         public ResponseModel<List<ScheduleDTO>> GetSchedulesByDriverId(string Id)
         {
             List<ScheduleDTO> schedulesByDriverId = null!;

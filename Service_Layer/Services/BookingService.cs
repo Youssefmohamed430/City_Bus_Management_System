@@ -1,8 +1,4 @@
-﻿
-using City_Bus_Management_System.DataLayer.DTOs;
-using City_Bus_Management_System.DataLayer.Entities;
-using Data_Access_Layer.DataLayer.DTOs;
-using Data_Access_Layer.Helpers;
+﻿using Data_Access_Layer.Helpers;
 using System.Collections.Concurrent;
 
 namespace Service_Layer.Services
@@ -207,18 +203,15 @@ namespace Service_Layer.Services
                 lock (lockObj) { CountOfBookings[tripId] -= booking.numberOfTickets; }
         }
 
-        public ResponseModel<List<BookingDTO>> GetBookings()
+        public List<BookingDTO> GetBookings()
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                if (!cache.TryGetValue("bookings", out List<BookingDTO> bookings))
-                {
-                    bookings = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(_ => true, new string[] { "Trip", "Ticket", "passenger" }).ToList();
-                    cache.Set("bookings", bookings, TimeSpan.FromMinutes(10));
-                }
-                return ResponseModelFactory<List<BookingDTO>>.CreateResponse("Bookings Fetched successfully", bookings, true);
 
+                var bookings = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(_ => true, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+
+                return  bookings;
             }
         }
 

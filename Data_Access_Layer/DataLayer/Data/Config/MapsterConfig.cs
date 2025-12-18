@@ -51,6 +51,11 @@ namespace City_Bus_Management_System.DataLayer.Data.Config
                 .NewConfig()
                 .Map(dest => dest.BookingDate, src => EgyptTimeHelper.ConvertToUtc(src.BookingDate));
 
+            TypeAdapterConfig<DriverDto, Driver>
+                .NewConfig()
+                .Map(dest => dest.User.Id, src => src.Id)
+                .Map(dest => dest.User.Name, src => src.Name);
+
 
 
 

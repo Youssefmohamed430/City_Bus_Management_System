@@ -1,4 +1,6 @@
-﻿namespace City_Bus_Management_System.Controllers
+﻿using City_Bus_Management_System.Attributes;
+
+namespace City_Bus_Management_System.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -12,11 +14,12 @@
         }
         [HttpGet]
         [Authorize]
+        [Cacheable("stations")]
         public IActionResult GetStations()
         {
             var result = stationService.GetStations();  
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+            return result != null ? Ok(result) : BadRequest();
         }
         [HttpGet("{name}")]
         [Authorize]

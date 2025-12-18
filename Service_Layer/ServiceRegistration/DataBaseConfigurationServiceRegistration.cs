@@ -8,7 +8,8 @@ namespace Service_Layer.ServiceRegistration
     {
         public static IServiceCollection AddDataBaseConfiguration(this IServiceCollection services, IConfigurationRoot config)
         {
-            var Connectionstring = Environment.GetEnvironmentVariable("Constr");
+            //var Connectionstring = Environment.GetEnvironmentVariable("Constr");
+            var Connectionstring = config.GetConnectionString("Constr");
 
             services.AddDbContext<AppDbContext>(options =>
             { options.UseSqlServer(Connectionstring);});

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
+﻿using City_Bus_Management_System.Attributes;
+using Microsoft.AspNetCore.RateLimiting;
 using Service_Layer.Services;
 
 namespace City_Bus_Management_System.Controllers
@@ -14,11 +15,12 @@ namespace City_Bus_Management_System.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [Cacheable("bookings")]
         public IActionResult GetAllBookings()
         {
             var result = bookingService.GetBookings();
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
+            return result != null ? Ok(result) : BadRequest();
         }
 
         [HttpGet("{passengerid}")]

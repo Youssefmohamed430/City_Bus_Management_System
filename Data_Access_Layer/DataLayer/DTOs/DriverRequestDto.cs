@@ -18,5 +18,6 @@ namespace City_Bus_Management_System.DataLayer.DTOs
         [Required]
         [EmailAddress(ErrorMessage = "In Valid Email")]
         public required string Email { get; set; }
+        public string? Status { get; set; }
     }
 }

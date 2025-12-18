@@ -3,6 +3,7 @@ namespace Data_Access_Layer.DataLayer.DTOs
 {
     public class RouteDTO
     {
+        public int? Id { get; set; }
         public int? TripId { get; set; }
         public string? From { get; set; }
         public string? To { get; set; }

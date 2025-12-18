@@ -1,5 +1,6 @@
 ﻿using City_Bus_Management_System;
 using City_Bus_Management_System.DataLayer.Data.Config;
+using City_Bus_Management_System.Filters.ResourceFilters;
 using City_Bus_Management_System.Hubs;
 using DotNetEnv;
 using Hangfire;
@@ -22,7 +23,8 @@ try
                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
-                    .UseSqlServerStorage(Environment.GetEnvironmentVariable("Constr"),
+                    .UseSqlServerStorage(builder.Configuration.GetConnectionString("Constr")
+                        /*Environment.GetEnvironmentVariable("Constr")*/,
                         new SqlServerStorageOptions
                         {
                             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
@@ -43,6 +45,13 @@ try
                      .WriteTo.Console());
 
     builder.Services.AddApplicationServices(builder.Configuration);
+    builder.Services.AddScoped<HandleCachingResourcesFilter>();
+
+    builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<HandleCachingResourcesFilter>();
+    });
+
     builder.Services.AddScoped<INotificationHubService, NotificationHub>();
 
     builder.Services.AddSwaggerGen(options =>

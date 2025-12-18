@@ -3,7 +3,7 @@ namespace Service_Layer.IServices
 {
     public interface IScheduleService
     {
-        ResponseModel<List<ScheduleDTO>> GetSchedules();
+        List<ScheduleDTO> GetSchedules();
         ResponseModel<List<ScheduleDTO>> GetSchedulesByDriverId(string Id);
         ResponseModel<List<ScheduleDTO>> GetSchedulesByDriverName(string Name);
         ResponseModel<List<ScheduleDTO>> GetSchedulesByTripId(int tripId);

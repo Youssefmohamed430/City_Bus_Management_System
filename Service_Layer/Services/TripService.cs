@@ -4,22 +4,8 @@ namespace City_Bus_Management_System.Services
 {
     public class TripService(IMemoryCache cache, IUnitOfWork unitOfWork) : ITripService
     {
-        public ResponseModel<List<TripDTO>> GetAllTrips()
-        {
-            if(!cache.TryGetValue("trips", out List<TripDTO> trips))
-            {
-                trips = unitOfWork.GetRepository<Trip>().FindAll<TripDTO>(t => !t.IsDeleted).ToList();
-
-                cache.Set("trips", trips, TimeSpan.FromMinutes(20));
-            }
-
-            return new ResponseModel<List<TripDTO>>
-            {
-                IsSuccess = true,
-                Message = "Trips fetched successfully",
-                Result = trips
-            };
-        }
+        public List<TripDTO> GetAllTrips()
+            => unitOfWork.GetRepository<Trip>().FindAll<TripDTO>(t => !t.IsDeleted).ToList();
 
         public ResponseModel<TripDTO> AddTrip(TripDTO tripDto)
         {

@@ -4,19 +4,11 @@ namespace City_Bus_Management_System.Services
     public class StationService(IMemoryCache cache, IUnitOfWork unitOfWork) : IStationService
     {
 
-        public ResponseModel<List<StationDTO>> GetStations()
-        {
-            if(!cache.TryGetValue("stations",out List<StationDTO> stations))
-            {
-                stations = unitOfWork.GetRepository<Station>()
+        public List<StationDTO> GetStations()
+             =>  unitOfWork.GetRepository<Station>()
                     .FindAll<StationDTO>(s => !s.IsDeleted)
                     .ToList();
 
-                cache.Set("stations", stations, TimeSpan.FromMinutes(15));
-            }
-
-            return new ResponseModel<List<StationDTO>> { Message = "Stations fetched successfully", Result = stations };
-        }
         public ResponseModel<List<StationDTO>> GetStationsByArea(string area)
         {
             List<StationDTO> StationsByArea = null!;

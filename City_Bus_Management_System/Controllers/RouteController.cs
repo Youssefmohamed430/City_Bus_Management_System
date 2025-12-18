@@ -43,9 +43,14 @@
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);
         }
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut]
         public IActionResult UpdateRoute(int id, [FromBody] RouteDTO route)
         {
+            int routeId = route.Id ?? 0;
+
+            if (routeId == 0)
+                return BadRequest("Route ID is required");
+
             var result = routeService.UpdateRoute(id, route);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result.Message);

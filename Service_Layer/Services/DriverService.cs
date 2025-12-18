@@ -5,7 +5,7 @@ namespace Service_Layer.Services
 {
     public class DriverService(IUnitOfWork unitOfWork) : IDriverService
     {
-        public ResponseModel<object> UpdateTripStatus(string driverId,string Status)
+        public ResponseModel<object> UpdateTripStatus(string driverId, string Status)
         {
             var DriverData = unitOfWork.GetRepository<DriverStatistics>().Find(d => d.DriverId == driverId);
 
@@ -30,10 +30,10 @@ namespace Service_Layer.Services
             }
             else if (Status == "End")
             {
-                if(DriverData.UpdateTime == null! || (EgyptTimeHelper.Now - DriverData.UpdateTime).TotalHours < 2)
+                if (DriverData.UpdateTime == null! || (EgyptTimeHelper.Now - DriverData.UpdateTime).TotalHours < 2)
                     return new ResponseModel<object>() { Message = "Trip cannot be ended before 2 hours of start time", Result = null! };
                 DriverData.CompletedTrips++;
-                var schedule = 
+                var schedule =
                 // Send Notification to the user and Admin that the trip has Completed
                 msg = "Trip Completed Successfully";
             }
@@ -43,7 +43,7 @@ namespace Service_Layer.Services
             }
             unitOfWork.GetRepository<DriverStatistics>().UpdateAsync(DriverData);
             unitOfWork.SaveAsync();
-            return new ResponseModel<object>() { Message = msg, Result = null!};
+            return new ResponseModel<object>() { Message = msg, Result = null! };
         }
 
         private DriverStatistics CreateDriverStats(string driverId)
@@ -61,6 +61,21 @@ namespace Service_Layer.Services
             unitOfWork.SaveAsync();
             DriverData = DriverStats;
             return DriverData;
+        }
+        public ResponseModel<List<DriverDto>> GetDrivers()
+        {
+            var Divers = unitOfWork.GetRepository<Driver>()
+                .FindAll(_ => true, new string[] { "User" })
+                .Select(d => new DriverDto
+                {
+                    Id = d.Id,
+                    Name = d.User.Name
+                });
+
+            if (Divers == null || Divers.Count() == 0)
+                return ResponseModelFactory<List<DriverDto>>.CreateResponse("All Drivers retrieved successfully.", null!,false);
+
+            return ResponseModelFactory<List<DriverDto>>.CreateResponse("All Drivers retrieved successfully.", Divers.ToList());
         }
     }
 }
