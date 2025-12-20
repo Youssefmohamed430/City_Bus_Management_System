@@ -6,6 +6,7 @@ namespace Core_Layer
     {
         public IScheduleRepository Schedules { get; }
         public IWalletRepository Wallets { get; }
+        public IBookingRepository Bookings { get; }
         IBaseRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 
         Task<int> SaveAsync();

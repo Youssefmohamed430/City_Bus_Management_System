@@ -209,7 +209,8 @@ namespace Service_Layer.Services
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-                var bookings = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(_ => true, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                //var bookings = unitOfWork.GetRepository<Booking>().FindAll<BookingDTO>(_ => true, new string[] { "Trip", "Ticket", "passenger" }).ToList();
+                var bookings = unitOfWork.Bookings.GetBookings<BookingDTO>().ToList();
 
                 return  bookings;
             }

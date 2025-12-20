@@ -16,7 +16,9 @@ namespace Data_Access_Layer.DataLayer.DTOs
         public int? totalPrice { get; set; } 
         public string? BusType { get; set; }
         public int StationFromId { get; set; }
+        public string? StationFromName { get; set; }
         public int StationToId { get; set; }
+        public string? StationToName { get; set; }
         public BookingDTO()
         {
             BookingDate = EgyptTimeHelper.Now;

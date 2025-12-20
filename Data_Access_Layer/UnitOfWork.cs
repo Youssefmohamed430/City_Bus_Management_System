@@ -15,6 +15,7 @@ namespace Data_Access_Layer
         public IDbContextTransaction? _transaction;
         public IScheduleRepository Schedules { get; private set; } = new ScheduleRepository(_context);
         public IWalletRepository Wallets { get; private set; } = new WalletRepository(_context);
+        public IBookingRepository Bookings { get; private set; } = new BookingRepository(_context);
 
         public IBaseRepository<TEntity> GetRepository<TEntity>() where TEntity : class
         {
